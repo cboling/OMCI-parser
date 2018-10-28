@@ -140,6 +140,12 @@ class SectionHeading(object):
                                                         self.title,
                                                         self.paragraph_numbers)
 
+    def to_dict(self):
+        return {
+            'title': self.title,
+            'number': self.section_number
+        }
+
     @property
     def paragraph_numbers(self):
         return [p for p in self.contents if isinstance(p, int)]
@@ -157,7 +163,7 @@ class SectionHeading(object):
 
         section._contents = [number]
 
-        if paragraph is  None:
+        if paragraph is None:
             return section
 
         section.style_name = paragraph.style.name

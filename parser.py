@@ -95,60 +95,69 @@ class Main(object):
 
         print('Skipping the following MEs due to complex document formatting')
         print("    {}".format(crazy_formatted_mes))
-        self.class_ids = {k: v for k, v in self.class_ids.items()
+        todo_class_ids = {k: v for k, v in self.class_ids.items()
                           if k not in crazy_formatted_mes}
 
-        num_att_after_hard_me = len([c for c in self.class_ids.values() if c.cid in att_openomci])
+        num_att_after_hard_me = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
 
         print('Managed Entities without Sections')
-        for c in [c for c in self.class_ids.values() if c.section is None]:
+        for c in [c for c in todo_class_ids.values() if c.section is None]:
             print('    {:>4}: {}'.format(c.cid, c.name))
 
         # Work with what we have
-        self.class_ids = {cid: c for cid, c in self.class_ids.items()
+        todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.section is not None}
 
-        num_att_end = len([c for c in self.class_ids.values() if c.cid in att_openomci])
+        num_att_end = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
 
         print('Of {} AT&T OpenOMCI MEs, {} after eliminating hard ones, and {} after ones with sections'.
               format(num_att_before, num_att_after_hard_me, num_att_end))
 
-        self.class_ids = {cid: c for cid, c in self.class_ids.items()
+        todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.cid in att_openomci}
         print('')
         print('working on {} AT&T OpenOMCI MEs'.format(len(self.class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
-        for c in self.class_ids.values():
+        for c in todo_class_ids.values():
             print('    {:>9}:  {:>4}: {} -> {}'.format(c.section.section_number,
                                                        c.cid,
                                                        c.name,
                                                        camelcase(c.name)))
             c.deep_parse(self.paragraphs)
 
-        completed = len([c.state == 'complete' for c in self.class_ids.values()])
-        failed = len([c.state == 'failure' for c in self.class_ids.values()])
+        completed = len([c.state == 'complete' for c in todo_class_ids.values()])
+        failed = len([c.state == 'failure' for c in todo_class_ids.values()])
 
-        print('Of {} MEs, {} were parsed successfully and {} failed'.format(len(self.class_ids),
+        print('Of {} MEs, {} were parsed successfully and {} failed'.format(len(todo_class_ids),
                                                                             completed,
                                                                             failed))
         # Run some sanity checks
-        print('\n\n\nValidating ME Class Information:\n')
-        for c in self.class_ids.values():
-            print('  Class ID: {} - {}'.format(c.cid, c.name))
+        print('\n\n\nValidating ME Class Information, total of {}:\n',
+              len(todo_class_ids.values()))
+
+        for c in todo_class_ids.values():
+            print('  Class ID: {}" {} - {}'.format(c.cid, c.section.section_number, c.name))
+
+            if c.state != 'complete':
+                print('    Parsing ended in state {}', c.state)
+
+            if len(c.actions) == 0:
+                print('    No actions decoded for ME')
+
             if len(c.attributes) == 0:
                 print('    NO ATTRIBUTES')      # TODO Look for 'set' without 'get'
 
-            for attr in c.attributes:
-                if attr.access is None or len(attr.access) == 0:
-                    print('    NO ACCESS INFORMATION')
-                # if attr.size is None:
-                #     print('    NO SIZE INFORMATION')      TODO: Get Size decode working
+            else:
+                for attr in c.attributes:
+                    if attr.access is None or len(attr.access) == 0:
+                        print('    NO ACCESS INFORMATION')
+                    # if attr.size is None:
+                    #     print('    NO SIZE INFORMATION')      TODO: Get Size decode working
 
         # Output the results to a JSON file so it can be used by a code-generation
         # tool
-
-        # TODO: Write it out here.
+        self.class_ids.save(self.args.output)
 
 
 att_openomci = {

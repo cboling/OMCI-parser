@@ -31,6 +31,9 @@ class ThresholdCrossingAlert(object):
         #   value -> (Name, Threshold value Attribute number)
         self._alarms = dict()
 
+    def to_dict(self):
+        return self._alarms
+
     @staticmethod
     def create_from_table(table):
         if len(table.rows) == 0:

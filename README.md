@@ -69,12 +69,30 @@ can be used to encode & decode OMCI frames containing these managed entities.
 ***NOTE***: The second parser is currently being implemented and is not yet
 fully functional.
 
+#### Parsed output format
+
+The following is the JSON structure output by the second stage that can be used
+by a code generator to extract additional information out of the ITU G.988
+document.   Note that not all output has been verified as accurate and support
+for attribute sizes is not yet implemented.
+
+The output is a JSON dictionary with the key being the ME class ID and the data
+the decoded ME Class information. This information is composed of the following
+sections:
+
+
+
+
+### Stage 3 - Code Generation
+
+The third stage is to generate source code. In the first implementation, go-lang
+will be the target language.
+
+    TODO: Lots of work to do here.
 
 ## Remaining Items To Implement
 
 The following items need to be done before this project can be demonstrated.
-
- - Create 'requirements.txt' 
 
  - Implement Jinja2 templates to convert the data definition into Golang Entity Types
  

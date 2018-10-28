@@ -22,9 +22,9 @@ from tables import Table
 
 
 class AttributeAccess(IntEnum):
-    R = 1
-    W = 2
-    SBC = 3
+    Read = 1
+    Write = 2
+    SetByCreate = 3
 
     @staticmethod
     def keywords():
@@ -38,11 +38,11 @@ class AttributeAccess(IntEnum):
         results = set()
         for k in keywords:
             if k == 'r':
-                results.add(AttributeAccess.R)
+                results.add(AttributeAccess.Read)
             elif k == 'w':
-                results.add(AttributeAccess.W)
+                results.add(AttributeAccess.Write)
             elif k == 'set-by-create':
-                results.add(AttributeAccess.SBC)
+                results.add(AttributeAccess.SetByCreate)
             else:
                 raise ValueError('Invalid access type: {}', k)
 
@@ -71,12 +71,15 @@ class AttributeList(object):
     def get(self, index):
         return self._attributes[index]
 
+    def to_dict(self):
+        return {index: attr.to_dict() for index, attr in enumerate(self._attributes)}
+
 
 class Attribute(object):
     def __init__(self):
         self.name = None         # Attribute name (with spaces)
         self.description = []    # Description (text, paragraph numbers & Table objects)
-        self.access = None       # (AttributeAccess) Allowed access
+        self.access = set()      # (AttributeAccess) Allowed access
         self.optional = None     # If true, attribute is option, else mandatory
         self.size = None         # (Size) Size object
         self.avc = False         # If true, an AVC notification can occur for the attribute
@@ -89,6 +92,17 @@ class Attribute(object):
         return 'Attribute: {}, Access: {}, Optional: {}, Size: {}, AVC/TCA: {}/{}'.\
             format(self.name, self.access, self.optional, self.size,
                    self.avc, self.tca)
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'access': [a.name for a in self.access],
+            'optional': self.optional,
+            'size': 0,               # TODO: self.size,
+            'avc': self.avc,
+            'tca': self.tca,
+        }
 
     @staticmethod
     def create_from_paragraph(content, paragraph):
@@ -145,7 +159,7 @@ class Attribute(object):
                 access_list = access_item.lower().split(',')
                 if all(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
-                    assert self.access is None or all(a in self.access for a in access), \
+                    assert len(self.access) == 0 or all(a in self.access for a in access), \
                         'Accessibility has already be decoded'
                     self.access = access
                     continue

@@ -73,10 +73,6 @@ class Actions(IntEnum):
             'set table'              : Actions.SetTable,
         }
 
-    def __str__(self):
-        key = next((k for k, v in self._action_map().items()), None)
-        return key.title()
-
     @staticmethod
     def keywords():
         """ Keywords for searching if text is for a supported Action/message=type """
@@ -88,8 +84,6 @@ class Actions(IntEnum):
 
     @staticmethod
     def create_from_paragraph(paragraph):
-        actions = None
-
         if paragraph.runs[0].bold:
             # New action
             text = ascii_only(' '.join(x.text for x in paragraph.runs if x.bold))

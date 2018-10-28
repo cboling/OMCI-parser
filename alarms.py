@@ -30,6 +30,9 @@ class Alarm(object):
         #   value -> (Name, Description)
         self._alarms = dict()
 
+    def to_dict(self):
+        return self._alarms
+
     @staticmethod
     def create_from_table(table):
         if len(table.rows) == 0:

@@ -27,6 +27,7 @@ from attributes import AttributeList, Attribute
 from actions import Actions
 from avc import AVC
 from alarms import Alarm
+import json
 
 
 class ClassIdList(object):
@@ -136,6 +137,24 @@ class ClassIdList(object):
                                                                   e))
         return table
 
+    def save(self, output):
+        final = dict()      # Key = class-id, Value = data
+
+        try:
+            for cid, me_class in self._entities.items():
+                if me_class.state != 'complete':
+                    continue
+                assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
+                final[cid] = me_class.to_dict()
+
+            # Convert to JSON
+            data = json.dumps(final, indent=2, separators=(',', ': '))
+            with open(output, 'w') as f:
+                f.write(data)
+
+        except Exception as _e:
+            raise
+
 
 class ClassId(object):
     """ Managed Entity Class Information """
@@ -223,6 +242,22 @@ class ClassId(object):
     def __str__(self):
         return 'Class ID: {}: {}, State: {}'.format(self.cid, self.name, self.state)
 
+    def to_dict(self):
+        return {
+            'class_id': self.cid,                       # int
+            'name': self.name,                          # str
+            'section': self.section.to_dict(),          # dict()
+            'description': self._description,           # [ paragraph numbers - int ]
+            'relationships': self._relationships,       # [ paragraph numbers - int ]
+            'actions': [a.name for a in self.actions],
+            'optional_actions': [a.name for a in self.optional_actions],
+            'attributes': self.attributes.to_dict(),    # Key is index
+            'alarms': self.alarms.to_dict() if self.alarms is not None else {},
+            'avcs': self.avcs.to_dict() if self.avcs is not None else {},
+            'test_results': {},                         # TODO: self.test_results.to_dict()
+            'hidden': self.hidden                       # bool
+        }
+
     def deep_parse(self, paragraphs):
         """ Fill out detailed class information """
         if self.section is None:
@@ -231,7 +266,6 @@ class ClassId(object):
         self._paragraphs = paragraphs
         for content in self.section.contents:
             try:
-
                 if isinstance(content, int):
                     # Paragraph number
                     trigger, text = self.parser(content, paragraphs)
@@ -253,6 +287,7 @@ class ClassId(object):
                                                                                e.message))
                 raise
 
+        self.complete(None, None)
         return self
 
     def on_enter_initial(self, _text, _content):
@@ -338,10 +373,10 @@ class ClassId(object):
             pass
 
         elif isinstance(content, Table):
-            alarm = Alarm.create_from_table(content)
-            if alarm is not None:
+            alarms = Alarm.create_from_table(content)
+            if alarms is not None:
                 assert self.alarms is None, 'Alarms have already been decoded'
-                self.alarms = alarm
+                self.alarms = alarms
             else:
                 # Some MEs have additional descriptions and tables related
                 # to the alarms, but we do not have any interest in them.
@@ -380,6 +415,8 @@ class ClassId(object):
                 raise NotImplementedError('TODO: Support Tables')
 
     def on_enter_complete(self, _text, _content):
+        # TODO: Good place for test/verification all was found
+        #       that we are looking fo
         self.parser = None
 
     def on_enter_failure(self, _text, _content):

@@ -33,6 +33,9 @@ class AVC(object):
             for attr in range(0, 17)
         }
 
+    def to_dict(self):
+        return self._attributes
+
     def has_avc(self, attr):
         """
         Does the given attribute have an AVC associated to it?
