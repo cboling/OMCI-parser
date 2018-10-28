@@ -15,14 +15,20 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-from jinja2 import Template
-from . import copywrite
+import jinja2
+import os, pathlib
+from . import COPYRIGHT, PACKAGE_NAME
 
-filename = 'memap.go'
+CLASSMAP_FILENAME = 'classidmap.go'
+CLASSMAP_TEMPLATE = CLASSMAP_FILENAME + '.template'
 
-def create_class_id_map(class_ids, outdir):
+
+def create_class_id_map(class_ids, outdir, templateEnv):
+    filename = os.path.join(outdir, CLASSMAP_FILENAME)
+    template = templateEnv.get_template(CLASSMAP_TEMPLATE)
+
     with open(filename, 'w') as f:
-        f.write(copywrite)
+        f.write(COPYRIGHT)
 
         for cid, classId in class_ids.items():
             pass

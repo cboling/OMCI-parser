@@ -1,0 +1,22 @@
+package omci
+
+// ManagedEntityInfo provides ManagedEntity information
+type ManagedEntityInfo struct {
+	//Interface  IManagedEntity
+	New        func(params ...ParamData)(IManagedEntity, error)
+}
+type ParamData struct {
+	EntityID 	uint16
+	Attributes  []IAttribute
+}
+type CreateME func(params ...ParamData)(IManagedEntity, error)
+
+var classToManagedEntityMap map[uint16]CreateME
+
+func init() {
+	// Create mapping of 16-bit managed entity class IDs to ME-type
+	classToManagedEntityMap = make(map[uint16]CreateME, 2)
+
+	classToManagedEntityMap[0x0002] = NewOnuData2
+
+}

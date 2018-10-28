@@ -18,6 +18,7 @@ from __future__ import (
 import argparse
 from docx import Document
 import json
+import jinja2
 import os
 import shutil
 from golang.classIdMap import create_class_id_map
@@ -51,6 +52,8 @@ class Main(object):
         self.args = parse_args()
         self.paragraphs = None
         self.class_ids = None
+        loader = jinja2.FileSystemLoader(searchpath='./golang')
+        self.templateEnv = jinja2.Environment(loader=loader)
 
     def load_itu_document(self):
         return Document(self.args.ITU)
@@ -77,7 +80,7 @@ class Main(object):
             os.mkdir(self.args.dir)
 
             # Create ClassID to Type map
-            create_class_id_map(self.class_ids, self.args.dir)
+            create_class_id_map(self.class_ids, self.args.dir, self.templateEnv)
 
         except Exception as _e:
             pass

@@ -2,7 +2,8 @@
 
 This directory contains a set of utilities for extracting information from an ITU G.988
 OMCI documentation (currently .docx format only) and creating a data structure that
-can be used to feed into a code generator.
+can be used to feed into a code generator for the purpose of creating object to
+model the managed entities in OMCI.
 
 Currently, this has only been tested against the Microsoft Word formatted version of
 the November 2017 version of ITU G.966.  To my knowledge, the ITU only makes PDF copies
@@ -71,9 +72,9 @@ fully functional.
 
 #### Parsed output format
 
-The following is the JSON structure output by the second stage that can be used
-by a code generator to extract additional information out of the ITU G.988
-document.   Note that not all output has been verified as accurate and support
+The following is an example of the JSON structure output by the second stage that
+can be used by a code generator to extract additional information out of the ITU
+G.988 document.  Note that not all output has been verified as accurate and support
 for attribute sizes is not yet implemented.
 
 The output is a JSON dictionary with the key being the ME class ID and the data
@@ -132,9 +133,29 @@ sections:
 ### Stage 3 - Code Generation
 
 The third stage is to generate source code. In the first implementation, go-lang
-will be the target language.
+will be the target language. There is a companion Go project related to this parser
+[OMCI](https://github.com/cboling/omci) that supplies several base types and
+constants that this code generator uses and will consume the Go generated code.
 
-    TODO: Lots of work to do here.
+To generate Go code, use the following command:
+```bash
+    usage: goCodeGenerator.py [-h] [--ITU ITU] [--input INPUT] [--dir DIRECTORY]
+                     [--force]
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --ITU ITU, -I ITU     Path to ITU G.988 specification document
+      --input INPUT, -i INPUT
+                            Path to parsed G.988 data, default:
+                            G.988.parsed.json
+      --dir DIRECTORY, -d DIRECTORY
+                            Output directory for generated source code,
+                            default: 'generated'
+      --force, -f           Force overwrite of any existing output directory, by
+                            default, the program will not touch any existing directory
+                            or source code. This flag will delete the output directory
+                            and install new code-generated files.
+```
 
 ## Remaining Items To Implement
 
@@ -143,7 +164,7 @@ The following items need to be done before this project can be demonstrated.
  - Implement Jinja2 templates to convert the data definition into Golang Entity Types
  
  - Provide base OMCI encode/decode frame source code to use the code generated ME source
-   files. (Target language: golang)
+   files. (Target language: golang) (currently in progress at [OMCI](https://github.com/cboling/omci))
    
  - The 'Software Image' ME provides an extra set of attributes & actions. This needs to
    be compensated for.
