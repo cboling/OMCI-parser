@@ -80,8 +80,54 @@ The output is a JSON dictionary with the key being the ME class ID and the data
 the decoded ME Class information. This information is composed of the following
 sections:
 
-
-
+```json
+{
+  "2": {
+    "class_id": 2,
+    "name": "ONU data",
+    "section": {
+      "title": "ONU data",
+      "number": "9.1.3"
+    },
+    "description": [ 919, 920, 922 ],
+    "relationships": [],
+    "actions": [
+      "Set",
+      "Get",
+      "GetAllAlarms",
+      "GetAllAlarmsNext",
+      "MibUpload",
+      "MibUploadNext",
+      "MibReset"
+    ],
+    "optional_actions": [],
+    "attributes": {
+      "0": {
+        "name": "Managed Entity  Id",
+        "description": [ 924, 924 ],
+        "access": [ "Read" ],
+        "optional": false,
+        "size": 0,
+        "avc": false,
+        "tca": false
+      },
+      "1": {
+        "name": "Mib Data Sync  ",
+        "description": [ 925, 925 ],
+        "access": [ "Read", "Write" ],
+        "optional": false,
+        "size": 0,
+        "avc": false,
+        "tca": false
+      }
+    },
+    "alarms": {},
+    "avcs": {},
+    "test_results": {},
+    "hidden": false
+  },
+  ...
+```
 
 ### Stage 3 - Code Generation
 
