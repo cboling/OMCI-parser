@@ -180,3 +180,4 @@ venv.bak/
 .mypy_cache/
 
 /T-REC-G.988-2017.docx
+/.idea/

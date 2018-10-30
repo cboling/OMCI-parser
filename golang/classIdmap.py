@@ -16,11 +16,11 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import jinja2
-import os, pathlib
-from . import COPYRIGHT, PACKAGE_NAME
+import os
+from . import COPYRIGHT, GENERATED_WARNING, PACKAGE_NAME
 
 CLASSMAP_FILENAME = 'classidmap.go'
-CLASSMAP_TEMPLATE = CLASSMAP_FILENAME + '.template'
+CLASSMAP_TEMPLATE = CLASSMAP_FILENAME + '.jinja'
 
 
 def create_class_id_map(class_ids, outdir, templateEnv):

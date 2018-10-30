@@ -1,0 +1,42 @@
+{{copyright}}
+{{generator_warning}}
+{# blank line #}
+package {{package_name}}
+{# blank line #}
+// ManagedEntityInfo provides ManagedEntity information
+type ManagedEntityInfo struct {
+	//Interface  IManagedEntity
+	New        func(params ...ParamData)(IManagedEntity, error)
+}
+{# blank line #}
+// ParamData can be passed to the 'New' function to dictate how the returned
+// Managed Entity is created. You should supply either zero or one ParamData
+// structure to 'New'.
+//
+// If No ParamData is passed, the returned Managed Entity can only be used for
+// providing validation of other structures. This is commonly done in a packet
+// encoder/decoder to assist in that process.
+//
+// If One ParamData is passed, the returned Managed Entity will be initialized
+// with the given values/attributes and then validated. This is commonly done
+// when you wish to create an ME for transmission, storage or removal from a
+// persistent database, or some other similar purpose.
+//
+type ParamData struct {
+	EntityID 	uint16
+	Attributes  []IAttribute
+}
+{# blank line #}
+// CreateME wraps a function that makes it a creator of a Managed Entity
+type CreateME func(params ...ParamData)(IManagedEntity, error)
+{# blank line #}
+var classToManagedEntityMap map[uint16]CreateME
+{# blank line #}
+func init() {
+	// Create mapping of 16-bit managed entity class IDs to ME-type
+	classToManagedEntityMap = make(map[uint16]CreateME, len(classIDs)
+{# blank line #}
+#!  for cid, me in classIDs
+	classToManagedEntityMap[{cid}] = New{{me.name|camelcase}}
+#!  endfor
+}
