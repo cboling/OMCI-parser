@@ -17,11 +17,9 @@ from __future__ import (
 )
 import argparse
 from docx import Document
-import json
-import jinja2
-import os
-import shutil
-from golang.classIdMap import create_class_id_map
+
+from class_id import ClassIdList
+from golang.classIdmap import create_class_id_map
 
 
 def parse_args():
@@ -33,14 +31,15 @@ def parse_args():
 
     parser.add_argument('--input', '-i', action='store',
                         default='G.988.Parsed.json',
-                        help='Input parsed data filename, default: G.988.Parsed.json')
+                        help='Path to parsed G.988 data, default: G.988.Parsed.json')
 
-    parser.add_argument('--dir', '-d', action='store',
+    parser.add_argument('--directory', '-d', action='store',
                         default='generated',
-                        help='Directory name to place code-generated files, default: generated')
+                        help='Output directory filename, default: generated')
 
-    parser.add_argument('--force', '-f', action='store_true',
-                        help='Overwrite output directory, default is to fail if it exists')
+    parser.add_argument('--template', '-t', action='store',
+                        default='golang',
+                        help='Jinja2 template directory, default: golang')
 
     args = parser.parse_args()
     return args
@@ -50,10 +49,6 @@ class Main(object):
     """ Main program """
     def __init__(self):
         self.args = parse_args()
-        self.paragraphs = None
-        self.class_ids = None
-        loader = jinja2.FileSystemLoader(searchpath='./golang')
-        self.templateEnv = jinja2.Environment(loader=loader)
 
     def load_itu_document(self):
         return Document(self.args.ITU)
@@ -61,29 +56,14 @@ class Main(object):
     def start(self):
         print("Loading ITU Document '{}' and parsed data file '{}'".format(self.args.ITU,
                                                                            self.args.input))
-        try:
-            document = self.load_itu_document()
-            self.paragraphs = document.paragraphs
+        document = self.load_itu_document()
+        class_ids = ClassIdList.load(self.args.input)
 
-            # Directory exists
-            if os.path.isdir(self.args.dir):
-                if not self.args.force:
-                    print("Directory '{}' exists, use --force to overwrite", self.args.dir)
-                    return
-                shutil.rmtree(self.args.dir)
+        # Create Class ID MAP
+        create_class_id_map(class_ids, self.args.directory, self.args.template)
 
-            # Load JSON class id
-            with open(self.args.input) as f:
-                self.class_ids = json.load(f)
 
-            # Create output directory
-            os.mkdir(self.args.dir)
-
-            # Create ClassID to Type map
-            create_class_id_map(self.class_ids, self.args.dir, self.templateEnv)
-
-        except Exception as _e:
-            pass
+        # Done
 
 
 if __name__ == '__main__':

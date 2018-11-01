@@ -17,18 +17,27 @@ from __future__ import (
 )
 import jinja2
 import os
-from . import COPYRIGHT, GENERATED_WARNING, PACKAGE_NAME
+from . import COPYRIGHT, GENERATOR_WARNING, PACKAGE_NAME
 
 CLASSMAP_FILENAME = 'classidmap.go'
 CLASSMAP_TEMPLATE = CLASSMAP_FILENAME + '.jinja'
 
 
 def create_class_id_map(class_ids, outdir, templateEnv):
+    """
+    Create the Class ID to Managed Entity Map file
+
+    :param class_ids:
+    :param outdir:
+    :param templateEnv:
+    :return:
+    """
     filename = os.path.join(outdir, CLASSMAP_FILENAME)
     template = templateEnv.get_template(CLASSMAP_TEMPLATE)
 
     with open(filename, 'w') as f:
-        f.write(COPYRIGHT)
-
+        output = template.render(copyright=COPYRIGHT,
+                                 generator_warning=GENERATOR_WARNING,
+                                 classIDs=class_ids)
         for cid, classId in class_ids.items():
             pass

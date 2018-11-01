@@ -155,6 +155,15 @@ class ClassIdList(object):
         except Exception as _e:
             raise
 
+    @staticmethod
+    def load(self, input_file):
+        with open(input_file, 'r') as f:
+            data = json.loads(f.read())
+
+            classid = ClassIdList()
+            for
+            return data
+
 
 class ClassId(object):
     """ Managed Entity Class Information """

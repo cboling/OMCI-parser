@@ -28,7 +28,7 @@ COPYRIGHT = """
 #
 """
 
-GENERATED_WARNING = """
+GENERATOR_WARNING = """
 #
 #
 #   NOTE: This file was generated, manual edits will be overwritten!
