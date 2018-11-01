@@ -116,7 +116,7 @@ class Main(object):
         todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.cid in att_openomci}
         print('')
-        print('working on {} AT&T OpenOMCI MEs'.format(len(self.class_ids)))
+        print('working on {} AT&T OpenOMCI MEs'.format(len(todo_class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
         for c in todo_class_ids.values():
@@ -137,21 +137,28 @@ class Main(object):
               len(todo_class_ids.values()))
 
         for c in todo_class_ids.values():
-            print('  Class ID: {}" {} - {}'.format(c.cid, c.section.section_number, c.name))
+            print('  ID: {}" {} -\t{}'.format(c.cid, c.section.section_number, c.name),
+                  end='')
 
             if c.state != 'complete':
-                print('    Parsing ended in state {}', c.state)
+                print('\t\tParsing ended in state {}', c.state)
 
             if len(c.actions) == 0:
-                print('    No actions decoded for ME')
+                print('\t\tActions: No actions decoded for ME')
+
+            else:
+                print('\t\tActions: {}'.format({a.name for a in c.actions}))
 
             if len(c.attributes) == 0:
-                print('    NO ATTRIBUTES')      # TODO Look for 'set' without 'get'
+                print('\t\tNO ATTRIBUTES')      # TODO Look for 'set' without 'get'
 
             else:
                 for attr in c.attributes:
+                    print('\t\t\t\t{}'.format(attr.name), end='')
                     if attr.access is None or len(attr.access) == 0:
-                        print('    NO ACCESS INFORMATION')
+                        print('\t\t\t\tNO ACCESS INFORMATION')
+                    else:
+                        print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
                     # if attr.size is None:
                     #     print('    NO SIZE INFORMATION')      TODO: Get Size decode working
 
