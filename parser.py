@@ -133,11 +133,11 @@ class Main(object):
                                                                             completed,
                                                                             failed))
         # Run some sanity checks
-        print('\n\n\nValidating ME Class Information, total of {}:\n',
-              len(todo_class_ids.values()))
+        print('\n\n\nValidating ME Class Information, total of {}:\n'.
+              format(len(todo_class_ids.values())))
 
         for c in todo_class_ids.values():
-            print('  ID: {}" {} -\t{}'.format(c.cid, c.section.section_number, c.name),
+            print('  ID: {}: {} -\t{}'.format(c.cid, c.section.section_number, c.name),
                   end='')
 
             if c.state != 'complete':
