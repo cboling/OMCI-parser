@@ -146,6 +146,13 @@ class SectionHeading(object):
             'number': self.section_number
         }
 
+    @staticmethod
+    def load(data):
+        section = SectionHeading()
+        section.title = data.get('title')
+        section.section_number = data.get('number')
+        return section
+
     @property
     def paragraph_numbers(self):
         return [p for p in self.contents if isinstance(p, int)]

@@ -25,7 +25,7 @@ class AVC(object):
     """
     def __init__(self, table):
         # Table number for debug purposes
-        self._table_no = table.doc_table_number
+        self._table_no = table.doc_table_number if table is not None else None
         self._attributes = {
             attr: (False,       # If True, AVC for attribute
                    'N/A'        # Attribute Name
@@ -34,7 +34,17 @@ class AVC(object):
         }
 
     def to_dict(self):
+        # TODO: Save/restore of table number needed?
         return self._attributes
+
+    @staticmethod
+    def load(data):
+        if len(data) == 0:
+            return None
+
+        avc = AVC(None)
+        avc._attributes = data
+        return avc
 
     def has_avc(self, attr):
         """

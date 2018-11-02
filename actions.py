@@ -53,24 +53,40 @@ class Actions(IntEnum):
             'set'                    : Actions.Set,
             'get'                    : Actions.Get,
             'get all alarms'         : Actions.GetAllAlarms,
+            'getallalarms'           : Actions.GetAllAlarms,
             'get all alarms next'    : Actions.GetAllAlarmsNext,
+            'getallalarmsnext'       : Actions.GetAllAlarmsNext,
             'mib upload'             : Actions.MibUpload,
+            'mibupload'              : Actions.MibUpload,
             'mib upload next'        : Actions.MibUploadNext,
+            'mibuploadnext'          : Actions.MibUploadNext,
             'mib reset'              : Actions.MibReset,
+            'mibreset'               : Actions.MibReset,
             'alarm'                  : Actions.AlarmNotification,
             'attribute value change' : Actions.AttributeValueChange,
+            'attributevaluechange'   : Actions.AttributeValueChange,
             'test'                   : Actions.Test,
             'start software download': Actions.StartSoftwareDownload,
+            'startsoftwaredownload'  : Actions.StartSoftwareDownload,
             'download section'       : Actions.DownloadSection,
+            'downloadsection'        : Actions.DownloadSection,
             'end software download'  : Actions.EndSoftwareDownload,
+            'endsoftwaredownload'    : Actions.EndSoftwareDownload,
             'activate software'      : Actions.ActivateSoftware,
+            'activatesoftware'       : Actions.ActivateSoftware,
             'commit software'        : Actions.CommitSoftware,
+            'commitsoftware'         : Actions.CommitSoftware,
             'synchronize time'       : Actions.SynchronizeTime,
+            'synchronizetime'        : Actions.SynchronizeTime,
             'reboot'                 : Actions.Reboot,
             'get next'               : Actions.GetNext,
+            'getnext'                : Actions.GetNext,
             'test result'            : Actions.TestResult,
+            'testresult'             : Actions.TestResult,
             'get current data'       : Actions.GetCurrentData,
+            'getcurrentdata'         : Actions.GetCurrentData,
             'set table'              : Actions.SetTable,
+            'settable'               : Actions.SetTable,
         }
 
     @staticmethod
@@ -81,6 +97,15 @@ class Actions(IntEnum):
     @staticmethod
     def keywords_to_access_set(keyword):
         return Actions._action_map().get(ascii_only(keyword).strip().lower())
+
+    @staticmethod
+    def load(data):
+        actions = set()
+        for keyword in data:
+            a = Actions.keywords_to_access_set(keyword)
+            if a is not None:
+                actions.add(a)
+        return actions
 
     @staticmethod
     def create_from_paragraph(paragraph):

@@ -23,7 +23,7 @@ class Alarm(object):
     """
     def __init__(self, table):
         # Table number for debug purposes
-        self._table_no = table.doc_table_number
+        self._table_no = table.doc_table_number if table is not None else None
 
         # Only defined alarms are in the table
         #   key   -> Alarm number
@@ -31,7 +31,17 @@ class Alarm(object):
         self._alarms = dict()
 
     def to_dict(self):
+        # TODO: Save/restore of table number needed?
         return self._alarms
+
+    @staticmethod
+    def load(data):
+        if len(data) == 0:
+            return None
+
+        alarm = Alarm(None)
+        alarm._alarms = data
+        return alarm
 
     @staticmethod
     def create_from_table(table):

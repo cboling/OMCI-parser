@@ -155,14 +155,13 @@ class ClassIdList(object):
         except Exception as _e:
             raise
 
-    # @staticmethod
-    # def load(self, input_file):
-    #     with open(input_file, 'r') as f:
-    #         data = json.loads(f.read())
-    #
-    #         classid = ClassIdList()
-    #         for
-    #         return data
+    @staticmethod
+    def load(data):
+        class_id_list = ClassIdList()
+        for cid, class_data in data.items():
+            class_id_list.add(ClassId.load(class_data))
+
+        return class_id_list
 
 
 class ClassId(object):
@@ -266,6 +265,26 @@ class ClassId(object):
             'test_results': {},                         # TODO: self.test_results.to_dict()
             'hidden': self.hidden                       # bool
         }
+
+    @staticmethod
+    def load(class_data):
+        from section import SectionHeading
+
+        cid = ClassId()
+        cid.cid = class_data.get('class_id')
+        cid.name = class_data.get('name')
+        cid._description = class_data.get('description')
+        cid._relationships = class_data.get('relationships')
+        cid.hidden = class_data.get('hidden')
+
+        cid.section = SectionHeading.load(class_data.get('section'))
+        cid.actions = Actions.load(class_data.get('actions'))
+        cid.optional_actions = Actions.load(class_data.get('optional_actions'))
+        cid.attributes = AttributeList.load(class_data.get('attributes'))
+        cid.alarms = Alarm.load(class_data.get('alarms'))
+        cid.avcs = AVC.load(class_data.get('avcs'))
+        # cid.??? = class_data.get('test_results') # TODO: self.test_results.to_dict()
+        return cid
 
     def deep_parse(self, paragraphs):
         """ Fill out detailed class information """

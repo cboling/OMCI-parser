@@ -48,6 +48,18 @@ class AttributeAccess(IntEnum):
 
         return results
 
+    @staticmethod
+    def load(data):
+        access = set()
+        for a in data:
+            if a.lower() == 'read':
+                access.add(AttributeAccess.Read)
+            elif a.lower() == 'write':
+                access.add(AttributeAccess.Write)
+            elif a.lower() == 'setbycreate':
+                access.add(AttributeAccess.SetByCreate)
+        return access
+
 
 class AttributeList(object):
     def __init__(self):
@@ -74,6 +86,14 @@ class AttributeList(object):
     def to_dict(self):
         return {index: attr.to_dict() for index, attr in enumerate(self._attributes)}
 
+    @staticmethod
+    def load(data):
+        attr_list = AttributeList()
+        for _attr_index, attr in data.items():
+            attr_list.add(Attribute.load(attr))
+
+        return attr_list
+
 
 class Attribute(object):
     def __init__(self):
@@ -94,6 +114,7 @@ class Attribute(object):
                    self.avc, self.tca)
 
     def to_dict(self):
+        # TODO: Save/restore table info?
         return {
             'name': self.name,
             'description': self.description,
@@ -103,6 +124,20 @@ class Attribute(object):
             'avc': self.avc,
             'tca': self.tca,
         }
+
+    @staticmethod
+    def load(data):
+        attr = Attribute()
+
+        attr.name = data.get('name')
+        attr.description = data.get('description')
+        attr.optional = data.get('optional')
+        attr.tca = data.get('tca')
+        attr.avc = data.get('avc')
+        attr.size = data.get('size')
+        attr.access = AttributeAccess.load(data.get('access'))
+
+        return attr
 
     @staticmethod
     def create_from_paragraph(content, paragraph):
