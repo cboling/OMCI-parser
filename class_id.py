@@ -248,7 +248,8 @@ class ClassId(object):
         self.hidden = False                # Not reported or ignore in MIB upload
 
     def __str__(self):
-        return 'Class ID: {}: {}, State: {}'.format(self.cid, self.name, self.state)
+        return 'Class ID: {}: {}, State: {}, Section: {}'.\
+            format(self.cid, self.name, self.state, self.section.section_number)
 
     def to_dict(self):
         return {

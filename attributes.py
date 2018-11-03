@@ -29,7 +29,7 @@ class AttributeAccess(IntEnum):
     @staticmethod
     def keywords():
         """ Keywords for searching if text is for Attribute Access """
-        return {'r', 'w', 'set-by-create'}
+        return {'r', 'w', 'set-by-create', 'setbycreate'}
 
     @staticmethod
     def keywords_to_access_set(keywords):
@@ -41,7 +41,7 @@ class AttributeAccess(IntEnum):
                 results.add(AttributeAccess.Read)
             elif k == 'w':
                 results.add(AttributeAccess.Write)
-            elif k == 'set-by-create':
+            elif k[:len('set-by-create')] == 'set-by-create' or k[:len('setbycreate')] == 'setbycreate':
                 results.add(AttributeAccess.SetByCreate)
             else:
                 raise ValueError('Invalid access type: {}', k)
@@ -165,7 +165,6 @@ class Attribute(object):
 
     def parse_attribute_settings_from_text(self, content, paragraph):
         # Any content?
-
         if isinstance(content, int):
             text = ascii_only(paragraph.text).strip()
             if len(text) == 0:
@@ -176,6 +175,8 @@ class Attribute(object):
             # Check for access, mandatory/optional, and size keywords.  These are in side
             # one or more () groups
             paren_items = re.findall('\(([^)]+)*', text)
+            if len(paren_items) < 3:
+                return
 
             for item in paren_items:
                 # Mandatory/optional is the easiest
@@ -199,10 +200,14 @@ class Attribute(object):
                     self.access = access
                     continue
 
-                # Finally, is a size thing
                 size = AttributeSize.create_from_keywords(item)
                 if size is not None:
-                    assert self.size is None, 'Size has already been decoded'
+                    # Take the last 'valid' size item. Some description text for long
+                    # byte or bit fields may specify what subsections sizes are and the
+                    # total size often will come last
+                    if size is not None:
+                        print('Found additional size info for same attribute {}. Was {}, now {}'.
+                              format(self.name, self.size, size))
                     self.size = size
 
         elif isinstance(content, Table):

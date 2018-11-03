@@ -113,58 +113,96 @@ class Main(object):
         print('Of {} AT&T OpenOMCI MEs, {} after eliminating hard ones, and {} after ones with sections'.
               format(num_att_before, num_att_after_hard_me, num_att_end))
 
-        todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
-                          if c.cid in att_openomci}
+        final_class_ids = ClassIdList()
+        for cid, c in todo_class_ids.items():
+            if c.cid in att_openomci:
+                final_class_ids.add(c)
+
         print('')
-        print('working on {} AT&T OpenOMCI MEs'.format(len(todo_class_ids)))
+        print('working on {} AT&T OpenOMCI MEs'.format(len(final_class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
-        for c in todo_class_ids.values():
+        for c in final_class_ids.values():
             print('    {:>9}:  {:>4}: {} -> {}'.format(c.section.section_number,
                                                        c.cid,
                                                        c.name,
                                                        camelcase(c.name)))
             c.deep_parse(self.paragraphs)
 
-        completed = len([c.state == 'complete' for c in todo_class_ids.values()])
-        failed = len([c.state == 'failure' for c in todo_class_ids.values()])
+        # Special exception. Ethernet frame performance monitoring history data downstream
+        # is in identical upstream and only a note of that exists. Fix it now
+        if 321 in final_class_ids.keys() and 322 in final_class_ids.keys():
+            down = final_class_ids[321]
+            up = final_class_ids[322]
+            down.attributes = up.attributes
+            down.actions = up.actions
+            down.optional_actions = up.optional_actions
+            down.alarms = up.alarms
+            down.avcs = up.avcs
+            down.test_results = up.test_results
+            down.hidden = up.hidden
 
-        print('Of {} MEs, {} were parsed successfully and {} failed'.format(len(todo_class_ids),
+        completed = len([c for c in final_class_ids.values() if c.state == 'complete'])
+        failed = len([c for c in final_class_ids.values() if c.state == 'failure'])
+
+        print('Of {} MEs, {} were parsed successfully and {} failed'.format(len(final_class_ids),
                                                                             completed,
                                                                             failed))
         # Run some sanity checks
         print('\n\n\nValidating ME Class Information, total of {}:\n'.
-              format(len(todo_class_ids.values())))
+              format(len(final_class_ids)))
 
-        for c in todo_class_ids.values():
+        class_with_issues = 0
+        class_with_no_actions = 0
+        class_with_no_attributes = 0
+        attributes_with_no_access = 0
+        attributes_with_no_size = 0
+        num_attributes = 0
+
+        for c in final_class_ids.values():
             print('  ID: {}: {} -\t{}'.format(c.cid, c.section.section_number, c.name),
                   end='')
 
             if c.state != 'complete':
                 print('\t\tParsing ended in state {}', c.state)
+                class_with_issues += 1
 
             if len(c.actions) == 0:
                 print('\t\tActions: No actions decoded for ME')
-
+                class_with_issues += 1
+                class_with_no_actions += 1
             else:
                 print('\t\tActions: {}'.format({a.name for a in c.actions}))
 
             if len(c.attributes) == 0:
                 print('\t\tNO ATTRIBUTES')      # TODO Look for 'set' without 'get'
+                class_with_issues += 1
+                class_with_no_attributes += 1
 
             else:
                 for attr in c.attributes:
+                    num_attributes += 1
                     print('\t\t\t\t{}'.format(attr.name), end='')
                     if attr.access is None or len(attr.access) == 0:
                         print('\t\t\t\tNO ACCESS INFORMATION')
+                        attributes_with_no_access += 1
                     else:
                         print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
-                    # if attr.size is None:
+                    if attr.size is None:
+                        attributes_with_no_size += 1
                     #     print('    NO SIZE INFORMATION')      TODO: Get Size decode working
 
         # Output the results to a JSON file so it can be used by a code-generation
         # tool
         self.class_ids.save(self.args.output)
+
+        # Results
+        print("Of the {} class ID, {} had issues: {} had no actions and {} had no attributes".
+              format(len(final_class_ids), class_with_issues, class_with_no_actions,
+                     class_with_no_attributes))
+
+        print("Of the {} attributes, {} had no access info and {} had no size info".
+              format(num_attributes, attributes_with_no_access, attributes_with_no_size))
 
 
 att_openomci = {
