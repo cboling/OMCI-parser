@@ -33,18 +33,18 @@ class AttributeAccess(IntEnum):
 
     @staticmethod
     def keywords_to_access_set(keywords):
-        assert isinstance(keywords, list) and len(keywords) > 0
-        assert all(k.lower() in AttributeAccess.keywords() for k in keywords)
+        assert isinstance(keywords, list)
+        # assert any(k.lower() in AttributeAccess.keywords() for k in keywords)
         results = set()
         for k in keywords:
-            if k == 'r':
+            if k.strip() == 'r':
                 results.add(AttributeAccess.Read)
-            elif k == 'w':
+            elif k.strip() == 'w':
                 results.add(AttributeAccess.Write)
-            elif k[:len('set-by-create')] == 'set-by-create' or k[:len('setbycreate')] == 'setbycreate':
+            elif k.strip() [:len('set-by-create')] == 'set-by-create' or k.strip()[:len('setbycreate')] == 'setbycreate':
                 results.add(AttributeAccess.SetByCreate)
             else:
-                raise ValueError('Invalid access type: {}', k)
+                print('Invalid access type: {}'.format(k))
 
         return results
 
@@ -193,7 +193,7 @@ class Attribute(object):
                 # Try to see if the access for the attribute is this item
                 access_item = item.replace('-', '').strip()
                 access_list = access_item.lower().split(',')
-                if all(i in AttributeAccess.keywords() for i in access_list):
+                if any(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
                     assert len(self.access) == 0 or all(a in self.access for a in access), \
                         'Accessibility has already be decoded'
@@ -205,7 +205,7 @@ class Attribute(object):
                     # Take the last 'valid' size item. Some description text for long
                     # byte or bit fields may specify what subsections sizes are and the
                     # total size often will come last
-                    if size is not None:
+                    if self.size is not None:
                         print('Found additional size info for same attribute {}. Was {}, now {}'.
                               format(self.name, self.size, size))
                     self.size = size
