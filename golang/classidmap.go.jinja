@@ -1,6 +1,5 @@
 {{copyright}}
 {{generator_warning}}
-{# blank line #}
 package {{package_name}}
 {# blank line #}
 // ManagedEntityInfo provides ManagedEntity information
@@ -34,9 +33,9 @@ var classToManagedEntityMap map[uint16]CreateME
 {# blank line #}
 func init() {
 	// Create mapping of 16-bit managed entity class IDs to ME-type
-	classToManagedEntityMap = make(map[uint16]CreateME, len(classIDs)
-{# blank line #}
-#!  for cid, me in classIDs
-	classToManagedEntityMap[{cid}] = New{{me.name|camelcase}}
-#!  endfor
+	classToManagedEntityMap = make(map[uint16]CreateME, {{ classIDs|length }})
+ {% for cid, me in classIDs.items() %}
+	classToManagedEntityMap[{{ cid }}] = New{{ me.name|camelcase }}
+ {%- endfor %}
 }
+{# blank line #}
