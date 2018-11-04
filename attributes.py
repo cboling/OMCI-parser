@@ -131,7 +131,6 @@ class Attribute(object):
     @staticmethod
     def load(data):
         attr = Attribute()
-
         attr.name = data.get('name')
         attr.description = data.get('description')
         attr.optional = data.get('optional')
@@ -139,7 +138,6 @@ class Attribute(object):
         attr.avc = data.get('avc')
         attr.size = data.get('size')
         attr.access = AttributeAccess.load(data.get('access'))
-
         return attr
 
     @staticmethod
@@ -162,8 +160,40 @@ class Attribute(object):
             # New attribute
             attribute = Attribute()
             # TODO: Scrub things in '()' from name of attribute
-            attribute.name = ascii_only(' '.join(x.text for x in paragraph.runs
-                                                 if x.bold)).title()
+            initial = ascii_only(' '.join(x.text.strip() for x in paragraph.runs
+                                          if x.bold)).title()
+
+            attribute.name = ' '.join(x.strip() for x in initial.split(' ')
+                                      if len(x.strip()) > 0).title()
+            # Some manual cleanups
+            attribute.name = re.sub('N Umber', 'Number', attribute.name)
+            attribute.name = re.sub('C Ounter', 'Counter', attribute.name)
+            attribute.name = re.sub('C Ontrol', 'Control', attribute.name)
+            attribute.name = re.sub('P Ointer', 'Pointer', attribute.name)
+            attribute.name = re.sub('1 St', '1st', attribute.name)
+            attribute.name = re.sub('2 Nd', '2nd', attribute.name)
+            attribute.name = re.sub('3 Rd', '3rd', attribute.name)
+            attribute.name = re.sub('4 Th', '4th', attribute.name)
+            attribute.name = re.sub('/', '_', attribute.name)
+            attribute.name = re.sub('-', '_', attribute.name)
+            attribute.name = re.sub('T Cont', 'TCont', attribute.name)
+            attribute.name = re.sub('R Eporting', 'Reporting', attribute.name)
+            attribute.name = re.sub('I Ndication', 'Indication', attribute.name)
+            attribute.name = re.sub('H Ook', 'Hook', attribute.name)
+            attribute.name = re.sub('R Eset', 'Reset', attribute.name)
+            attribute.name = re.sub('I Nterval', 'Interval', attribute.name)
+            attribute.name = re.sub('T Ype', 'Type', attribute.name)
+            attribute.name = re.sub('F Ail', 'Fail', attribute.name)
+            attribute.name = re.sub('P Ayload', 'Payload', attribute.name)
+            attribute.name = re.sub('( S F )', '', attribute.name)
+            attribute.name = re.sub('( Dsl )', '', attribute.name)
+            attribute.name = re.sub('( Arc )', '', attribute.name)
+            attribute.name = re.sub('\(\)', '', attribute.name)
+            attribute.name = re.sub(' \(', ' ', attribute.name)
+            attribute.name = re.sub('\)', '', attribute.name)
+            attribute.name = re.sub('  ', ' ', attribute.name)
+            attribute.name = attribute.name.strip()
+
             attribute.description.append(content)
 
         return attribute
