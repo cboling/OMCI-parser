@@ -152,6 +152,17 @@ class Main(object):
             sz._octets = 2
             sip.attributes[4].size = sz
 
+        # For multicast subscriber config info. very hard to decode automatically
+        if 310 in final_class_ids.keys():
+            from size import AttributeSize
+            msci = final_class_ids[310]
+            msci.attributes.remove(8)
+            msci.attributes.remove(7)
+            sz = AttributeSize()
+            sz._octets = 22
+            sz.getnext_required = True
+            msci.attributes[6].size = sz
+
         completed = len([c for c in final_class_ids.values() if c.state == 'complete'])
         failed = len([c for c in final_class_ids.values() if c.state == 'failure'])
 

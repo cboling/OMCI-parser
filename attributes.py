@@ -83,6 +83,9 @@ class AttributeList(object):
     def get(self, index):
         return self._attributes[index]
 
+    def remove(self, index):
+        del self._attributes[index]
+
     def to_dict(self):
         return {index: attr.to_dict() for index, attr in enumerate(self._attributes)}
 
@@ -194,6 +197,11 @@ class Attribute(object):
 
                 # Try to see if the access for the attribute is this item
                 access_item = item.replace('-', '').strip()
+
+                # Address type if 9.2.3 Port-ID
+                if access_item.lower() == 'rwsc':
+                    access_item = 'r, w, set-by-create'
+
                 access_list = access_item.lower().split(',')
                 if any(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
