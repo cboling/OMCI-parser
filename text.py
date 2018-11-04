@@ -143,10 +143,8 @@ def is_tests_header(paragraph):
     is_test = text == 'Test Result' and is_heading_style(paragraph.style)
     return is_test
 
-
 ########################################################################
 # Text section styles
-
 
 def is_style(style, text):
     return text in style.name[:len(text)]

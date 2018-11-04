@@ -153,7 +153,9 @@ class Attribute(object):
         """
         attribute = None
 
-        if paragraph.runs[0].bold:
+        if paragraph.runs[0].bold and \
+                paragraph.style.name.lower() not in {'attribute follower',
+                                                     'attribute list'}:
             # New attribute
             attribute = Attribute()
             # TODO: Scrub things in '()' from name of attribute

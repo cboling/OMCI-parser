@@ -41,12 +41,12 @@ class AttributeSize(object):
             return None
 
         size = AttributeSize()
-        print("Size text is:\t'{}'".format(text), end="")
+        # print("Size text is:\t'{}'".format(text), end="")
         try:
             if 'byte' in text:
                 try:
                     size._octets = int(text.replace('-', ' ').split(' ')[0])
-                    print('... {}'.format(size._octets))
+                    # print('... {}'.format(size._octets))
                 except ValueError:
                     # Some Known others that trigger this are:
                     #  N * 20 bytes, N * 7 bytes, ...
@@ -60,9 +60,6 @@ class AttributeSize(object):
                         # So far the MEs that use this are:
                         # ONU Remote debug 'Reply Table', Need to do get/getNext size size is not specified
                         #
-                        #
-                        #
-                        #
                         size = None
                     elif 'n bytes' in text.lower():
                         # TODO: figure out what N refers to
@@ -73,15 +70,9 @@ class AttributeSize(object):
 
             elif 'bit' in text:
                 size._bits = int(text.replace('-', ' ').split(' ')[0])
-                print('... {}'.format(size._bits))
+                # print('... {}'.format(size._bits))
             else:
                 # Some Known others are:
-                #
-                #
-                #
-                #
-                #
-                #
                 #
                 print('... Not Decoded')
                 size = None
@@ -89,9 +80,6 @@ class AttributeSize(object):
         except Exception as _e:
             # Some Known others that trigger this are:
             #  all zero bytes
-            #
-            #
-            #
             #
             print('... Opps')
             size = None

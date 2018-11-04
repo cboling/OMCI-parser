@@ -311,7 +311,7 @@ class ClassId(object):
                 getattr(self, trigger)(text, content)
 
             except Exception as e:
-                # self.failure(None, None)
+                self.failure(None, None)
                 print("FAILURE: During deep parsing. Content: {}: '{}'".format(content,
                                                                                e))
                 # raise
