@@ -197,8 +197,8 @@ class Attribute(object):
                 access_list = access_item.lower().split(',')
                 if any(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
-                    assert len(self.access) == 0 or all(a in self.access for a in access), \
-                        'Accessibility has already be decoded'
+                    # assert len(self.access) == 0 or all(a in self.access for a in access), \
+                    #     'Accessibility has already be decoded'
                     self.access = access
                     continue
 
@@ -213,7 +213,7 @@ class Attribute(object):
                     self.size = size
 
         elif isinstance(content, Table):
-            assert self.table is None, 'Attribute already has a table'
+            # assert self.table is None, 'Attribute already has a table'
             self.table = content.rows
 
 # TODO: Still need to test/decode AVC flag
