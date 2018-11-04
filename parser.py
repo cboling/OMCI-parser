@@ -129,39 +129,8 @@ class Main(object):
                                                        camelcase(c.name)))
             c.deep_parse(self.paragraphs)
 
-        # Special exception. Ethernet frame performance monitoring history data downstream
-        # is in identical upstream and only a note of that exists. Fix it now
-        if 321 in final_class_ids.keys() and 322 in final_class_ids.keys():
-            down = final_class_ids[321]
-            up = final_class_ids[322]
-            down.attributes = up.attributes
-            down.actions = up.actions
-            down.optional_actions = up.optional_actions
-            down.alarms = up.alarms
-            down.avcs = up.avcs
-            down.test_results = up.test_results
-            down.hidden = up.hidden
-
-        # For SIP user data, the Username&Password attribute is a pointer
-        # to a security methods ME and is 2 bytes but is in the document as
-        # just (2)
-        if 153 in final_class_ids.keys():
-            from size import AttributeSize
-            sip = final_class_ids[153]
-            sz = AttributeSize()
-            sz._octets = 2
-            sip.attributes[4].size = sz
-
-        # For multicast subscriber config info. very hard to decode automatically
-        if 310 in final_class_ids.keys():
-            from size import AttributeSize
-            msci = final_class_ids[310]
-            msci.attributes.remove(8)
-            msci.attributes.remove(7)
-            sz = AttributeSize()
-            sz._octets = 22
-            sz.getnext_required = True
-            msci.attributes[6].size = sz
+        # Some just need some manual intervention
+        final_class_ids = self.fix_difficult_class_ids(final_class_ids)
 
         completed = len([c for c in final_class_ids.values() if c.state == 'complete'])
         failed = len([c for c in final_class_ids.values() if c.state == 'failure'])
@@ -178,6 +147,7 @@ class Main(object):
         class_with_no_attributes = 0
         attributes_with_no_access = 0
         attributes_with_no_size = 0
+        class_with_too_many_attributes = 0
         num_attributes = 0
 
         for c in final_class_ids.values():
@@ -200,6 +170,11 @@ class Main(object):
                 class_with_issues += 1
                 class_with_no_attributes += 1
 
+            elif len(c.attributes) > 17:        # Entity ID counts as well in this list
+                print('\t\tTOO MANY ATTRIBUTES')
+                class_with_issues += 1
+                class_with_too_many_attributes += 1
+
             else:
                 for attr in c.attributes:
                     num_attributes += 1
@@ -218,12 +193,106 @@ class Main(object):
         self.class_ids.save(self.args.output)
 
         # Results
-        print("Of the {} class ID, {} had issues: {} had no actions and {} had no attributes".
+        print("Of the {} class ID, {} had issues: {} had no actions and {} had no attributes and {} with too many".
               format(len(final_class_ids), class_with_issues, class_with_no_actions,
-                     class_with_no_attributes))
+                     class_with_no_attributes, class_with_too_many_attributes))
 
         print("Of the {} attributes, {} had no access info and {} had no size info".
               format(num_attributes, attributes_with_no_access, attributes_with_no_size))
+
+    def fix_difficult_class_ids(self, class_list):
+        # Special exception. Ethernet frame performance monitoring history data downstream
+        # is in identical upstream and only a note of that exists. Fix it now
+        if 321 in class_list.keys() and 322 in class_list.keys():
+            down = class_list[321]
+            up = class_list[322]
+            down.attributes = up.attributes
+            down.actions = up.actions
+            down.optional_actions = up.optional_actions
+            down.alarms = up.alarms
+            down.avcs = up.avcs
+            down.test_results = up.test_results
+            down.hidden = up.hidden
+
+        # For SIP user data, the Username&Password attribute is a pointer
+        # to a security methods ME and is 2 bytes but is in the document as
+        # just (2)
+        if 153 in class_list.keys():
+            from size import AttributeSize
+            sip = class_list[153]
+            sz = AttributeSize()
+            sz._octets = 2
+            sip.attributes[4].size = sz
+
+        # For multicast subscriber config info. very hard to decode automatically
+        if 310 in class_list.keys():
+            from size import AttributeSize
+            msci = class_list[310]
+            msci.attributes.remove(8)
+            msci.attributes.remove(7)
+            sz = AttributeSize()
+            sz._octets = 22
+            sz.getnext_required = True
+            msci.attributes[6].size = sz
+
+        # Extended vlan config table.  Table is 16 octets
+        if 171 in class_list.keys():
+            from size import AttributeSize
+            exvlan = class_list[171]
+            sz = AttributeSize()
+            sz._octets = 16
+            exvlan.attributes[6].size = sz
+
+        # Mcast gem interworking.  IPv6 Table is 24N octets
+        if 281 in class_list.keys():
+            from size import AttributeSize
+            item = class_list[281]
+            item.attributes.remove(8)
+            item.attributes.remove(4)
+            sz = AttributeSize()
+            sz._octets = 24
+            sz.getnext_required = True
+            item.attributes[7].size = sz
+
+        # OMCI.  IPv6 Table is 24N octets
+        if 287 in class_list.keys():
+            from size import AttributeSize
+            item = class_list[287]
+            sz = AttributeSize()
+            sz._octets = 2
+            sz.getnext_required = True
+            item.attributes[1].size = sz
+
+            sz = AttributeSize()
+            sz._octets = 1
+            sz.getnext_required = True
+            item.attributes[2].size = sz
+
+        # Dot1ag maintenance domain
+        if 299 in class_list.keys():
+            from size import AttributeSize
+            item = class_list[299]
+            sz = AttributeSize()
+            sz._octets = 25
+            sz._repeat_count = 2
+            sz._repeat_max = 2
+            item.attributes[3].size = sz
+
+        # Dot1ag maintenance domain
+        if 300 in class_list.keys():
+            from size import AttributeSize
+            item = class_list[300]
+            sz = AttributeSize()
+            sz._octets = 25
+            sz._repeat_count = 2
+            sz._repeat_max = 2
+            item.attributes[3].size = sz
+
+            sz = AttributeSize()
+            sz._octets = 24
+            item.attributes[5].size = sz
+
+        return class_list
 
 
 att_openomci = {

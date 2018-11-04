@@ -48,6 +48,7 @@ class AttributeSize(object):
                 try:
                     size._octets = int(text.replace('-', ' ').split(' ')[0])
                     # print('... {}'.format(size._octets))
+
                 except ValueError:
                     # Some Known others that trigger this are:
                     #  N * 20 bytes, N * 7 bytes, ...
@@ -57,6 +58,7 @@ class AttributeSize(object):
                     if text.lower()[:len('n * ')] == 'n * ':
                         # TODO: figure out what N refers to
                         size._octets = int(text.split(' ')[2])
+
                     elif 'n bytes' == text.lower():
                         # So far the MEs that use this are:
                         # ONU Remote debug 'Reply Table', Need to do get/getNext size size is not specified
