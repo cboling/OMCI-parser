@@ -142,6 +142,16 @@ class Main(object):
             down.test_results = up.test_results
             down.hidden = up.hidden
 
+        # For SIP user data, the Username&Password attribute is a pointer
+        # to a security methods ME and is 2 bytes but is in the document as
+        # just (2)
+        if 153 in final_class_ids.keys():
+            from size import AttributeSize
+            sip = final_class_ids[153]
+            sz = AttributeSize()
+            sz._octets = 2
+            sip.attributes[4].size = sz
+
         completed = len([c for c in final_class_ids.values() if c.state == 'complete'])
         failed = len([c for c in final_class_ids.values() if c.state == 'failure'])
 
@@ -190,7 +200,7 @@ class Main(object):
                         print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
                     if attr.size is None:
                         attributes_with_no_size += 1
-                    #     print('    NO SIZE INFORMATION')      TODO: Get Size decode working
+                        print('    NO SIZE INFORMATION')
 
         # Output the results to a JSON file so it can be used by a code-generation
         # tool

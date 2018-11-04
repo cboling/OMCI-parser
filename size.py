@@ -28,6 +28,7 @@ class AttributeSize(object):
         self._bits = None
         self._repeat_count = 1
         self._repeat_max = 1
+        self.getnext_required = False  # Attribute could span several messages
 
     def __str__(self):
         return 'Size: {} bytes'.format(self.octets)
@@ -59,8 +60,10 @@ class AttributeSize(object):
                     elif 'n bytes' == text.lower():
                         # So far the MEs that use this are:
                         # ONU Remote debug 'Reply Table', Need to do get/getNext size size is not specified
-                        #
-                        size = None
+                        # OMCI
+                        size._octets = 0
+                        size.getnext_required = True
+
                     elif 'n bytes' in text.lower():
                         # TODO: figure out what N refers to
                         size._octets = int(text[:-len('n bytes')])
