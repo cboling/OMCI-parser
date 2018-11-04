@@ -1,0 +1,32 @@
+{% import 'macros.jinja' as Macros with context -%}
+{{copyright}}
+{{generator_warning}}
+package {{package_name}}
+{# blank line #}
+import (
+	"../../omci"
+	"errors"
+)
+{# blank line #}
+type {{ classID.name|camelcase }} struct {
+	BaseManagedEntity
+}
+
+func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error) {
+	eid := decodeEntityID(params...)
+	entity := BaseManagedEntity{
+		name:     "{{ classID.name|camelcase }}",
+		classID:  {{ classID.cid }},
+		entityID: eid,
+		msgTypes: []omci.MsgType{
+            {{Macros.generate_msgTypes(classID.actions)}}
+            {{Macros.generate_msgTypes(classID.optional_actions)}}
+        },
+		attributeList: []omci.IAttribute{
+            {{Macros.generate_attributes(classID.attributes)}}
+		},
+	}
+	entity.computeAttributeMask()
+	return &{{ classID.name|camelcase }}{entity}, nil
+}
+{# blank line #}

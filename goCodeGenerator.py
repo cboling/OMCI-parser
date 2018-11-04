@@ -23,7 +23,7 @@ import os
 from class_id import ClassIdList
 import shutil
 from golang.classIdmap import create_class_id_map
-
+from golang.managedentity import create_managed_entity_file
 
 def parse_args():
     parser = argparse.ArgumentParser(description='G.988 Final Parser')
@@ -85,8 +85,12 @@ class Main(object):
 
             class_ids = ClassIdList.load(class_ids_json)
 
-            # Create Class ID MAP
+            # Create Class ID Map
             create_class_id_map(class_ids, self.args.dir, self.templateEnv)
+
+            # Create Managed Entity files
+            for _, class_id in class_ids.items():
+                create_managed_entity_file(class_id, self.args.dir, self.templateEnv)
 
         except Exception as _e:
             raise

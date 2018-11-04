@@ -17,31 +17,33 @@ import jinja2
 import os
 from . import COPYRIGHT, GENERATOR_WARNING, PACKAGE_NAME, camelcase
 
-CLASSMAP_FILENAME = 'classidmap.go'
-CLASSMAP_TEMPLATE = CLASSMAP_FILENAME + '.jinja'
+ME_FILENAME = '{}.go'
+ME_TEMPLATE = 'managedentity.go.jinja'
 
 # Set up filters for this module
 jinja2.filters.FILTERS['camelcase'] = camelcase
 
 
-def create_class_id_map(class_ids, outdir, templateEnv):
+def create_managed_entity_file(class_id, outdir, templateEnv):
     """
-    Create the Class ID to Managed Entity Map file
+    Create the Managed Entity Map type structure
 
-    :param class_ids: (ClassIDList) List of Managed Entity objects (ClassID)
+    :param class_id: (ClassID) Entity objects (ClassID)
     :param outdir: (str) Output directory for code generation
     :param templateEnv: (Jinja2 Environment) Environment for generator
     """
     try:
-        filename = os.path.join(outdir, CLASSMAP_FILENAME)
-        template = templateEnv.get_template(CLASSMAP_TEMPLATE)
+        file = ''.join(t.strip().lower() for t in class_id.name.split(' '))
+        filename = os.path.join(outdir, ME_FILENAME.format(file))
+        template = templateEnv.get_template(ME_TEMPLATE)
 
         with open(filename, 'w') as f:
             output = template.render(copyright=COPYRIGHT,
                                      generator_warning=GENERATOR_WARNING,
                                      package_name=PACKAGE_NAME,
-                                     classIDs=class_ids)
+                                     classID=class_id)
             f.write(output)
+            pass
 
     except Exception as _e:
         raise

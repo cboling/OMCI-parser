@@ -32,7 +32,7 @@ GENERATOR_WARNING = """/*
  *              https://github.com/cboling/OMCI-parser
  */"""
 
-PACKAGE_NAME = 'omci'
+PACKAGE_NAME = 'generated'
 
 
 def camelcase(input_string):
