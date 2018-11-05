@@ -32,18 +32,14 @@ def create_managed_entity_file(class_id, outdir, templateEnv):
     :param outdir: (str) Output directory for code generation
     :param templateEnv: (Jinja2 Environment) Environment for generator
     """
-    try:
-        file = ''.join(t.strip().lower() for t in class_id.name.split(' '))
-        filename = os.path.join(outdir, ME_FILENAME.format(file))
-        template = templateEnv.get_template(ME_TEMPLATE)
+    file = ''.join(t.strip().lower() for t in class_id.name.split(' '))
+    filename = os.path.join(outdir, ME_FILENAME.format(file))
+    template = templateEnv.get_template(ME_TEMPLATE)
 
-        with open(filename, 'w') as f:
-            output = template.render(copyright=COPYRIGHT,
-                                     generator_warning=GENERATOR_WARNING,
-                                     package_name=PACKAGE_NAME,
-                                     classID=class_id)
-            f.write(output)
-            pass
-
-    except Exception as _e:
-        raise
+    with open(filename, 'w') as f:
+        output = template.render(copyright=COPYRIGHT,
+                                 generator_warning=GENERATOR_WARNING,
+                                 package_name=PACKAGE_NAME,
+                                 classID=class_id)
+        f.write(output)
+        pass

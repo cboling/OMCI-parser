@@ -6,6 +6,21 @@
 
 {%- macro generate_attributes(attributes)-%}
     {%-for attr in attributes%}
-			// {{ attr.name|camelcase }},
+			omci.{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
     {%-endfor-%}
 {%-endmacro-%}
+
+{%- macro attribute_field(size) -%}
+    {%- if size._octets == 1 -%}
+NewByteField
+    {%- elif size._octets == 2 -%}
+NewUint16Field
+    {%- elif size._octets == 4 -%}
+NewUint32Field
+    {%- elif size._octets == 8 -%}
+NewUint64Field
+    {%- else -%}
+NewUnknownField
+    {%- endif -%}
+{%- endmacro -%}
+
