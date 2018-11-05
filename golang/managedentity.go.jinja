@@ -5,7 +5,6 @@ package {{package_name}}
 {# blank line #}
 import (
 	"../../omci"
-	"errors"
 )
 {# blank line #}
 type {{ classID.name|camelcase }} struct {
@@ -19,11 +18,11 @@ func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error
 		classID:  {{ classID.cid }},
 		entityID: eid,
 		msgTypes: []omci.MsgType{
-            {{Macros.generate_msgTypes(classID.actions)}}
-            {{Macros.generate_msgTypes(classID.optional_actions)}}
-        },
+			{%-if classID.actions|length %}{{Macros.generate_msgTypes(classID.actions)}}{%endif%}
+			{%-if classID.optional_actions|length %}{{Macros.generate_msgTypes(classID.optional_actions)}}{%endif%}
+		},
 		attributeList: []omci.IAttribute{
-            {{Macros.generate_attributes(classID.attributes)}}
+			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID.attributes)}}{%endif%}
 		},
 	}
 	entity.computeAttributeMask()

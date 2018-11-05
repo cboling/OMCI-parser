@@ -1,11 +1,11 @@
-{%- macro generate_msgTypes(msgTypes) -%}
-    {%- for type in msgTypes%}
-        omci.{{ type.name }},
-    {%- endfor -%}
-{%- endmacro -%}
+{%-macro generate_msgTypes(msgTypes)-%}
+    {%-for type in msgTypes%}
+			omci.{{ type.name }},
+    {%-endfor-%}
+{%-endmacro-%}
 
-{%- macro generate_attributes(attributes) -%}
-    {%- for attr in attributes %}
-        omci.{{ attr.name }},
-    {%- endfor -%}
-{%- endmacro -%}
+{%- macro generate_attributes(attributes)-%}
+    {%-for attr in attributes%}
+			// {{ attr.name|camelcase }},
+    {%-endfor-%}
+{%-endmacro-%}
