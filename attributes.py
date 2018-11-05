@@ -153,10 +153,14 @@ class Attribute(object):
                              for a previous attribute
         """
         attribute = None
+        is_bold = paragraph.runs[0].bold
+        style = paragraph.style.name.lower()
+        text = paragraph.text.lower()[:20]
 
-        if paragraph.runs[0].bold and \
-                paragraph.style.name.lower() not in {'attribute follower',
-                                                     'attribute list'}:
+        if is_bold and \
+                (style not in {'attribute follower', 'attribute list'} or
+                 (style == 'attribute follower' and
+                  ('aal5 profile pointer' in text or 'deprecated 3' in text))):       # see 9.13.4
             # New attribute
             attribute = Attribute()
             # TODO: Scrub things in '()' from name of attribute
@@ -177,12 +181,14 @@ class Attribute(object):
                 ('4 Th', '4th'),
                 ('/', '_'),
                 ('-', '_'),
+                ('\+', '_'),
                 ('T Cont', 'TCont'),
                 ('R Eporting', 'Reporting'),
                 ('I Ndication', 'Indication'),
                 ('H Ook', 'Hook'),
                 ('R Eset', 'Reset'),
                 ('I Nterval', 'Interval'),
+                ('M Essage', 'Message'),
                 ('T Ype', 'Type'),
                 ('F Ail', 'Fail'),
                 ('P Ayload', 'Payload'),
@@ -249,12 +255,12 @@ class Attribute(object):
             for item in paren_items:
                 # Mandatory/optional is the easiest
                 if item.lower() == 'mandatory':
-                    assert self.optional is None, 'Optional flag already decoded'
+                    assert self.optional is None or not self.optional, 'Optional flag already decoded'
                     self.optional = False
                     continue
 
                 elif item.lower() == 'optional':
-                    assert self.optional is None, 'Optional flag already decoded'
+                    assert self.optional is None or self.optional, 'Optional flag already decoded'
                     self.optional = True
                     continue
 

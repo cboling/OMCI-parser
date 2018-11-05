@@ -86,7 +86,7 @@ class Main(object):
 
         # TODO: These need more work. skipping for now
         crazy_formatted_mes = \
-            {23,            # CES physical interface performance monitoring history data
+            {23, 319, 320,  # CES physical interface performance MEs
              164,           # MoCA interface performance
              165,           # VDLS2 line config extensions
              157,           # Large String                      (part of AT&T OpenOMCI v3.0)
@@ -98,7 +98,7 @@ class Main(object):
         todo_class_ids = {k: v for k, v in self.class_ids.items()
                           if k not in crazy_formatted_mes}
 
-        num_att_after_hard_me = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
+        # num_att_after_hard_me = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
 
         print('Managed Entities without Sections')
         for c in [c for c in todo_class_ids.values() if c.section is None]:
@@ -108,23 +108,23 @@ class Main(object):
         todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.section is not None}
 
-        num_att_end = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
-
-        print('Of {} AT&T OpenOMCI MEs, {} after eliminating hard ones, and {} after ones with sections'.
-              format(num_att_before, num_att_after_hard_me, num_att_end))
-
-        final_class_ids = ClassIdList()
-        for cid, c in todo_class_ids.items():
-            if c.cid in att_openomci:
-                final_class_ids.add(c)
+        # num_att_end = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
+        #
+        # print('Of {} AT&T OpenOMCI MEs, {} after eliminating hard ones, and {} after ones with sections'.
+        #       format(num_att_before, num_att_after_hard_me, num_att_end))
+        #
+        # final_class_ids = ClassIdList()
+        # for cid, c in todo_class_ids.items():
+        #     if c.cid in att_openomci:
+        #         final_class_ids.add(c)
 
         print('')
-        print('working on {} AT&T OpenOMCI MEs'.format(len(final_class_ids)))
+        print('working on {} OpenOMCI MEs'.format(len(todo_class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
 
         # Of 317 MEs, 220 were parsed successfully and 97 failed if we do all
-        # final_class_ids = self.class_ids
+        final_class_ids = todo_class_ids
         #
         # If we just do AT&T, can do 61 total
 

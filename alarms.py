@@ -106,5 +106,5 @@ class Alarm(object):
             return alarm
 
         except Exception as e:
-            print('Table number parsing error: {}'.format(e.message))
+            print('Table number parsing error: {}'.format(e))
             return None

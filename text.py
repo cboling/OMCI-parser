@@ -70,7 +70,7 @@ def ascii_only(input_text):
 
 def is_heading_style(style):
     """ True if this is a style used as a heading """
-    return 'Heading' in style.name[:len('Heading')]
+    return 'heading' in style.name.lower()[:len('heading')]
 
 
 def is_ignored_heading(paragraph):
@@ -207,8 +207,8 @@ def is_figure_style(style):
 
 
 def is_figure_title_style(style):
-    """ True if this is a style used for text under a figure"""
-    return is_style(style, 'Figure_')
+    """ True if this is a style used for text under a figure or before a table"""
+    return is_style(style, 'Figure_') or is_style(style, 'Table_')
 
 
 def is_enum_style(style):

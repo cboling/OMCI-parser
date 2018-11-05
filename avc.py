@@ -101,5 +101,5 @@ class AVC(object):
             return avc
 
         except Exception as e:
-            print('Table number parsing error: {}'.format(e.message))
+            print('Table number parsing error: {}'.format(e))
             return None
