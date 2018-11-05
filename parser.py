@@ -122,7 +122,17 @@ class Main(object):
         print('working on {} AT&T OpenOMCI MEs'.format(len(final_class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
+
+        # Of 317 MEs, 220 were parsed successfully and 97 failed if we do all
+        # final_class_ids = self.class_ids
+        #
+        # If we just do AT&T, can do 61 total
+
         for c in final_class_ids.values():
+            if c.section is None:
+                c.failure(None, None)
+                continue
+
             print('    {:>9}:  {:>4}: {} -> {}'.format(c.section.section_number,
                                                        c.cid,
                                                        c.name,
@@ -162,6 +172,7 @@ class Main(object):
                 print('\t\tActions: No actions decoded for ME')
                 class_with_issues += 1
                 class_with_no_actions += 1
+                c.failure(None, None)       # Mark invalid
             else:
                 print('\t\tActions: {}'.format({a.name for a in c.actions}))
 
@@ -169,11 +180,13 @@ class Main(object):
                 print('\t\tNO ATTRIBUTES')      # TODO Look for 'set' without 'get'
                 class_with_issues += 1
                 class_with_no_attributes += 1
+                c.failure(None, None)       # Mark invalid
 
             elif len(c.attributes) > 17:        # Entity ID counts as well in this list
                 print('\t\tTOO MANY ATTRIBUTES')
                 class_with_issues += 1
                 class_with_too_many_attributes += 1
+                c.failure(None, None)       # Mark invalid
 
             else:
                 for attr in c.attributes:
@@ -182,11 +195,13 @@ class Main(object):
                     if attr.access is None or len(attr.access) == 0:
                         print('\t\t\t\tNO ACCESS INFORMATION')
                         attributes_with_no_access += 1
+                        c.failure(None, None)       # Mark invalid
                     else:
                         print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
                     if attr.size is None:
                         attributes_with_no_size += 1
-                        print('    NO SIZE INFORMATION')
+                        print('\t\t\t\tNO SIZE INFORMATION')
+                        c.failure(None, None)       # Mark invalid
 
         # Output the results to a JSON file so it can be used by a code-generation
         # tool

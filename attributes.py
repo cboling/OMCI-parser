@@ -166,34 +166,67 @@ class Attribute(object):
             attribute.name = ' '.join(x.strip() for x in initial.split(' ')
                                       if len(x.strip()) > 0).title()
             # Some manual cleanups
-            attribute.name = re.sub('N Umber', 'Number', attribute.name)
-            attribute.name = re.sub('C Ounter', 'Counter', attribute.name)
-            attribute.name = re.sub('C Ontrol', 'Control', attribute.name)
-            attribute.name = re.sub('P Ointer', 'Pointer', attribute.name)
-            attribute.name = re.sub('1 St', '1st', attribute.name)
-            attribute.name = re.sub('2 Nd', '2nd', attribute.name)
-            attribute.name = re.sub('3 Rd', '3rd', attribute.name)
-            attribute.name = re.sub('4 Th', '4th', attribute.name)
-            attribute.name = re.sub('/', '_', attribute.name)
-            attribute.name = re.sub('-', '_', attribute.name)
-            attribute.name = re.sub('T Cont', 'TCont', attribute.name)
-            attribute.name = re.sub('R Eporting', 'Reporting', attribute.name)
-            attribute.name = re.sub('I Ndication', 'Indication', attribute.name)
-            attribute.name = re.sub('H Ook', 'Hook', attribute.name)
-            attribute.name = re.sub('R Eset', 'Reset', attribute.name)
-            attribute.name = re.sub('I Nterval', 'Interval', attribute.name)
-            attribute.name = re.sub('T Ype', 'Type', attribute.name)
-            attribute.name = re.sub('F Ail', 'Fail', attribute.name)
-            attribute.name = re.sub('P Ayload', 'Payload', attribute.name)
-            attribute.name = re.sub('( S F )', '', attribute.name)
-            attribute.name = re.sub('( Dsl )', '', attribute.name)
-            attribute.name = re.sub('( Arc )', '', attribute.name)
-            attribute.name = re.sub('\(\)', '', attribute.name)
-            attribute.name = re.sub(' \(', ' ', attribute.name)
-            attribute.name = re.sub('\)', '', attribute.name)
-            attribute.name = re.sub('  ', ' ', attribute.name)
-            attribute.name = attribute.name.strip()
+            fixups = {
+                ('N Umber', 'Number'),
+                ('C Ounter', 'Counter'),
+                ('C Ontrol', 'Control'),
+                ('P Ointer', 'Pointer'),
+                ('1 St', '1st'),
+                ('2 Nd', '2nd'),
+                ('3 Rd', '3rd'),
+                ('4 Th', '4th'),
+                ('/', '_'),
+                ('-', '_'),
+                ('T Cont', 'TCont'),
+                ('R Eporting', 'Reporting'),
+                ('I Ndication', 'Indication'),
+                ('H Ook', 'Hook'),
+                ('R Eset', 'Reset'),
+                ('I Nterval', 'Interval'),
+                ('T Ype', 'Type'),
+                ('F Ail', 'Fail'),
+                ('P Ayload', 'Payload'),
+                ('( S F )', ''),
+                ('( Dsl )', ''),
+                ('( Arc )', ''),
 
+                # Keep these last
+                ('\(\)', ''),
+                (' \(', ' '),
+                ('\)', ''),
+                ('  ', ' '),
+            }
+            for orig, new in fixups:
+                attribute.name = re.sub(orig, new, attribute.name)
+
+            # attribute.name = re.sub('N Umber', 'Number', attribute.name)
+            # attribute.name = re.sub('C Ounter', 'Counter', attribute.name)
+            # attribute.name = re.sub('C Ontrol', 'Control', attribute.name)
+            # attribute.name = re.sub('P Ointer', 'Pointer', attribute.name)
+            # attribute.name = re.sub('1 St', '1st', attribute.name)
+            # attribute.name = re.sub('2 Nd', '2nd', attribute.name)
+            # attribute.name = re.sub('3 Rd', '3rd', attribute.name)
+            # attribute.name = re.sub('4 Th', '4th', attribute.name)
+            # attribute.name = re.sub('/', '_', attribute.name)
+            # attribute.name = re.sub('-', '_', attribute.name)
+            # attribute.name = re.sub('T Cont', 'TCont', attribute.name)
+            # attribute.name = re.sub('R Eporting', 'Reporting', attribute.name)
+            # attribute.name = re.sub('I Ndication', 'Indication', attribute.name)
+            # attribute.name = re.sub('H Ook', 'Hook', attribute.name)
+            # attribute.name = re.sub('R Eset', 'Reset', attribute.name)
+            # attribute.name = re.sub('I Nterval', 'Interval', attribute.name)
+            # attribute.name = re.sub('T Ype', 'Type', attribute.name)
+            # attribute.name = re.sub('F Ail', 'Fail', attribute.name)
+            # attribute.name = re.sub('P Ayload', 'Payload', attribute.name)
+            # attribute.name = re.sub('( S F )', '', attribute.name)
+            # attribute.name = re.sub('( Dsl )', '', attribute.name)
+            # attribute.name = re.sub('( Arc )', '', attribute.name)
+            # attribute.name = re.sub('\(\)', '', attribute.name)
+            # attribute.name = re.sub(' \(', ' ', attribute.name)
+            # attribute.name = re.sub('\)', '', attribute.name)
+            # attribute.name = re.sub('  ', ' ', attribute.name)
+
+            attribute.name = attribute.name.strip()
             attribute.description.append(content)
 
         return attribute
