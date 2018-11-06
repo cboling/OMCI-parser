@@ -123,7 +123,7 @@ class Attribute(object):
             'description': self.description,
             'access': [a.name for a in self.access],
             'optional': self.optional,
-            'size': 0,               # TODO: self.size,
+            'size': self.size.to_dict(),
             'avc': self.avc,
             'tca': self.tca,
         }
@@ -136,7 +136,7 @@ class Attribute(object):
         attr.optional = data.get('optional')
         attr.tca = data.get('tca')
         attr.avc = data.get('avc')
-        attr.size = data.get('size')
+        attr.size = AttributeSize.load(data.get('size'))
         attr.access = AttributeAccess.load(data.get('access'))
         return attr
 

@@ -91,6 +91,25 @@ class AttributeSize(object):
 
         return size
 
+    def to_dict(self):
+        return {
+            'octets': self._octets,
+            'bits': self._bits,
+            'repeat_count': self._repeat_count,
+            'repeat_max': self._repeat_max,
+            'getnext_required': self.getnext_required,
+        }
+
+    @staticmethod
+    def load(data):
+        size = AttributeSize()
+        size._octets = data.get('octets')
+        size._bits = data.get('bits')
+        size._repeat_count = data.get('repeat_count')
+        size._repeat_max = data.get('repeat_max')
+        size.getnext_required = data.get('getnext_required')
+        return size
+
     @property
     def octets(self):
         if self._octets is not None:
