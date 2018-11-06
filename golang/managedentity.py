@@ -32,7 +32,8 @@ def create_managed_entity_file(class_id, outdir, templateEnv):
     :param outdir: (str) Output directory for code generation
     :param templateEnv: (Jinja2 Environment) Environment for generator
     """
-    file = ''.join(t.strip().lower() for t in class_id.name.split(' '))
+    class_name = class_id.name.replace('/', ' ')
+    file = ''.join(t.strip().lower() for t in class_name.split(' '))
     filename = os.path.join(outdir, ME_FILENAME.format(file))
     template = templateEnv.get_template(ME_TEMPLATE)
 

@@ -83,16 +83,18 @@ class Main(object):
             # Create output directory
             os.mkdir(self.args.dir)
 
-            class_ids = ClassIdList.load(class_ids_json)
+            # Get Class ID list and sort by ID
+            class_ids = [c for c in ClassIdList.load(class_ids_json).values()]
+            class_ids.sort(key=lambda x: x.cid)
 
             # Create Class ID Map
             create_class_id_map(class_ids, self.args.dir, self.templateEnv)
 
             # Create Managed Entity files
-            for _, class_id in class_ids.items():
+            for class_id in class_ids:
                 create_managed_entity_file(class_id, self.args.dir, self.templateEnv)
                 if class_id.cid == 2:
-                    print('pausing')
+                   print('TODO: remove later') # Good place for breakpoint
 
         except Exception as _e:
             raise
