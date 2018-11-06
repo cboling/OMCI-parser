@@ -92,8 +92,10 @@ class AttributeList(object):
     @staticmethod
     def load(data):
         attr_list = AttributeList()
-        for _attr_index, attr in data.items():
-            attr_list.add(Attribute.load(attr))
+        key_list = [k for k in data.keys()]
+        key_list.sort(key=lambda x: int(x))
+        for key in key_list:
+            attr_list.add(Attribute.load(data[key]))
 
         return attr_list
 
