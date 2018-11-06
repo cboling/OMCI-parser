@@ -4,44 +4,23 @@
     {%-endfor-%}
 {%-endmacro-%}
 
-{%- macro generate_attributes2(attributes)-%}
-    {%-for attr in attributes%}
-			{% call attribute_field({{attr.size}}) %}
-			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
-			{% endcall %}
-    {%-endfor-%}
-{%-endmacro-%}
-
-{%- macro generate_attributes(attributes)-%}
-    {%-for attr in attributes%}
-    {%- if {{size.octets}} == 1 -%}
+{%- macro attribute_field(size) -%}
+    {%- if size.octets == 1 -%}
 omci.NewByteField
-    {%- elif {{size.octets}} == 2 -%}
+    {%- elif size.octets == 2 -%}
 omci.NewUint16Field
-    {%- elif {{size.octets}} == 4 -%}
+    {%- elif size.octets == 4 -%}
 omci.NewUint32Field
-    {%- elif {{size.octets}} == 8 -%}
-omci.NewUint64Field
-    {%- else -%}
-omci.NewUnknownField
-    {%- endif -%}
-			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
-    {%-endfor-%}
-{%-endmacro-%}
-
-
-
-{%- macro attribute_field size -%}
-    {%- if {{size.octets}} == 1 -%}
-omci.NewByteField
-    {%- elif {{size.octets}} == 2 -%}
-omci.NewUint16Field
-    {%- elif {{size.octets}} == 4 -%}
-omci.NewUint32Field
-    {%- elif {{size.octets}} == 8 -%}
+    {%- elif size.octets == 8 -%}
 omci.NewUint64Field
     {%- else -%}
 omci.NewUnknownField
     {%- endif -%}
 {%- endmacro -%}
 
+{%- macro generate_attributes(attributes) -%}
+    {%-for attr in attributes%}
+			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
+			{{- attribute_field(attr.size) -}}
+    {%-endfor-%}
+{%- endmacro -%}

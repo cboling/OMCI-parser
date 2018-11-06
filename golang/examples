@@ -1,0 +1,85 @@
+# Placeholder for jinja snippets
+
+
+{% import 'macros.jinja' as Macros with context -%}
+{{copyright}}
+{{generator_warning}}
+package {{package_name}}
+{# blank line #}
+import (
+	"../../omci"
+)
+{# blank line #}
+type {{ classID.name|camelcase }} struct {
+	BaseManagedEntity
+}
+
+func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error) {
+	eid := decodeEntityID(params...)
+	entity := BaseManagedEntity{
+		name:     "{{ classID.name|camelcase }}",
+		classID:  {{ classID.cid }},
+		entityID: eid,
+		msgTypes: []omci.MsgType{
+			{%-if classID.actions|length %}{{Macros.generate_msgTypes(classID.actions)}}{%endif%}
+			{%-if classID.optional_actions|length %}{{Macros.generate_msgTypes(classID.optional_actions)}}{%endif%}
+		},
+		attributeList: []omci.IAttribute{
+			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID.attributes)}}{%endif%}
+		},
+	}
+	entity.computeAttributeMask()
+	return &{{ classID.name|camelcase }}{entity}, nil
+}
+{# blank line #}
+
+
+
+
+{%-macro generate_msgTypes(msgTypes)-%}
+    {%-for type in msgTypes%}
+			omci.{{ type.name }},
+    {%-endfor-%}
+{%-endmacro-%}
+
+{%- macro generate_attributes2(attributes)-%}
+    {%-for attr in attributes%}
+			{% call attribute_field({{attr.size}}) %}
+			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
+			{% endcall %}
+    {%-endfor-%}
+{%-endmacro-%}
+
+{%- macro generate_attributes(attributes)-%}
+    {%-for attr in attributes%}
+    {%- if {{size.octets}} == 1 -%}
+omci.NewByteField
+    {%- elif {{size.octets}} == 2 -%}
+omci.NewUint16Field
+    {%- elif {{size.octets}} == 4 -%}
+omci.NewUint32Field
+    {%- elif {{size.octets}} == 8 -%}
+omci.NewUint64Field
+    {%- else -%}
+omci.NewUnknownField
+    {%- endif -%}
+			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
+    {%-endfor-%}
+{%-endmacro-%}
+
+
+
+{%- macro attribute_field size -%}
+    {%- if {{size.octets}} == 1 -%}
+omci.NewByteField
+    {%- elif {{size.octets}} == 2 -%}
+omci.NewUint16Field
+    {%- elif {{size.octets}} == 4 -%}
+omci.NewUint32Field
+    {%- elif {{size.octets}} == 8 -%}
+omci.NewUint64Field
+    {%- else -%}
+omci.NewUnknownField
+    {%- endif -%}
+{%- endmacro -%}
+

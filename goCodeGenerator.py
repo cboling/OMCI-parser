@@ -91,6 +91,8 @@ class Main(object):
             # Create Managed Entity files
             for _, class_id in class_ids.items():
                 create_managed_entity_file(class_id, self.args.dir, self.templateEnv)
+                if class_id.cid == 2:
+                    print('pausing')
 
         except Exception as _e:
             raise
