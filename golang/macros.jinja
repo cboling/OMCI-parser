@@ -4,7 +4,7 @@
     {%-endfor-%}
 {%-endmacro-%}
 
-{%- macro attribute_field(size) -%}
+{% macro attribute_field(size) %}
     {%- if size.octets == 1 -%}
 omci.NewByteField
     {%- elif size.octets == 2 -%}
@@ -16,11 +16,18 @@ omci.NewUint64Field
     {%- else -%}
 omci.NewUnknownField
     {%- endif -%}
-{%- endmacro -%}
+{% endmacro %}
+
+
+{%-macro access_fields(access)-%}
+	{%-for access_type in access-%}
+		{% if not loop.first %}|{% endif %}omci.{{access_type.name}}
+	{%-endfor-%}
+{%-endmacro-%}
+
 
 {%- macro generate_attributes(attributes) -%}
-    {%-for attr in attributes%}
-			("{{attr.name|camelcase}}", 0, omci.Read|omci.Write,
-			{{- attribute_field(attr.size) -}}
-    {%-endfor-%}
+	{%for attr in attributes%}
+			{{ attribute_field(attr.size) }}("{{attr.name|camelcase}}", 0, {{access_fields(attr.access)}}),
+	{%-endfor-%}
 {%- endmacro -%}
