@@ -42,8 +42,8 @@ var classToManagedEntityMap map[uint16]CreateME
 func init() {
 	// Create mapping of 16-bit managed entity class IDs to ME-type
 	classToManagedEntityMap = make(map[uint16]CreateME, {{ classIDs|length }})
-{% for cid, me in classIDs.items() %}
-	classToManagedEntityMap[{{ cid }}] = New{{ me.name|camelcase }}
+``{% for me in classIDs %}
+	classToManagedEntityMap[{{ me.cid }}] = New{{ me.name|camelcase }}
 {%- endfor %}
 }
 {# blank line #}
