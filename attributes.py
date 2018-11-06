@@ -197,6 +197,7 @@ class Attribute(object):
                 ('( S F )', ''),
                 ('( Dsl )', ''),
                 ('( Arc )', ''),
+                ('"', ''),
 
                 # Keep these last
                 ('\(\)', ''),
