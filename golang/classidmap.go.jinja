@@ -53,3 +53,10 @@ func init() {
 	classToManagedEntityMap[{{ me.cid }}] = New{{ me.name|camelcase }}
 {%- endfor %}
 }
+{# blank line #}
+func LoadManagedEntityDefinition(classID uint16, params ...ParamData) (omci.IManagedEntity, error) {
+	definition, ok := classToManagedEntityMap[classID]; if ok {
+		return definition, nil
+	}
+	return nil, errors.New("managed entity definition not found")
+}

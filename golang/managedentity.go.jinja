@@ -11,21 +11,22 @@ type {{ classID.name|camelcase }} struct {
 	omci.BaseManagedEntity
 }
 
-func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error) {
+func New{{ classID.name|camelcase }}(params ...ParamData) (omci.IManagedEntity, error) {
 	eid := decodeEntityID(params...)
-	entity := BaseManagedEntity{
-		name:     "{{ classID.name|camelcase }}",
-		classID:  {{ classID.cid }},
-		entityID: eid,
-		msgTypes: []omci.MsgType{
+	entity := omci.BaseManagedEntity{
+		Name:          "{{ classID.name|camelcase }}",
+		ClassID:       {{ classID.cid }},
+		EntityID:      eid,
+		MessageTypes:  []omci.MsgType{
 			{%-if classID.actions|length %}{{Macros.generate_msgTypes(classID.actions)}}{%endif%}
 			{%-if classID.optional_actions|length %}{{Macros.generate_msgTypes(classID.optional_actions)}}{%endif%}
 		},
-		attributeList: []omci.IAttribute{
+		AttributeMask: 0,
+		Attributes:    []omci.IAttribute{
 			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID.attributes)}}{%endif%}
 		},
 	}
-	entity.computeAttributeMask()
+	entity.ComputeAttributeMask()
 	return &{{ classID.name|camelcase }}{entity}, nil
 }
 {# blank line #}
