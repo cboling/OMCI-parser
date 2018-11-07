@@ -8,7 +8,7 @@ import (
 )
 {# blank line #}
 type {{ classID.name|camelcase }} struct {
-	BaseManagedEntity
+	omci.BaseManagedEntity
 }
 
 func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error) {
