@@ -1,27 +1,27 @@
 {%-macro generate_msgTypes(msgTypes)-%}
     {%-for type in msgTypes%}
-			omci.{{ type.name }},
+			{{ type.name }},
     {%-endfor-%}
 {%-endmacro-%}
 
 {% macro attribute_field(size) %}
     {%- if size.octets == 1 -%}
-omci.NewByteField
+NewByteField
     {%- elif size.octets == 2 -%}
-omci.NewUint16Field
+NewUint16Field
     {%- elif size.octets == 4 -%}
-omci.NewUint32Field
+NewUint32Field
     {%- elif size.octets == 8 -%}
-omci.NewUint64Field
+NewUint64Field
     {%- else -%}
-omci.NewUnknownField
+NewUnknownField
     {%- endif -%}
 {% endmacro %}
 
 
 {%-macro access_fields(access)-%}
 	{%-for access_type in access-%}
-		{% if not loop.first %}|{% endif %}omci.{{access_type.name}}
+		{% if not loop.first %}|{% endif %}{{access_type.name}}
 	{%-endfor-%}
 {%-endmacro-%}
 

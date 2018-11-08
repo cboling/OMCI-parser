@@ -24,6 +24,8 @@ from class_id import ClassIdList
 import shutil
 from golang.classIdmap import create_class_id_map
 from golang.managedentity import create_managed_entity_file
+from golang.basetemplates import create_base_templates
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='G.988 Final Parser')
@@ -83,6 +85,9 @@ class Main(object):
             # Create output directory
             os.mkdir(self.args.dir)
 
+            # Generate some somewhat fixed templates
+            create_base_templates(self.args.dir, self.templateEnv)
+
             # Get Class ID list and sort by ID
             class_ids = [c for c in ClassIdList.load(class_ids_json).values()]
             class_ids.sort(key=lambda x: x.cid)
@@ -94,7 +99,7 @@ class Main(object):
             for class_id in class_ids:
                 create_managed_entity_file(class_id, self.args.dir, self.templateEnv)
                 if class_id.cid == 2:
-                   print('TODO: remove later') # Good place for breakpoint
+                   print('TODO: remove later')  # Good place for breakpoint
 
         except Exception as _e:
             raise

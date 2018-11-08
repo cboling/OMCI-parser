@@ -1,0 +1,19 @@
+{% import 'macros.jinja' as Macros with context -%}
+{{copyright}}
+{{generator_warning}}
+package {{package_name}}
+{# blank line #}
+import (
+	"fmt"
+)
+
+type MsgBase struct {
+	EntityClass    uint16
+	EntityInstance uint16
+}
+
+func (msg *MsgBase) String() string {
+	// TODO: Lookup ClassID Name and add to output
+	return fmt.Sprintf("ClassID: %v (%#x), EntityID: %v (%#x)",
+		msg.EntityClass, msg.EntityClass, msg.EntityInstance, msg.EntityInstance)
+}
