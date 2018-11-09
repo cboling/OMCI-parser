@@ -6,15 +6,15 @@
 
 {% macro attribute_field(size) %}
     {%- if size.octets == 1 -%}
-NewByteField
+ByteField
     {%- elif size.octets == 2 -%}
-NewUint16Field
+Uint16Field
     {%- elif size.octets == 4 -%}
-NewUint32Field
+Uint32Field
     {%- elif size.octets == 8 -%}
-NewUint64Field
+Uint64Field
     {%- else -%}
-NewUnknownField
+UnknownField
     {%- endif -%}
 {% endmacro %}
 

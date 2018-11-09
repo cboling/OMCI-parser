@@ -4,15 +4,12 @@ package {{package_name}}
 {# blank line #}
 import (
 	"errors"
-	"fmt"
-	"github.com/google/gopacket"
-	"math/bits"
 )
 {# blank line #}
 // ManagedEntityInfo provides ManagedEntity information
 type ManagedEntityInfo struct {
 	//Interface  IManagedEntity
-	New func(params ...ParamData) (IManagedEntity, error)
+	New func(params ...ParamData) (IManagedEntityDefinition, error)
 }
 {# blank line #}
 // ParamData can be passed to the 'New' function to dictate how the returned
@@ -30,7 +27,7 @@ type ManagedEntityInfo struct {
 //
 type ParamData struct {
 	EntityID   uint16
-	Attributes []IAttribute
+	Attributes []IAttributeValue
 }
 {# blank line #}
 func decodeEntityID(params ...ParamData) uint16 {
@@ -41,7 +38,7 @@ func decodeEntityID(params ...ParamData) uint16 {
 }
 {# blank line #}
 // CreateME wraps a function that makes it a creator of a Managed Entity
-type CreateME func(params ...ParamData) (IManagedEntity, error)
+type CreateME func(params ...ParamData) (IManagedEntityDefinition, error)
 {# blank line #}
 var classToManagedEntityMap map[uint16]CreateME
 {# blank line #}
@@ -53,9 +50,11 @@ func init() {
 {%- endfor %}
 }
 {# blank line #}
-func LoadManagedEntityDefinition(classID uint16, params ...ParamData) (IManagedEntity, error) {
-	definition, ok := classToManagedEntityMap[classID]; if ok {
-		return definition, nil
+
+func LoadManagedEntityDefinition(classID uint16, params ...ParamData) (IManagedEntityDefinition, error) {
+	newFunc, ok := classToManagedEntityMap[classID]
+	if ok {
+		return newFunc(params...)
 	}
 	return nil, errors.New("managed entity definition not found")
 }
