@@ -3,6 +3,8 @@
 {{generator_warning}}
 package {{package_name}}
 {# blank line #}
+const {{classID.name|camelcase}}ClassId uint16 = {{classID.cid}}
+{# blank line #}
 // {{ classID.name|camelcase }} (class ID #{{classID.cid}}) defines the basic
 // Managed Entity definition that is further extended by types that support
 // packet encode/decode and user create managed entities.
