@@ -158,7 +158,7 @@ func Uint32Field(name string, defVal uint16, access AttributeAccess) *AttributeD
 	return &AttributeDefinition{Name: name, DefValue: defVal, Size: 4, Access: access}
 }
 
-func NewUint64Field(name string, defVal uint16, access AttributeAccess) *AttributeDefinition {
+func Uint64Field(name string, defVal uint16, access AttributeAccess) *AttributeDefinition {
 	return &AttributeDefinition{Name: name, DefValue: defVal, Size: 8, Access: access}
 }
 

@@ -181,3 +181,7 @@ venv.bak/
 
 /T-REC-G.988-2017.docx
 /.idea/
+/generated/
+/G.988.Parsed.json
+/G.988.PreCompiled.json
+/venv-windows/
