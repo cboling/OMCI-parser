@@ -2,9 +2,7 @@
 {{generator_warning}}
 package {{package_name}}
 {# blank line #}
-import (
-	"errors"
-)
+import "errors"
 {# blank line #}
 // ManagedEntityInfo provides ManagedEntity information
 type ManagedEntityInfo struct {
@@ -50,7 +48,6 @@ func init() {
 {%- endfor %}
 }
 {# blank line #}
-
 func LoadManagedEntityDefinition(classID uint16, params ...ParamData) (IManagedEntityDefinition, error) {
 	newFunc, ok := classToManagedEntityMap[classID]
 	if ok {

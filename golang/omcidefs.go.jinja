@@ -3,8 +3,11 @@
 {{generator_warning}}
 package {{package_name}}
 {# blank line #}
-import "fmt"
-{# blank line #}
+import (
+	"fmt"
+	"github.com/google/gopacket"
+)
+
 // MsgType represents a OMCI message-type
 type MsgType byte
 
@@ -138,7 +141,7 @@ func SupportsMsgType(entity IManagedEntityDefinition, msgType MsgType) bool {
 	return false
 }
 
-func isAutonomousNotification(mt MsgType) bool {
+func IsAutonomousNotification(mt MsgType) bool {
 	for _, m := range allNotificationTypes {
 		if mt == m {
 			return true
@@ -216,7 +219,7 @@ func (access AttributeAccess) String() string {
 
 // SupportsAttributeAccess returns true if the managed entity attribute
 // supports the desired access
-func SupportsAttributeAccess(attr IAttributeDefinition, acc AttributeAccess) bool {
+func SupportsAttributeAccess(attr *AttributeDefinition, acc AttributeAccess) bool {
 	return attr.GetAccess()&acc == acc
 }
 
@@ -225,38 +228,59 @@ type IManagedEntityDefinition interface {
 	GetClassID() uint16
 	GetEntityID() uint16
 	GetMessageTypes() []MsgType
-	GetAttributeMask() uint16
-	GetAttributes() []*AttributeDefinition
+	GetAllowedAttributeMask() uint16
+	GetAttributeDefinitions() []*AttributeDefinition // TODO: Change this to a map, entity ID is index -1
+
+	DecodeAttributes(uint16, []byte, gopacket.PacketBuilder) ([]*IAttributeValue, error)
+	SerializeAttributes(uint16, gopacket.SerializeBuffer) error
 }
 
 type BaseManagedEntityDefinition struct {
-	Name          string
-	ClassID       uint16
-	EntityID      uint16
-	MessageTypes  []MsgType
-	AttributeMask uint16
-	Attributes    []*AttributeDefinition
+	Name                 string
+	ClassID              uint16
+	EntityID             uint16       // TODO: Move to be inside attributes
+	MessageTypes         []MsgType
+	AllowedAttributeMask uint16
+	AttributeDefinitions []*AttributeDefinition // TODO: Change this to a map, entity ID is index -1
 }
 
-func (bme *BaseManagedEntityDefinition) GetName() string             { return bme.Name }
-func (bme *BaseManagedEntityDefinition) GetClassID() uint16          { return bme.ClassID }
-func (bme *BaseManagedEntityDefinition) GetEntityID() uint16         { return bme.EntityID }
-func (bme *BaseManagedEntityDefinition) GetMessageTypes() []MsgType  { return bme.MessageTypes }
-func (bme *BaseManagedEntityDefinition) GetAttributeMask() uint16    { return bme.AttributeMask }
-func (bme *BaseManagedEntityDefinition) GetAttributes() []*AttributeDefinition { return bme.Attributes }
-
 func (bme *BaseManagedEntityDefinition) String() string {
-	return fmt.Sprintf("%v: CID: %v (%#x), EID: %v (%#x), Attributes: %v",
+	return fmt.Sprintf("Definition: %v: CID: %v (%#x), EID: %v (%#x), Attributes: %v",
 		bme.Name, bme.ClassID, bme.ClassID, bme.EntityID, bme.EntityID,
-		bme.Attributes)
+		bme.AttributeDefinitions)
+}
+
+func (bme *BaseManagedEntityDefinition) GetName() string {
+	return bme.Name
+}
+func (bme *BaseManagedEntityDefinition) GetClassID() uint16 {
+	return bme.ClassID
+}
+func (bme *BaseManagedEntityDefinition) GetEntityID() uint16 {
+	return bme.EntityID
+}
+func (bme *BaseManagedEntityDefinition) GetMessageTypes() []MsgType {
+	return bme.MessageTypes
+}
+func (bme *BaseManagedEntityDefinition) GetAllowedAttributeMask() uint16 {
+	return bme.AllowedAttributeMask
+}
+func (bme *BaseManagedEntityDefinition) GetAttributeDefinitions() []*AttributeDefinition {
+	return bme.AttributeDefinitions
 }
 
 func (bme *BaseManagedEntityDefinition) computeAttributeMask() {
-	for index := range bme.Attributes {
-		bme.AttributeMask |= 1 << (15 - uint(index))
+	for index := range bme.AttributeDefinitions {
+		bme.AllowedAttributeMask |= 1 << (15 - uint(index))
 	}
 }
 
-type IManagedEntityInstance interface {
-	IManagedEntityDefinition
+func (bme* BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) ([]*IAttributeValue, error) {
+	// TODO Implement me
+	return nil, nil
+}
+
+func (bme* BaseManagedEntityDefinition) SerializeAttributes(mask uint16, data gopacket.SerializeBuffer) error {
+	// TODO Implement me
+	return nil
 }
