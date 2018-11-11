@@ -98,8 +98,8 @@ class Main(object):
             # Create Managed Entity files
             for class_id in class_ids:
                 create_managed_entity_file(class_id, self.args.dir, self.templateEnv)
-                if class_id.cid == 2:
-                   print('TODO: remove later')  # Good place for breakpoint
+                # if class_id.cid == 2:
+                #    print('TODO: remove later')  # Good place for breakpoint
 
         except Exception as _e:
             raise
