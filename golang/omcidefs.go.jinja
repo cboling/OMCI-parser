@@ -221,7 +221,7 @@ func (access AttributeAccess) String() string {
 
 // SupportsAttributeAccess returns true if the managed entity attribute
 // supports the desired access
-func SupportsAttributeAccess(attr IAttributeDefinition, acc AttributeAccess) bool {
+func SupportsAttributeAccess(attr *AttributeDefinition, acc AttributeAccess) bool {
 	return attr.GetAccess()&acc == acc
 }
 
@@ -295,7 +295,10 @@ func (bme* BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byt
 			if err != nil {
 				return nil, err
 			}
-			attrMap[index] = value
+			attrMap[index] = &AttributeValue{
+				Name: attrDef.GetName(),
+				Value: value,
+			}
 		}
 	}
 	return attrMap, nil
