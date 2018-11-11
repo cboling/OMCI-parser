@@ -3,7 +3,12 @@
 {{generator_warning}}
 package {{package_name}}
 {# blank line #}
-import "fmt"
+import (
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"github.com/google/gopacket"
+)
 
 // IAttributeDefinition defines a single specific Managed Entity attribute
 type IAttributeDefinition interface {
@@ -13,6 +18,9 @@ type IAttributeDefinition interface {
 	GetAccess() AttributeAccess
 	GetConstraints() func(interface{}) error
 	GetValue() (interface{}, error)
+
+	Decode([]byte, gopacket.DecodeFeedback) (interface{}, error)
+	SerializeTo(gopacket.SerializeBuffer) error
 }
 
 // AttributeDefinition defines a single specific Managed Entity attribute
@@ -34,13 +42,91 @@ func (attr *AttributeDefinition) String() string {
 	return fmt.Sprintf("Definition: %v: Size: %v, Default: %v, Access: %v",
 		attr.GetName(), attr.GetSize(), attr.GetDefault(), attr.GetAccess())
 }
-func (attr *AttributeDefinition) GetName() string            { return attr.Name }
-func (attr *AttributeDefinition) GetDefault() interface{}    { return attr.DefValue }
-func (attr *AttributeDefinition) GetSize() int               { return attr.Size }
-func (attr *AttributeDefinition) GetAccess() AttributeAccess { return attr.Access }
+func (attr *AttributeDefinition) GetName() string             { return attr.Name }
+func (attr *AttributeDefinition) GetDefault() interface{}     { return attr.DefValue }
+func (attr *AttributeDefinition) GetSize() int                { return attr.Size }
+func (attr *AttributeDefinition) GetAccess() AttributeAccess  { return attr.Access }
+func (attr *AttributeDefinition) GetConstraints() func(interface{}) error {
+	return attr.Constraint
+}
+
 func (attr *AttributeDefinition) GetValue() (interface{}, error) {
 	// TODO: Better way to detect not-initialized and no default available?
 	return attr.Value, nil
+}
+
+func (attr *AttributeDefinition) Decode(data []byte, df gopacket.DecodeFeedback) (interface{}, error) {
+	// Use negative numbers to indicate signed values
+	size := attr.GetSize()
+	if size < 0 {
+		size = -size
+	}
+	if len(data) < size {
+		df.SetTruncated()
+		return nil, errors.New("packet too small for field")
+	}
+	var err error
+	switch attr.GetSize() {
+	default:
+		return nil, errors.New("unknown attribute size")
+	case 1:
+		value := data[0]
+		if attr.GetConstraints() != nil {
+			err = attr.GetConstraints()(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return value, err
+	case 2:
+		value := binary.BigEndian.Uint16(data[0:2])
+		if attr.GetConstraints() != nil {
+			err = attr.GetConstraints()(attr.Value)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return value, err
+	case 4:
+		value := binary.BigEndian.Uint32(data[0:4])
+		if attr.GetConstraints() != nil {
+			err = attr.GetConstraints()(attr.Value)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return value, err
+	case 8:
+		value := binary.BigEndian.Uint64(data[0:8])
+		if attr.GetConstraints() != nil {
+			err = attr.GetConstraints()(attr.Value)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return value, err
+	}
+}
+
+func (attr *AttributeDefinition) SerializeTo(b gopacket.SerializeBuffer) error {
+	// TODO: Check to see if space in buffer here !!!!
+	bytes, err := b.AppendBytes(attr.GetSize())
+	if err != nil {
+		return err
+	}
+	switch attr.GetSize() {
+	default:
+		return errors.New("unknown attribute size")
+	case 1:
+		bytes[0] = attr.Value.(byte)
+	case 2:
+		binary.BigEndian.PutUint16(bytes, attr.Value.(uint16))
+	case 4:
+		binary.BigEndian.PutUint32(bytes, attr.Value.(uint32))
+	case 8:
+		binary.BigEndian.PutUint64(bytes, attr.Value.(uint64))
+	}
+	return nil
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -79,3 +165,5 @@ type IAttributeValue interface {
 	GetValue() (interface{}, error)
 	SetValue(interface{}) error
 }
+
+type AttributeMap map[int]IAttributeValue

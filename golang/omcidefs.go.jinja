@@ -4,7 +4,7 @@
 package {{package_name}}
 {# blank line #}
 import (
-    "errors"
+	"errors"
 	"fmt"
 	"github.com/google/gopacket"
 )
@@ -232,7 +232,7 @@ type IManagedEntityDefinition interface {
 	GetAllowedAttributeMask() uint16
 	GetAttributeDefinitions() []*AttributeDefinition // TODO: Change this to a map, entity ID is index -1
 
-	DecodeAttributes(uint16, []byte, gopacket.PacketBuilder) ([]*IAttributeValue, error)
+	DecodeAttributes(uint16, []byte, gopacket.PacketBuilder) (AttributeMap, error)
 	SerializeAttributes(uint16, gopacket.SerializeBuffer) error
 }
 
@@ -279,21 +279,25 @@ func (bme *BaseManagedEntityDefinition) computeAttributeMask() {
 	}
 }
 
-func (bme* BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) ([]*IAttributeValue, error) {
+func (bme* BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeMap, error) {
 	if (mask | bme.GetAllowedAttributeMask()) != bme.GetAllowedAttributeMask() {
 		// TODO: Provide custom error code so a response 'result' can properly be coded
 		return nil, errors.New("unsupported attribute mask")
 	}
+	attrMap := make(AttributeMap)
 	for index, attrDef := range bme.AttributeDefinitions {
 		if index == 0 {
 			continue	// Skip Entity ID
 		}
 		if mask & (1 << (15 - uint(index - 1))) != 0 {
-			fmt.Println(attrDef)
+			value, err := attrDef.Decode(data, p)
+			if err != nil {
+				return nil, err
+			}
+			attrMap[index].SetValue(value)
 		}
-	    // TODO Implement me
 	}
-	return nil, nil
+	return attrMap, nil
 }
 
 func (bme* BaseManagedEntityDefinition) SerializeAttributes(mask uint16, data gopacket.SerializeBuffer) error {
