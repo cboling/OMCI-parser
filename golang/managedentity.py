@@ -37,6 +37,8 @@ def create_managed_entity_file(class_id, outdir, templateEnv):
     filename = os.path.join(outdir, ME_FILENAME.format(file))
     template = templateEnv.get_template(ME_TEMPLATE)
 
+    # TODO: For MessageType generation, sort the output list so we always get the same output
+
     with open(filename, 'w') as f:
         output = template.render(copyright=COPYRIGHT,
                                  generator_warning=GENERATOR_WARNING,
