@@ -14,9 +14,24 @@ Uint32Field
     {%- elif size.octets == 8 -%}
 Uint64Field
     {%- else -%}
-UnknownField
+MultiByteField
     {%- endif -%}
 {% endmacro %}
+
+{% macro attribute_zero_default(size) %}
+    {%- if size.octets == 1 -%}
+0
+    {%- elif size.octets == 2 -%}
+0
+    {%- elif size.octets == 4 -%}
+0
+    {%- elif size.octets == 8 -%}
+0
+    {%- else -%}
+{{size.octets}}, nil
+    {%- endif -%}
+{% endmacro %}
+
 
 
 {%-macro access_fields(access)-%}
@@ -28,6 +43,6 @@ UnknownField
 
 {%- macro generate_attributes(attributes) -%}
 	{%for attr in attributes%}
-			{{loop.index-1}}: {{attribute_field(attr.size)}}("{{attr.name|camelcase}}", 0, {{access_fields(attr.access)}}),
+			{{loop.index-1}}: {{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}),
 	{%-endfor-%}
 {%- endmacro -%}
