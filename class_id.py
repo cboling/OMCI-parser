@@ -87,16 +87,18 @@ class ClassIdList(object):
                     try:
                         cid = ClassId()
                         cid.cid = int(row.get(headings[0]))
+                        heading_name = row.get(headings[1])
 
-                        def name_cleanup(name):
-                            pos = name.find('(')
-                            if pos == -1:
-                                return name.strip()
-                            return name[:pos].strip()
+                        if heading_name is not None and 'deprecated' not in heading_name.lower():
+                            def name_cleanup(name):
+                                pos = name.find('(')
+                                if pos == -1:
+                                    return name.strip()
+                                return name[:pos].strip()
 
-                        cid.name = name_cleanup(row.get(headings[1]))
-                        cid_list.add(cid)
-                        cid.section = sections.find_section_by_name(cid.name)
+                            cid.name = name_cleanup(heading_name)
+                            cid_list.add(cid)
+                            cid.section = sections.find_section_by_name(cid.name)
 
                     except ValueError as _e:
                         pass        # Expected for reserved range statements
