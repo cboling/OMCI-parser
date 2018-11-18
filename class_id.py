@@ -87,9 +87,15 @@ class ClassIdList(object):
                     try:
                         cid = ClassId()
                         cid.cid = int(row.get(headings[0]))
-                        cid.name = row.get(headings[1])
-                        cid_list.add(cid)
 
+                        def name_cleanup(name):
+                            pos = name.find('(')
+                            if pos == -1:
+                                return name.strip()
+                            return name[:pos].strip()
+
+                        cid.name = name_cleanup(row.get(headings[1]))
+                        cid_list.add(cid)
                         cid.section = sections.find_section_by_name(cid.name)
 
                     except ValueError as _e:
