@@ -25,7 +25,7 @@ type ManagedEntityInfo struct {
 //
 type ParamData struct {
 	EntityID   uint16
-	Attributes []*AttributeValue
+	Attributes AttributeValueMap
 }
 {# blank line #}
 func decodeEntityID(params ...ParamData) uint16 {
