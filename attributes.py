@@ -204,6 +204,7 @@ class Attribute(object):
                 (' \(', ' '),
                 ('\)', ''),
                 ('  ', ' '),
+                (':', ''),
             }
             for orig, new in fixups:
                 attribute.name = re.sub(orig, new, attribute.name)
