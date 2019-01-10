@@ -45,4 +45,3 @@ def create_managed_entity_file(class_id, outdir, templateEnv):
                                  package_name=PACKAGE_NAME,
                                  classID=class_id)
         f.write(output)
-        pass

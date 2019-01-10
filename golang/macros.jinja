@@ -1,5 +1,5 @@
 {%-macro generate_msgTypes(msgTypes)-%}
-    {%-for type in msgTypes%}
+    {%-for type in msgTypes|sort(attribute='name')%}
 			{{ type.name }},
     {%-endfor-%}
 {%-endmacro-%}
@@ -35,11 +35,10 @@ MultiByteField
 
 
 {%-macro access_fields(access)-%}
-	{%-for access_type in access-%}
+	{%-for access_type in access|sort(attribute='name')-%}
 		{% if not loop.first %}|{% endif %}{{access_type.name}}
 	{%-endfor-%}
 {%-endmacro-%}
-
 
 {%- macro generate_attributes(attributes) -%}
 	{%for attr in attributes%}
