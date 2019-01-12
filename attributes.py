@@ -101,10 +101,8 @@ class AttributeList(object):
 
 
 # TODO: Add proper decode for
-#       avc
 #       tca
 #       counter
-#       table_support
 class Attribute(object):
     def __init__(self):
         self.name = None            # Attribute name (with spaces)

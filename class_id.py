@@ -378,12 +378,15 @@ class ClassId(object):
         self.parser = actions_parser
         if text is not None and len(text):
             if isinstance(content, int):
-                action = Actions.create_from_paragraph(self._paragraphs[content])
-
-                if action is not None:
-                    self.actions.update(action)
-                pass
-
+                actions = Actions.create_from_paragraph(self._paragraphs[content])
+                if actions is not None:
+                    self.actions.update(actions)
+                    if Actions.GetNext in actions:
+                        # Scan attribute lists for table attributes:
+                        if self.attributes is not None:
+                            for attribute in self.attributes:
+                                if 'table' in attribute.name.lower():
+                                    attribute.table_support = True
             else:
                 raise NotImplementedError('TODO: Support Tables')
 
