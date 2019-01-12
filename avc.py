@@ -37,6 +37,10 @@ class AVC(object):
         # TODO: Save/restore of table number needed?
         return self._attributes
 
+    @property
+    def attributes(self):
+        return self._attributes
+
     @staticmethod
     def load(data):
         if len(data) == 0:

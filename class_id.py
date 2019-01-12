@@ -430,6 +430,13 @@ class ClassId(object):
             if avc is not None:
                 assert self.avcs is None, 'AVCs have already been decoded'
                 self.avcs = avc
+                # Run through AVCs and touch up any attributes
+                if self.attributes is not None:
+                    for number, tuple in self.avcs.attributes.items():
+                        if tuple is None or not tuple[0]:
+                            continue
+                        if number < len(self.attributes):
+                            self.attributes[number].avc = True
 
     def on_enter_tests(self, text, content):
         self.parser = tests_parser
