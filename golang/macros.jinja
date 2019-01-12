@@ -32,7 +32,13 @@ MultiByteField
     {%- endif -%}
 {% endmacro %}
 
-
+{% macro boolean_field(support) %}
+    {%- if support -%}
+true
+    {%- else -%}
+false
+    {%- endif -%}
+{%-endmacro-%}
 
 {%-macro access_fields(access)-%}
 	{%-for access_type in access|sort(attribute='name')-%}
@@ -40,8 +46,8 @@ MultiByteField
 	{%-endfor-%}
 {%-endmacro-%}
 
-{%- macro generate_attributes(attributes) -%}
-	{%for attr in attributes%}
-			{{loop.index-1}}: {{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}),
+{%- macro generate_attributes(classID) -%}
+	{%for attr in classID.attributes%}
+			{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.table_support)}}, {{boolean_field(attr.optional)}}),
 	{%-endfor-%}
 {%- endmacro -%}

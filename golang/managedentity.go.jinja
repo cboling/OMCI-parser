@@ -27,7 +27,7 @@ func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntityDefinit
 		},
 		AllowedAttributeMask: 0,
 		AttributeDefinitions: AttributeDefinitionMap{
-			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID.attributes)}}{%endif%}
+			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID)}}{%endif%}
 		},
 	}
 	entity.computeAttributeMask()

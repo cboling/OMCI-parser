@@ -99,18 +99,24 @@ class AttributeList(object):
 
         return attr_list
 
-
+# TODO: Add proper decode for
+#       avc
+#       tca
+#       counter
+#       table_support
 class Attribute(object):
     def __init__(self):
-        self.name = None         # Attribute name (with spaces)
-        self.description = []    # Description (text, paragraph numbers & Table objects)
-        self.access = set()      # (AttributeAccess) Allowed access
-        self.optional = None     # If true, attribute is option, else mandatory
-        self.size = None         # (Size) Size object
-        self.avc = False         # If true, an AVC notification can occur for the attribute
-        self.tca = False         # If true, a threshold crossing alert alarm notification
-                                 # can occur for the attribute
-        self.table = None        # (dict) Table information related to attribute
+        self.name = None            # Attribute name (with spaces)
+        self.description = []       # Description (text, paragraph numbers & Table objects)
+        self.access = set()         # (AttributeAccess) Allowed access
+        self.optional = None        # If true, attribute is option, else mandatory
+        self.size = None            # (Size) Size object
+        self.avc = False            # If true, an AVC notification can occur for the attribute
+        self.tca = False            # If true, a threshold crossing alert alarm notification
+                                    # can occur for the attribute
+        self.counter = False        # Counter attribute
+        self.table = None           # (dict) Table information related to attribute
+        self.table_support = False  # Supports table operations
         # TODO: Constraints?
 
     def __str__(self):
@@ -128,6 +134,8 @@ class Attribute(object):
             'size': self.size.to_dict(),
             'avc': self.avc,
             'tca': self.tca,
+            'counter': self.counter,
+            'table-support': self.table_support,
         }
 
     @staticmethod
@@ -135,11 +143,13 @@ class Attribute(object):
         attr = Attribute()
         attr.name = data.get('name')
         attr.description = data.get('description')
-        attr.optional = data.get('optional')
-        attr.tca = data.get('tca')
-        attr.avc = data.get('avc')
+        attr.optional = data.get('optional', False)
+        attr.tca = data.get('tca', False)
+        attr.avc = data.get('avc', False)
         attr.size = AttributeSize.load(data.get('size'))
+        attr.counter = data.get('counter', False)
         attr.access = AttributeAccess.load(data.get('access'))
+        attr.table_support = data.get('table-support', False)
         return attr
 
     @staticmethod
@@ -211,33 +221,6 @@ class Attribute(object):
             }
             for orig, new in fixups:
                 attribute.name = re.sub(orig, new, attribute.name)
-
-            # attribute.name = re.sub('N Umber', 'Number', attribute.name)
-            # attribute.name = re.sub('C Ounter', 'Counter', attribute.name)
-            # attribute.name = re.sub('C Ontrol', 'Control', attribute.name)
-            # attribute.name = re.sub('P Ointer', 'Pointer', attribute.name)
-            # attribute.name = re.sub('1 St', '1st', attribute.name)
-            # attribute.name = re.sub('2 Nd', '2nd', attribute.name)
-            # attribute.name = re.sub('3 Rd', '3rd', attribute.name)
-            # attribute.name = re.sub('4 Th', '4th', attribute.name)
-            # attribute.name = re.sub('/', '_', attribute.name)
-            # attribute.name = re.sub('-', '_', attribute.name)
-            # attribute.name = re.sub('T Cont', 'TCont', attribute.name)
-            # attribute.name = re.sub('R Eporting', 'Reporting', attribute.name)
-            # attribute.name = re.sub('I Ndication', 'Indication', attribute.name)
-            # attribute.name = re.sub('H Ook', 'Hook', attribute.name)
-            # attribute.name = re.sub('R Eset', 'Reset', attribute.name)
-            # attribute.name = re.sub('I Nterval', 'Interval', attribute.name)
-            # attribute.name = re.sub('T Ype', 'Type', attribute.name)
-            # attribute.name = re.sub('F Ail', 'Fail', attribute.name)
-            # attribute.name = re.sub('P Ayload', 'Payload', attribute.name)
-            # attribute.name = re.sub('( S F )', '', attribute.name)
-            # attribute.name = re.sub('( Dsl )', '', attribute.name)
-            # attribute.name = re.sub('( Arc )', '', attribute.name)
-            # attribute.name = re.sub('\(\)', '', attribute.name)
-            # attribute.name = re.sub(' \(', ' ', attribute.name)
-            # attribute.name = re.sub('\)', '', attribute.name)
-            # attribute.name = re.sub('  ', ' ', attribute.name)
 
             attribute.name = attribute.name.strip()
             attribute.description.append(content)
