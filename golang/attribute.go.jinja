@@ -262,8 +262,9 @@ func MultiByteField(name string, size uint, defVal []byte, access AttributeAcces
 //  MCAST operations profile
 //  MCAST Subcriber config info
 //  MCAST subscriber monitor
-
-//  resume at 9.12.6
+//  OMCI                -> Two tables (N bytes and 2*N bytes)
+//  General pupose buffer   -> N bytes
+//  Enhanced security control (17 * N bytes), (16 * P Bytes) , (16 * Q bytes), and more...
 //
 func TableField(name string, size uint, defVal []byte, access AttributeAccess, avc bool,
 	counter bool, tableSupport bool, optional bool) *AttributeDefinition {
