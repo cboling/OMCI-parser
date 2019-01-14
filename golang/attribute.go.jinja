@@ -260,14 +260,21 @@ func MultiByteField(name string, size uint, defVal []byte, access AttributeAcces
 //  MAC Bridge Port data -> Bridge Table (8*M) (vaius fields, some are bits)        *** BITS ***
 //  VLAN tagging filter  -> Rx Vlan tag op table (16 * n) Lots of bit fields        *** BITS ***
 //  MCAST operations profile
-//  MCAST Subcriber config info
+//  MCAST Subscriber config info
 //  MCAST subscriber monitor
 //  OMCI                -> Two tables (N bytes and 2*N bytes)
 //  General pupose buffer   -> N bytes
 //  Enhanced security control (17 * N bytes), (16 * P Bytes) , (16 * Q bytes), and more...
 //
-func TableField(name string, size uint, defVal []byte, access AttributeAccess, avc bool,
-	counter bool, tableSupport bool, optional bool) *AttributeDefinition {
+// An early example of info to track
+//
+type TableInfo struct {
+    HelloWorld  bool        // Need a table description, and an entry description struct
+}
+
+// Now the field
+func TableField(name string, access AttributeAccess, tableInfo TableInfo,
+                avc bool, optional bool) *AttributeDefinition {
 	return &AttributeDefinition{
 		Name:         name,
 		DefValue:     defVal,
@@ -275,7 +282,7 @@ func TableField(name string, size uint, defVal []byte, access AttributeAccess, a
 		Access:       access,
 		Avc:          avc,
 		Counter:      counter,
-		TableSupport: tableSupport,
+		TableSupport: true,
 		Optional:     optional,
 	}
 }
