@@ -32,6 +32,20 @@ MultiByteField
     {%- endif -%}
 {% endmacro %}
 
+{% macro table_attribute_zero_default(size) %}
+    {%- if size.octets == 1 -%}
+0
+    {%- elif size.octets == 2 -%}
+0
+    {%- elif size.octets == 4 -%}
+0
+    {%- elif size.octets == 8 -%}
+0
+    {%- else -%}
+nil
+    {%- endif -%}
+{% endmacro %}
+
 {% macro boolean_field(support) %}
     {%- if support -%}
 true
@@ -49,7 +63,7 @@ false
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}),
 			{%- else -%}
 {{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}),
 			{%- endif -%}
@@ -60,11 +74,15 @@ def maskit(
 
 {%- macro attribute_mask(classID) -%}
     {%- set mask = namespace(value=0) -%}
-	{%- for attr in classID.attributes -%}
-		{%- if loop.index > 1 -%}
-			{%- set pow = (2 ** (17-loop.index)) -%}
-			{%- set mask.value = pow + mask.value -%}
-			{%- if loop.last -%}{{ '%#0X' % mask.value }}{%- endif -%}
-		{%- endif -%}
-	{%- endfor -%}
+	{%- if classID.attributes|length == 1 -%}
+			0x0
+	{%- else -%}
+		{%- for attr in classID.attributes -%}
+			{%- if loop.index > 1 -%}
+				{%- set pow = (2 ** (17-loop.index)) -%}
+				{%- set mask.value = pow + mask.value -%}
+				{%- if loop.last -%}{{ '%#0X' % mask.value }}{%- endif -%}
+			{%- endif -%}
+		{%- endfor -%}
+	{%- endif -%}
 {%- endmacro -%}

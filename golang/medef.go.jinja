@@ -31,17 +31,14 @@ func (bme *BaseManagedEntityDefinition) GetName() string {
 func (bme *BaseManagedEntityDefinition) GetClassID() uint16 {
 	return bme.ClassID
 }
-func (bme *BaseManagedEntityDefinition) GetEntityID() uint16 {
-	return bme.EntityID
-}
 func (bme *BaseManagedEntityDefinition) GetMessageTypes() mapset.Set {
 	return bme.MessageTypes
 }
 func (bme *BaseManagedEntityDefinition) GetAllowedAttributeMask() uint16 {
 	return bme.AllowedAttributeMask
 }
-func (bme *BaseManagedEntityDefinition) GetAttributeDefinitions() AttributeDefinitionMap {
-	return bme.AttributeDefinitions
+func (bme *BaseManagedEntityDefinition) GetAttributeDefinitions() *AttributeDefinitionMap {
+	return &bme.AttributeDefinitions
 }
 
 func (bme *BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeValueMap, error) {

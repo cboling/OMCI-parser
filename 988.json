@@ -1,0 +1,20 @@
+[
+  {
+    "cid": 256,
+    "attributes": {
+      2: {
+        "default": 0,
+        "constraints": "",
+      }
+    }
+  },
+  {
+    "cid": 2,
+    "attributes": {
+      2: {
+        "default": 0,
+        "constraints": "",
+      }
+    }
+  }
+]

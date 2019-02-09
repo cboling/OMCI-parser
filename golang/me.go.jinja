@@ -23,10 +23,6 @@ func (entity *ManagedEntity) GetClassID() uint16 {
 	return entity.Definition.GetClassID()
 }
 
-func (entity *ManagedEntity) GetEntityID() uint16 {
-	return entity.Definition.GetEntityID()
-}
-
 func (entity *ManagedEntity) GetMessageTypes() mapset.Set {
 	return entity.Definition.GetMessageTypes()
 }
@@ -35,7 +31,7 @@ func (entity *ManagedEntity) GetAllowedAttributeMask() uint16 {
 	return entity.Definition.GetAllowedAttributeMask()
 }
 
-func (entity *ManagedEntity) GetAttributeDefinitions() AttributeDefinitionMap{
+func (entity *ManagedEntity) GetAttributeDefinitions() *AttributeDefinitionMap {
 	return entity.Definition.GetAttributeDefinitions()
 }
 
@@ -43,8 +39,15 @@ func (entity *ManagedEntity) DecodeAttributes(mask uint16, data []byte, p gopack
 	return entity.Definition.DecodeAttributes(mask, data, p)
 }
 
-func (entity *ManagedEntity) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error{
+func (entity *ManagedEntity) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error {
 	return entity.Definition.SerializeAttributes(attr, mask, b)
+}
+
+func (entity *ManagedEntity) GetEntityID() uint16 {
+	if eid, err := entity.GetAttributeByIndex(0); err == nil {
+		return eid.(uint16)
+	}
+	return 0
 }
 
 func (entity *ManagedEntity) SetEntityID(eid uint16) error {
@@ -56,11 +59,22 @@ func (entity *ManagedEntity) GetAttributeValueMap() *AttributeValueMap {
 }
 
 func (entity *ManagedEntity) GetAttribute(name string) (interface{}, error) {
-	return nil, errors.New("TODO: Not implemented")
+	value, ok := entity.Attributes[name]
+	if !ok {
+		return 0, errors.New(fmt.Sprintf("attribute '%v' not found", name))
+	}
+	return value, nil
 }
 
 func (entity *ManagedEntity) GetAttributeByIndex(index uint) (interface{}, error) {
-	return nil, errors.New("TODO: Not implemented")
+	if len(entity.Attributes) == 0 {
+		return nil, errors.New("attributes have already been set")
+	}
+	if _, ok := entity.Definition.AttributeDefinitions[index]; !ok {
+		return nil, errors.New(fmt.Sprintf("invalid attribute index: %d, should be 0..%d",
+			index, len(entity.Definition.AttributeDefinitions)-1))
+	}
+	return entity.GetAttribute(entity.Definition.AttributeDefinitions[index].Name)
 }
 
 func (entity *ManagedEntity) setAttributes(params ...ParamData) error {
@@ -86,14 +100,13 @@ func (entity *ManagedEntity) setAttributes(params ...ParamData) error {
 }
 
 func (entity *ManagedEntity) SetAttribute(name string, value interface{}) error {
-	for _, attrDef := range entity.Definition.AttributeDefinitions {
-		if name == attrDef.Name {
-			// TODO: Check type and any constraints
-			entity.Attributes[name] = value
-			return nil
-		}
+	_, err := GetAttributeDefinitionByName(entity.Definition.GetAttributeDefinitions(), name)
+	if err != nil {
+		return err
 	}
-	return errors.New(fmt.Sprintf("invalid attribute name: %v", name))
+	// TODO: check type and any constraints
+	entity.Attributes[name] = value
+	return nil
 }
 
 func (entity *ManagedEntity) SetAttributeByIndex(index uint, value interface{}) error {

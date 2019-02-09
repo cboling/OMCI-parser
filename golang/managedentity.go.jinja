@@ -18,9 +18,9 @@ type {{ classID.name|camelcase }} struct {
 }
 {# blank line #}
 func init() {
-	{{classID.name|camelcase|lower}}BME := &BaseManagedEntityDefinition{
-		Name:     "{{ classID.name|camelcase }}",
-		ClassID:  {{ classID.cid }},
+	{{classID.name|camelcase|lower}}BME = &BaseManagedEntityDefinition{
+		Name:    "{{ classID.name|camelcase }}",
+		ClassID: {{ classID.cid }},
 		MessageTypes: mapset.NewSetWith(
 			{%-if classID.actions|length %}{{Macros.generate_msgTypes(classID.actions)}}{%endif%}
 			{%-if classID.optional_actions|length %}{{Macros.generate_msgTypes(classID.optional_actions)}}{%endif%}
@@ -36,12 +36,12 @@ func init() {
 // Managed Entity definition that is used to validate an ME of this type that
 // is received from the wire, about to be sent on the wire.
 func New{{ classID.name|camelcase }}(params ...ParamData) (IManagedEntity, error) {
-	entity := &ManagedEntity {
-	    Definition: {{classID.name|camelcase|lower}}BME,
-	    Attributes: make(map[string]interface{}),
+	entity := &ManagedEntity{
+		Definition: {{classID.name|camelcase|lower}}BME,
+		Attributes: make(map[string]interface{}),
 	}
 	if err := entity.setAttributes(params...); err != nil {
-	    return nil, err
+		return nil, err
 	}
 	return entity, nil
 }
