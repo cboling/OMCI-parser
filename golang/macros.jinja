@@ -48,6 +48,23 @@ false
 
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
-			{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.table_support)}}, {{boolean_field(attr.optional)}}),
+			{% if attr.table_support -%}
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}),
+			{%- else -%}
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}),
+			{%- endif -%}
 	{%-endfor-%}
+{%- endmacro -%}
+
+def maskit(
+
+{%- macro attribute_mask(classID) -%}
+    {%- set mask = namespace(value=0) -%}
+	{%- for attr in classID.attributes -%}
+		{%- if loop.index > 1 -%}
+			{%- set pow = (2 ** (17-loop.index)) -%}
+			{%- set mask.value = pow + mask.value -%}
+			{%- if loop.last -%}{{ '%#0X' % mask.value }}{%- endif -%}
+		{%- endif -%}
+	{%- endfor -%}
 {%- endmacro -%}

@@ -1,0 +1,108 @@
+{% import 'macros.jinja' as Macros with context -%}
+{{copyright}}
+{{generator_warning}}
+package {{package_name}}
+{# blank line #}
+import (
+	"errors"
+	"fmt"
+	"github.com/deckarep/golang-set"
+	"github.com/google/gopacket"
+)
+{# blank line #}
+type ManagedEntity struct {
+	Definition *BaseManagedEntityDefinition
+	Attributes AttributeValueMap
+}
+
+func (entity *ManagedEntity) GetName() string {
+	return entity.Definition.GetName()
+}
+
+func (entity *ManagedEntity) GetClassID() uint16 {
+	return entity.Definition.GetClassID()
+}
+
+func (entity *ManagedEntity) GetEntityID() uint16 {
+	return entity.Definition.GetEntityID()
+}
+
+func (entity *ManagedEntity) GetMessageTypes() mapset.Set {
+	return entity.Definition.GetMessageTypes()
+}
+
+func (entity *ManagedEntity) GetAllowedAttributeMask() uint16 {
+	return entity.Definition.GetAllowedAttributeMask()
+}
+
+func (entity *ManagedEntity) GetAttributeDefinitions() AttributeDefinitionMap{
+	return entity.Definition.GetAttributeDefinitions()
+}
+
+func (entity *ManagedEntity) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeValueMap, error) {
+	return entity.Definition.DecodeAttributes(mask, data, p)
+}
+
+func (entity *ManagedEntity) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error{
+	return entity.Definition.SerializeAttributes(attr, mask, b)
+}
+
+func (entity *ManagedEntity) SetEntityID(eid uint16) error {
+	return entity.SetAttributeByIndex(0, eid)
+}
+
+func (entity *ManagedEntity) GetAttributeValueMap() *AttributeValueMap {
+	return &entity.Attributes
+}
+
+func (entity *ManagedEntity) GetAttribute(name string) (interface{}, error) {
+	return nil, errors.New("TODO: Not implemented")
+}
+
+func (entity *ManagedEntity) GetAttributeByIndex(index uint) (interface{}, error) {
+	return nil, errors.New("TODO: Not implemented")
+}
+
+func (entity *ManagedEntity) setAttributes(params ...ParamData) error {
+	if len(entity.Attributes) > 0 {
+		return errors.New("attributes have already been set")
+	}
+	eidName := entity.Definition.AttributeDefinitions[0].Name
+	if len(params) == 0 {
+		entity.Attributes[eidName] = 0
+		return nil
+	}
+	entity.Attributes[eidName] = params[0].EntityID
+
+	for name, value := range params[0].Attributes {
+		if name == eidName {
+			continue
+		}
+		if err := entity.SetAttribute(name, value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (entity *ManagedEntity) SetAttribute(name string, value interface{}) error {
+	for _, attrDef := range entity.Definition.AttributeDefinitions {
+		if name == attrDef.Name {
+			// TODO: Check type and any constraints
+			entity.Attributes[name] = value
+			return nil
+		}
+	}
+	return errors.New(fmt.Sprintf("invalid attribute name: %v", name))
+}
+
+func (entity *ManagedEntity) SetAttributeByIndex(index uint, value interface{}) error {
+	attrDef, ok := entity.Definition.AttributeDefinitions[index]
+	if !ok {
+		return errors.New(fmt.Sprintf("invalid attribute index: %d, should be 0..%d",
+			index, len(entity.Definition.AttributeDefinitions)-1))
+	}
+	// TODO: Check type and any constraints
+	entity.Attributes[attrDef.Name] = value
+	return nil
+}
