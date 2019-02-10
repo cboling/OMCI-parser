@@ -35,6 +35,10 @@ func NewManagedEntity(definition *ManagedEntityDefinition, params ...ParamData) 
 	return entity, err
 }
 
+func (entity *ManagedEntity) GetManagedEntityDefinition() *ManagedEntityDefinition {
+	return entity.definition
+}
+
 func (entity *ManagedEntity) GetName() string {
 	return entity.definition.GetName()
 }
@@ -72,6 +76,10 @@ func (entity *ManagedEntity) GetEntityID() uint16 {
 
 func (entity *ManagedEntity) SetEntityID(eid uint16) error {
 	return entity.SetAttributeByIndex(0, eid)
+}
+
+func(entity *ManagedEntity) GetAttributeMask() uint16 {
+    return entity.attributeMask
 }
 
 func (entity *ManagedEntity) GetAttributeValueMap() *AttributeValueMap {
