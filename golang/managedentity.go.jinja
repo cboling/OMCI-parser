@@ -7,18 +7,18 @@ import "github.com/deckarep/golang-set"
 {# blank line #}
 const {{classID.name|camelcase}}ClassId uint16 = {{classID.cid}}
 {# blank line #}
-var {{classID.name|camelcase|lower}}BME *BaseManagedEntityDefinition
+var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition
 {# blank line #}
 // {{ classID.name|camelcase }} (class ID #{{classID.cid}}) defines the basic
 // Managed Entity definition that is further extended by types that support
 // packet encode/decode and user create managed entities.
 type {{ classID.name|camelcase }} struct {
-	BaseManagedEntityDefinition
+	ManagedEntityDefinition
 	Attributes AttributeValueMap
 }
 {# blank line #}
 func init() {
-	{{classID.name|camelcase|lower}}BME = &BaseManagedEntityDefinition{
+	{{classID.name|camelcase|lower}}BME = &ManagedEntityDefinition{
 		Name:    "{{ classID.name|camelcase }}",
 		ClassID: {{ classID.cid }},
 		MessageTypes: mapset.NewSetWith(
@@ -36,13 +36,6 @@ func init() {
 // Managed Entity definition that is used to validate an ME of this type that
 // is received from the wire, about to be sent on the wire.
 func New{{ classID.name|camelcase }}(params ...ParamData) (*ManagedEntity, error) {
-	entity := &ManagedEntity{
-		Definition: {{classID.name|camelcase|lower}}BME,
-		Attributes: make(map[string]interface{}),
-	}
-	if err := entity.setAttributes(params...); err != nil {
-		return nil, err
-	}
-	return entity, nil
+	return NewManagedEntity({{classID.name|camelcase|lower}}BME, params)
 }
 {# blank line #}

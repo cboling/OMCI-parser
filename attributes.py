@@ -94,8 +94,10 @@ class AttributeList(object):
         attr_list = AttributeList()
         key_list = [k for k in data.keys()]
         key_list.sort(key=lambda x: int(x))
+        index = 0
         for key in key_list:
-            attr_list.add(Attribute.load(data[key]))
+            attr_list.add(Attribute.load(data[key], index))
+            index += 1
 
         return attr_list
 
@@ -106,6 +108,7 @@ class AttributeList(object):
 class Attribute(object):
     def __init__(self):
         self.name = None            # Attribute name (with spaces)
+        self.index = None           # Sequence in the attribute list (0..n)
         self.description = []       # Description (text, paragraph numbers & Table objects)
         self.access = set()         # (AttributeAccess) Allowed access
         self.optional = None        # If true, attribute is option, else mandatory
@@ -138,9 +141,10 @@ class Attribute(object):
         }
 
     @staticmethod
-    def load(data):
+    def load(data, index):
         attr = Attribute()
         attr.name = data.get('name')
+        attr.index = index
         attr.description = data.get('description')
         attr.optional = data.get('optional', False)
         attr.tca = data.get('tca', False)

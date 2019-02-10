@@ -11,7 +11,7 @@ import (
 	"math/bits"
 )
 {# blank line #}
-type BaseManagedEntityDefinition struct {
+type ManagedEntityDefinition struct {
 	Name                 string
 	ClassID              uint16
 	EntityID             uint16
@@ -20,28 +20,28 @@ type BaseManagedEntityDefinition struct {
 	AttributeDefinitions AttributeDefinitionMap
 }
 
-func (bme *BaseManagedEntityDefinition) String() string {
+func (bme *ManagedEntityDefinition) String() string {
 	return fmt.Sprintf("Definition: %v: CID: %v (%#x), Attributes: %v",
 		bme.Name, bme.ClassID, bme.ClassID, bme.AttributeDefinitions)
 }
 
-func (bme *BaseManagedEntityDefinition) GetName() string {
+func (bme *ManagedEntityDefinition) GetName() string {
 	return bme.Name
 }
-func (bme *BaseManagedEntityDefinition) GetClassID() uint16 {
+func (bme *ManagedEntityDefinition) GetClassID() uint16 {
 	return bme.ClassID
 }
-func (bme *BaseManagedEntityDefinition) GetMessageTypes() mapset.Set {
+func (bme *ManagedEntityDefinition) GetMessageTypes() mapset.Set {
 	return bme.MessageTypes
 }
-func (bme *BaseManagedEntityDefinition) GetAllowedAttributeMask() uint16 {
+func (bme *ManagedEntityDefinition) GetAllowedAttributeMask() uint16 {
 	return bme.AllowedAttributeMask
 }
-func (bme *BaseManagedEntityDefinition) GetAttributeDefinitions() *AttributeDefinitionMap {
+func (bme *ManagedEntityDefinition) GetAttributeDefinitions() *AttributeDefinitionMap {
 	return &bme.AttributeDefinitions
 }
 
-func (bme *BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeValueMap, error) {
+func (bme *ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeValueMap, error) {
 	if (mask | bme.GetAllowedAttributeMask()) != bme.GetAllowedAttributeMask() {
 		// TODO: Provide custom error code so a response 'result' can properly be coded
 		return nil, errors.New("unsupported attribute mask")
@@ -68,7 +68,7 @@ func (bme *BaseManagedEntityDefinition) DecodeAttributes(mask uint16, data []byt
 	return attrMap, nil
 }
 
-func (bme *BaseManagedEntityDefinition) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error {
+func (bme *ManagedEntityDefinition) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error {
 	if (mask | bme.GetAllowedAttributeMask()) != bme.GetAllowedAttributeMask() {
 		// TODO: Provide custom error code so a response 'result' can properly be coded
 		return errors.New("unsupported attribute mask")
