@@ -82,7 +82,7 @@ func (entity *ManagedEntity) SetEntityID(eid uint16) error {
 	return entity.SetAttributeByIndex(0, eid)
 }
 
-func(entity *ManagedEntity) GetAttributeMask() uint16 {
+func (entity *ManagedEntity) GetAttributeMask() uint16 {
 	return entity.attributeMask
 }
 
