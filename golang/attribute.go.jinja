@@ -49,7 +49,7 @@ func (attr *AttributeDefinition) IsTableAttribute() bool {
 
 func (attr *AttributeDefinition) Decode(data []byte, df gopacket.DecodeFeedback) (interface{}, error) {
 	if attr.IsTableAttribute() {
-		return attr.tableAttributeDecode(value, b)
+		return attr.tableAttributeDecode(data, df)
 	}
 	// Use negative numbers to indicate signed values
 	size := attr.GetSize()
