@@ -64,12 +64,12 @@ func (entity *ManagedEntity) GetAttributeDefinitions() *AttributeDefinitionMap {
 	return entity.definition.GetAttributeDefinitions()
 }
 
-func (entity *ManagedEntity) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder) (AttributeValueMap, error) {
-	return entity.definition.DecodeAttributes(mask, data, p)
+func (entity *ManagedEntity) DecodeAttributes(mask uint16, data []byte, p gopacket.PacketBuilder, msgType byte) (AttributeValueMap, error) {
+	return entity.definition.DecodeAttributes(mask, data, p, msgType)
 }
 
-func (entity *ManagedEntity) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer) error {
-	return entity.definition.SerializeAttributes(attr, mask, b)
+func (entity *ManagedEntity) SerializeAttributes(attr AttributeValueMap, mask uint16, b gopacket.SerializeBuffer, msgType byte) error {
+	return entity.definition.SerializeAttributes(attr, mask, b, msgType)
 }
 
 func (entity *ManagedEntity) GetEntityID() uint16 {

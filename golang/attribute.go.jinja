@@ -155,7 +155,7 @@ func (attr *AttributeDefinition) SerializeTo(value interface{}, b gopacket.Seria
 	return nil
 }
 
-func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.DecodeFeedback) (interface{}, error) {
+func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.DecodeFeedback, msgType byte) (interface{}, error) {
 	// Use negative numbers to indicate signed values
 	size := attr.GetSize()
 	if size < 0 {
@@ -216,7 +216,7 @@ func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.D
 	}
 }
 
-func (attr *AttributeDefinition) tableAttributeSerializeTo(value interface{}, b gopacket.SerializeBuffer) error {
+func (attr *AttributeDefinition) tableAttributeSerializeTo(value interface{}, b gopacket.SerializeBuffer, msgType byte) error {
 	// TODO: Check to see if space in buffer here !!!!
 	bytes, err := b.AppendBytes(attr.GetSize())
 	if err != nil {
