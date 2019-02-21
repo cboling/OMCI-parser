@@ -47,9 +47,9 @@ func (attr *AttributeDefinition) IsTableAttribute() bool {
 	return attr.TableSupport
 }
 
-func (attr *AttributeDefinition) Decode(data []byte, df gopacket.DecodeFeedback) (interface{}, error) {
+func (attr *AttributeDefinition) Decode(data []byte, df gopacket.DecodeFeedback, msgType byte) (interface{}, error) {
 	if attr.IsTableAttribute() {
-		return attr.tableAttributeDecode(data, df)
+		return attr.tableAttributeDecode(data, df, msgType)
 	}
 	// Use negative numbers to indicate signed values
 	size := attr.GetSize()
@@ -111,9 +111,9 @@ func (attr *AttributeDefinition) Decode(data []byte, df gopacket.DecodeFeedback)
 	}
 }
 
-func (attr *AttributeDefinition) SerializeTo(value interface{}, b gopacket.SerializeBuffer) error {
+func (attr *AttributeDefinition) SerializeTo(value interface{}, b gopacket.SerializeBuffer, msgType byte) error {
 	if attr.IsTableAttribute() {
-		return attr.tableAttributeSerializeTo(value, b)
+		return attr.tableAttributeSerializeTo(value, b, msgType)
 	}
 	// TODO: Check to see if space in buffer here !!!!
 	bytes, err := b.AppendBytes(attr.GetSize())
