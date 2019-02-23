@@ -156,67 +156,116 @@ func (attr *AttributeDefinition) SerializeTo(value interface{}, b gopacket.Seria
 }
 
 func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.DecodeFeedback, msgType byte) (interface{}, error) {
-	// Use negative numbers to indicate signed values
-	size := attr.GetSize()
-	if size < 0 {
-		size = -size
-	}
-	if len(data) < size {
-		df.SetTruncated()
-		return nil, errors.New("packet too small for field")
-	}
-	var err error
-	switch attr.GetSize() {
+	// Serialization of a table depends on the type of message. A
+	// Review of ITU-T G.988 shows that access on tables are
+	// either Read and/or Write, never Set-by-Create
+	switch msgType {
 	default:
-		value := make([]byte, size)
-		copy(value, data[:size])
-		if attr.GetConstraints() != nil {
-			err = attr.GetConstraints()(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return value, err
-	case 1:
-		value := data[0]
-		if attr.GetConstraints() != nil {
-			err = attr.GetConstraints()(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return value, err
-	case 2:
-		value := binary.BigEndian.Uint16(data[0:2])
-		if attr.GetConstraints() != nil {
-			err = attr.GetConstraints()(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return value, err
-	case 4:
+		return nil, errors.New(fmt.Sprintf("unsupported Message Type '%v' for table serialization", msgType))
+
+	case byte(Get) | AK: // Get Response
+		// Size
 		value := binary.BigEndian.Uint32(data[0:4])
-		if attr.GetConstraints() != nil {
-			err = attr.GetConstraints()(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return value, err
-	case 8:
-		value := binary.BigEndian.Uint64(data[0:8])
-		if attr.GetConstraints() != nil {
-			err = attr.GetConstraints()(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return value, err
+		return value, nil
+
+	case byte(GetNext) | AK: // Get Next Response
+		// Values to octet buffer
+		fmt.Println("TODO")
+
+	case byte(Set) | AR: // Set Request
+		fmt.Println("TODO")
+
+	case byte(SetTable) | AR: // Set Table Request
+		// TODO: Only baseline supported at this time
+		return nil, errors.New("attribute encode for set-table-request not yet supported")
 	}
+	//if len(data) < size {
+	//	df.SetTruncated()
+	//	return nil, errors.New("packet too small for field")
+	//}
+	//var err error
+	//switch attr.GetSize() {
+	//default:
+	//	value := make([]byte, size)
+	//	copy(value, data[:size])
+	//	if attr.GetConstraints() != nil {
+	//		err = attr.GetConstraints()(value)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//	}
+	//	return value, err
+	//case 1:
+	//	value := data[0]
+	//	if attr.GetConstraints() != nil {
+	//		err = attr.GetConstraints()(value)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//	}
+	//	return value, err
+	//case 2:
+	//	value := binary.BigEndian.Uint16(data[0:2])
+	//	if attr.GetConstraints() != nil {
+	//		err = attr.GetConstraints()(value)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//	}
+	//	return value, err
+	//case 4:
+	//	value := binary.BigEndian.Uint32(data[0:4])
+	//	if attr.GetConstraints() != nil {
+	//		err = attr.GetConstraints()(value)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//	}
+	//	return value, err
+	//case 8:
+	//	value := binary.BigEndian.Uint64(data[0:8])
+	//	if attr.GetConstraints() != nil {
+	//		err = attr.GetConstraints()(value)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//	}
+	//	return value, err
+	//}
+	return nil, errors.New("TODO")
 }
 
 func (attr *AttributeDefinition) tableAttributeSerializeTo(value interface{}, b gopacket.SerializeBuffer, msgType byte) error {
+	// Serialization of a table depends on the type of message. A
+	// Review of ITU-T G.988 shows that access on tables are
+	// either Read and/or Write, never Set-by-Create
+	switch msgType {
+	default:
+		return errors.New(fmt.Sprintf("unsupported Message Type '%v' for table serialization", msgType))
+
+	case byte(Get) | AK: // Get Response
+		// Size
+		if dwordSize, ok := value.(uint32); ok {
+			bytes, err := b.AppendBytes(4)
+			if err != nil {
+				return err
+			}
+			binary.BigEndian.PutUint32(bytes, dwordSize)
+			return nil
+		}
+		return errors.New("unexpected type for table serialization")
+
+	case byte(GetNext) | AK: // Get Next Response
+		// Values to octet buffer
+		fmt.Println("TODO")
+
+	case byte(Set) | AR: // Set Request
+		fmt.Println("TODO")
+
+	case byte(SetTable) | AR: // Set Table Request
+		// TODO: Only baseline supported at this time
+		return errors.New("attribute encode for set-table-request not yet supported")
+	}
 	// TODO: Check to see if space in buffer here !!!!
 	bytes, err := b.AppendBytes(attr.GetSize())
 	if err != nil {

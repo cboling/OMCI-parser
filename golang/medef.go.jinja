@@ -60,9 +60,30 @@ func (bme *ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p
 			if err != nil {
 				return nil, err
 			}
-			attrMap[attrDef.GetName()] = value
+			if attrDef.IsTableAttribute() {
+				switch msgType {
+				default:
+					return nil, errors.New(fmt.Sprintf("unsupported Message Type '%v' for table serialization", msgType))
 
-			data = data[attrDef.GetSize():]
+				case byte(Get) | AK: // Get Response
+					attrMap[attrDef.GetName()] = value
+					data = data[4:]
+
+				case byte(GetNext) | AK: // Get Next Response
+					// Values to octet buffer
+					fmt.Println("TODO")
+
+				case byte(Set) | AR: // Set Request
+					fmt.Println("TODO")
+
+				case byte(SetTable) | AR: // Set Table Request
+					// TODO: Only baseline supported at this time
+					return nil, errors.New("attribute encode for set-table-request not yet supported")
+				}
+			} else {
+				attrMap[attrDef.GetName()] = value
+				data = data[attrDef.GetSize():]
+			}
 		}
 	}
 	return attrMap, nil
