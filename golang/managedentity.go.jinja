@@ -5,7 +5,7 @@ package {{package_name}}
 {# blank line #}
 import "github.com/deckarep/golang-set"
 {# blank line #}
-const {{classID.name|camelcase}}ClassId uint16 = {{classID.cid}}
+const {{classID.name|camelcase}}ClassId ClassID = ClassID({{classID.cid}})
 {# blank line #}
 var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition
 {# blank line #}
