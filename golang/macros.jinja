@@ -56,16 +56,16 @@ false
 
 {%-macro access_fields(access)-%}
 	{%-for access_type in access|sort(attribute='name')-%}
-		{% if not loop.first %}|{% endif %}{{access_type.name}}
+		{% if not loop.first %}, {% endif %}{{access_type.name}}
 	{%-endfor-%}
 {%-endmacro-%}
 
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{ attr.index }}),
 			{%- else -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, {{access_fields(attr.access)}}, {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}, {{ attr.index }}),
 			{%- endif -%}
 	{%-endfor-%}
 {%- endmacro -%}
