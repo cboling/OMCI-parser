@@ -382,11 +382,13 @@ class ClassId(object):
                 if actions is not None:
                     self.actions.update(actions)
                     if Actions.GetNext in actions:
-                        # Scan attribute lists for table attributes:
+                        # Scan attribute lists for table attributes.  To be a
+                        # table attribute, the attribute name 'Ends' with the
+                        # word table:
                         if self.attributes is not None:
                             for attribute in self.attributes:
-                                if 'table' in attribute.name.lower():
-                                    attribute.table_support = True
+                                name = attribute.name.lower()
+                                attribute.table_support = len(name) > len('table') and 'table' in name[-5:]
             else:
                 raise NotImplementedError('TODO: Support Tables')
 
