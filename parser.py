@@ -91,7 +91,7 @@ class Main(object):
              165,           # VDLS2 line config extensions
              157,           # Large String                      (part of AT&T OpenOMCI v3.0)
              309,           # Multicast operations (Dot1ag)     (part of AT&T OpenOMCI v3.0)
-             }
+             415}
 
         print('Skipping the following MEs due to complex document formatting')
         print("    {}".format(crazy_formatted_mes))
