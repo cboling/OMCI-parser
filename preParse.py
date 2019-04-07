@@ -31,7 +31,9 @@ from docx.table import _Cell
 from docx.table import Table as DocxTable
 from docx.text.paragraph import Paragraph
 
-from section import SectionHeading, SectionList
+from preparsed_json import PreParsedJson
+from section import SectionHeading
+from versions import VersionHeading
 from tables import Table
 
 
@@ -54,9 +56,34 @@ class Main(object):
     """ Main program """
     def __init__(self):
         self.args = parse_args()
+        self.preparsed = PreParsedJson()
+
+        import time
+        version = VersionHeading()
+        version.name = 'pre-parser'
+        version.create_time = time.time()
+        version.itu_document = self.args[0]
+        version.version = self.get_version()
+        version.sha256 = self.get_file_hash(version.itu_document)
+        self.preparsed.add(version)
+
+    @staticmethod
+    def get_version():
+        with open('VERSION', 'r') as f:
+            for line in f:
+                line = line.strip().lower()
+                if len(line) > 0:
+                    return line
+
+    @staticmethod
+    def get_file_hash(filename):
+        import hashlib
+        with open(filename, 'rb') as f:
+            data = f.read()
+            return hashlib.sha256(data).hexdigest()
 
     def start(self, source_file, output):
-        sections = SectionList()
+        # sections = SectionList()
         document = Document(source_file)
 
         paragraphs = document.paragraphs
@@ -71,7 +98,7 @@ class Main(object):
                                                                              if x.builtin])))
         print('Number of tables    : {}'.format(len(tables)))
         print('Parsing paragraphs & tables to extract high level information.')
-        print('This will take a little while (4-5 minutes)')
+        print('This may take a little while (~3-5 minutes)')
 
         pnum = 0
         tnum = 0
@@ -88,7 +115,7 @@ class Main(object):
                 if is_section_header(block):
                     # Save of previous
                     current_section = SectionHeading.create(pnum, block)
-                    sections.add(current_section)
+                    self.preparsed.add(current_section)
 
                 elif len(block.text) > 0 and current_section is not None:
                     current_section.add_contents(pnum)
@@ -113,16 +140,16 @@ class Main(object):
         # Save to file
         print('')
         print('Saving Section parsing information to {}'.format(output))
-        sections.save(output)
+        self.preparsed.save(output)
 
         print('Section pre-parsing are complete')
-        sections.dump()
+        self.preparsed.dump()
 
         # Restore and verify
-        sections.load(output)
+        self.preparsed.load(output)
 
         print('Dumping data loaded from saved file for verification')
-        for section in sections:
+        for section in self.preparsed.sections:
             print('  Section: {} -> {}'.format(section, section.section_points))
 
     @staticmethod

@@ -15,7 +15,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import re
-import json
 from text import ascii_only
 from tables import Table
 
@@ -44,44 +43,41 @@ class SectionList(object):
     def get(self, index):
         return self._sections[index]
 
-    def save(self, filepath):
-        data = json.dumps(self.as_dict_list(), indent=2, separators=(',', ': '))
-        with open(filepath, 'w') as f:
-            f.write(data)
+    @property
+    def sections(self):
+        return self._sections
 
-    def load(self, filepath):
+    def load(self, sections):
         self._sections = list()
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-            for head in data:
-                section = SectionHeading()
-                section.style_name = head['style_name']
-                section.section_number = head['section_number']
-                section.title = head['title']
-                section.section_points = head['section_points']
+        for head in sections:
+            section = SectionHeading()
+            section.style_name = head['style_name']
+            section.section_number = head['section_number']
+            section.title = head['title']
+            section.section_points = head['section_points']
 
-                for content in head['contents']:
-                    if isinstance(content, int):
-                        section.contents.append(content)
-                    elif isinstance(content, dict):
-                        table = Table()
+            for content in head['contents']:
+                if isinstance(content, int):
+                    section.contents.append(content)
+                elif isinstance(content, dict):
+                    table = Table()
 
-                        table.heading = content.get('heading')
-                        table.doc_table_number = content.get('doc_table_number')
-                        table.table_number = content.get('table_number')
-                        table.num_columns = content.get('num_columns')
-                        table.full_title = content.get('full_title')
-                        table.short_title = content.get('short_title')
+                    table.heading = content.get('heading')
+                    table.doc_table_number = content.get('doc_table_number')
+                    table.table_number = content.get('table_number')
+                    table.num_columns = content.get('num_columns')
+                    table.full_title = content.get('full_title')
+                    table.short_title = content.get('short_title')
 
-                        if isinstance(content.get('rows'), list):
-                            for row in content['rows']:
-                                table.rows.append(row)
+                    if isinstance(content.get('rows'), list):
+                        for row in content['rows']:
+                            table.rows.append(row)
 
-                        section.contents.append(table)
-                    else:
-                        print('Unknown type: {}'.format(type(content)))
+                    section.contents.append(table)
+                else:
+                    print('Unknown type: {}'.format(type(content)))
 
-                self._sections.append(section)
+            self._sections.append(section)
 
     def as_dict_list(self):
         # Contents is special
@@ -101,7 +97,7 @@ class SectionList(object):
 
     def dump(self):
         for num, entry in enumerate(self):
-            print('Section: {}'.format(num))
+            print('  Section: {}'.format(num))
             entry.dump()
 
     def find_section(self, section_number):
@@ -197,7 +193,7 @@ class SectionHeading(object):
         except Exception as _e:
             raise
 
-    def dump(self, prefix="  "):
+    def dump(self, prefix="    "):
         tbls = [t for t in self.contents if isinstance(t, Table)]
 
         print('{}Number      : {} / pts: {}'.format(prefix,
