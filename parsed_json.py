@@ -34,6 +34,10 @@ class ParsedJson(object):
         return self
 
     @property
+    def versions(self):
+        return self._versions
+
+    @property
     def class_ids(self):
         return self._class_ids
 

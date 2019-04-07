@@ -17,15 +17,14 @@ from __future__ import (
 )
 import argparse
 from docx import Document
-import json
 import jinja2
 import os
 import time
-from class_id import ClassIdList
 import shutil
 from golang.classIdmap import create_class_id_map
 from golang.managedentity import create_managed_entity_file
 from golang.basetemplates import create_base_templates
+from golang.versionfile import create_version_file
 from parsed_json import ParsedJson
 from versions import VersionHeading
 
@@ -65,13 +64,12 @@ class Main(object):
         self.templateEnv = jinja2.Environment(loader=loader)
 
         self.parsed = ParsedJson()
-        version = VersionHeading()
-        version.name = 'parser'
-        version.create_time = time.time()
-        version.itu_document = self.args.ITU
-        version.version = self.get_version()
-        version.sha256 = self.get_file_hash(version.itu_document)
-        self.parsed.add(version)
+        self.version = VersionHeading()
+        self.version.name = 'code-generator'
+        self.version.create_time = time.time()
+        self.version.itu_document = self.args.ITU
+        self.version.version = self.get_version()
+        self.version.sha256 = self.get_file_hash(self.version.itu_document)
 
     @staticmethod
     def get_version():
@@ -107,6 +105,8 @@ class Main(object):
 
             # Load JSON class ID list and sort by ID
             self.parsed.load(self.args.input)
+            self.parsed.add(self.version)
+
             class_ids = [c for c in self.parsed.class_ids.values()]
             class_ids.sort(key=lambda x: x.cid)
 
@@ -115,6 +115,9 @@ class Main(object):
 
             # Generate some somewhat fixed templates
             create_base_templates(self.args.dir, self.templateEnv)
+
+            # Create Version File
+            create_version_file(self.parsed.versions, self.args.dir, self.templateEnv)
 
             # Create Class ID Map
             create_class_id_map(class_ids, self.args.dir, self.templateEnv)

@@ -3,22 +3,29 @@
 {{generator_warning}}
 package {{package_name}}
 {# blank line #}
+// This file is used to track the version(s) of code used to parse the ITU
+// document and create the generated code.
+
 type VersionInfo struct {
-	Name                 string     // Type (pre-parser, parser, code-generator)
-	CreateTIme           int64      // UTC linux time when ran
-	ItuDocName           string     // ITU G.988 document name
-	SHA256               string     // ITU G.988 document SHA-256 hash
+	Name       string  // Type (pre-parser, parser, code-generator)
+	Version    string  // Version of parser project
+	CreateTime float32 // UTC linux time when ran
+	ItuDocName string  // ITU G.988 document name
+	SHA256     string  // ITU G.988 document SHA-256 hash
 }
 
-type ParserInfo struct {
-	PreParserInfo   VersionInfo
-	ParserInfo      VersionInfo
-	CodeGenInfo     VersionInfo
-}
-
-var Version ParserInfo
+var Versions []VersionInfo
 
 func init() {
-	Version = ParserInfo{
-	}
+	Versions = make([]VersionInfo, 0)
+{% for version in versions %}
+	Versions = append(Versions,
+		VersionInfo{
+			Name:       "{{ version.name }}",
+			Version:    "{{ version.version }}",
+			CreateTime: {{ version.create_time }},
+			ItuDocName: "{{ version.itu_document }}",
+			SHA256:     "{{ version.sha256 }}",
+		})
+{% endfor -%}
 }
