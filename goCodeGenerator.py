@@ -20,11 +20,14 @@ from docx import Document
 import json
 import jinja2
 import os
+import time
 from class_id import ClassIdList
 import shutil
 from golang.classIdmap import create_class_id_map
 from golang.managedentity import create_managed_entity_file
 from golang.basetemplates import create_base_templates
+from parsed_json import ParsedJson
+from versions import VersionHeading
 
 
 def parse_args():
@@ -61,6 +64,30 @@ class Main(object):
         loader = jinja2.FileSystemLoader(searchpath=self.args.templates)
         self.templateEnv = jinja2.Environment(loader=loader)
 
+        self.parsed = ParsedJson()
+        version = VersionHeading()
+        version.name = 'parser'
+        version.create_time = time.time()
+        version.itu_document = self.args.ITU
+        version.version = self.get_version()
+        version.sha256 = self.get_file_hash(version.itu_document)
+        self.parsed.add(version)
+
+    @staticmethod
+    def get_version():
+        with open('VERSION', 'r') as f:
+            for line in f:
+                line = line.strip().lower()
+                if len(line) > 0:
+                    return line
+
+    @staticmethod
+    def get_file_hash(filename):
+        import hashlib
+        with open(filename, 'rb') as f:
+            data = f.read()
+            return hashlib.sha256(data).hexdigest()
+
     def load_itu_document(self):
         return Document(self.args.ITU)
 
@@ -78,19 +105,16 @@ class Main(object):
                     return
                 shutil.rmtree(self.args.dir)
 
-            # Load JSON class id
-            with open(self.args.input) as f:
-                class_ids_json = json.load(f)
+            # Load JSON class ID list and sort by ID
+            self.parsed.load(self.args.input)
+            class_ids = [c for c in self.parsed.class_ids.values()]
+            class_ids.sort(key=lambda x: x.cid)
 
             # Create output directory
             os.mkdir(self.args.dir)
 
             # Generate some somewhat fixed templates
             create_base_templates(self.args.dir, self.templateEnv)
-
-            # Get Class ID list and sort by ID
-            class_ids = [c for c in ClassIdList.load(class_ids_json).values()]
-            class_ids.sort(key=lambda x: x.cid)
 
             # Create Class ID Map
             create_class_id_map(class_ids, self.args.dir, self.templateEnv)

@@ -1,0 +1,24 @@
+{% import 'macros.jinja' as Macros with context -%}
+{{copyright}}
+{{generator_warning}}
+package {{package_name}}
+{# blank line #}
+type VersionInfo struct {
+	Name                 string     // Type (pre-parser, parser, code-generator)
+	CreateTIme           int64      // UTC linux time when ran
+	ItuDocName           string     // ITU G.988 document name
+	SHA256               string     // ITU G.988 document SHA-256 hash
+}
+
+type ParserInfo struct {
+	PreParserInfo   VersionInfo
+	ParserInfo      VersionInfo
+	CodeGenInfo     VersionInfo
+}
+
+var Version ParserInfo
+
+func init() {
+	Version = ParserInfo{
+	}
+}
