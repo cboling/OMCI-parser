@@ -23,6 +23,7 @@ from __future__ import (
 )
 import sys
 import argparse
+import time
 from docx import Document
 from docx.document import Document as _Document
 from docx.oxml.text.paragraph import CT_P
@@ -58,7 +59,6 @@ class Main(object):
         self.args = parse_args()
         self.preparsed = PreParsedJson()
 
-        import time
         version = VersionHeading()
         version.name = 'pre-parser'
         version.create_time = time.time()

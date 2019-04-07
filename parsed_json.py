@@ -16,59 +16,62 @@ from __future__ import (
 )
 import json
 from versions import VersionList, VersionHeading
-from section import SectionList, SectionHeading
+from class_id import ClassIdList, ClassId
 
 
-class PreParsedJson(object):
+class ParsedJson(object):
     def __init__(self):
         self._versions = VersionList()
-        self._sections = SectionList()
+        self._class_ids = ClassIdList()
 
     def add(self, item):
-        assert isinstance(item, (VersionHeading, SectionHeading)), 'Invalid type'
+        assert isinstance(item, (VersionHeading, ClassId)), 'Invalid type'
 
         if isinstance(item, VersionHeading):
             self._versions.add(item)
-        elif isinstance(item, SectionHeading):
-            self._sections.add(item)
+        elif isinstance(item, ClassId):
+            self._class_ids.add(item)
         return self
 
     @property
-    def versions(self):
-        return self._versions.versions
-
-    @property
-    def section_list(self):
-        return self._sections
-
-    @property
-    def sections(self):
-        return self._sections.sections
+    def class_ids(self):
+        return self._class_ids
 
     def save(self, filepath):
-        data = {
-            'versions': self._versions.as_dict_list(),
-            'sections': self._sections.as_dict_list()
-        }
-        json_data = json.dumps(data, indent=2, separators=(',', ': '))
-        with open(filepath, 'w') as f:
-            f.write(json_data)
+        final = dict()      # Key = class-id, Value = data
+        try:
+            for cid, me_class in self._class_ids.items():
+                if me_class.state != 'complete':
+                    continue
+                assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
+                final[cid] = me_class.to_dict()
+
+            # Convert to JSON
+            data = {
+                'versions': self._versions.as_dict_list(),
+                'classes': final
+            }
+            json_data = json.dumps(data, indent=2, separators=(',', ': '))
+            with open(filepath, 'w') as f:
+                f.write(json_data)
+
+        except Exception as _e:
+            raise
 
     def load(self, filepath):
-        self._versions = VersionList()
-        self._sections = SectionList()
+        self._class_ids = ClassIdList()
 
         with open(filepath, 'r') as f:
             data = json.load(f)
             self._versions.load(data.get('versions', dict()))
-            self._sections.load(data.get('sections', dict()))
+            self._class_ids = ClassIdList.load(data.get('classes', dict()))
 
     def dump(self):
         print('Version Info:')
-        for num, entry in enumerate(self.versions):
+        for _num, entry in enumerate(self._versions):
             entry.dump()
 
         print('')
-        print('Section Info:')
-        for num, entry in enumerate(self.sections):
+        print('Class Info:')
+        for _cid, entry in self._class_ids.items():
             entry.dump()

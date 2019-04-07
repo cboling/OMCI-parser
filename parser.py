@@ -16,10 +16,13 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import argparse
+import time
 from docx import Document
 
-from section import SectionList
 from class_id import ClassIdList
+from parsed_json import ParsedJson
+from preparsed_json import PreParsedJson
+from versions import VersionHeading
 from text import camelcase
 
 
@@ -54,9 +57,44 @@ class Main(object):
     def __init__(self):
         self.args = parse_args()
         self.paragraphs = None
-        self.sections = None
-        self.class_ids = None
         self.body = None
+
+        self.preparsed = PreParsedJson()
+        self.parsed = ParsedJson()
+        version = VersionHeading()
+        version.name = 'parser'
+        version.create_time = time.time()
+        version.itu_document = self.args.ITU
+        version.version = self.get_version()
+        version.sha256 = self.get_file_hash(version.itu_document)
+        self.parsed.add(version)
+
+    @staticmethod
+    def get_version():
+        with open('VERSION', 'r') as f:
+            for line in f:
+                line = line.strip().lower()
+                if len(line) > 0:
+                    return line
+
+    @staticmethod
+    def get_file_hash(filename):
+        import hashlib
+        with open(filename, 'rb') as f:
+            data = f.read()
+            return hashlib.sha256(data).hexdigest()
+
+    @property
+    def sections(self):
+        return self.preparsed.sections
+
+    @property
+    def section_list(self):
+        return self.preparsed.section_list
+
+    @property
+    def class_ids(self):
+        return self.parsed.class_ids
 
     def load_itu_document(self):
         return Document(self.args.ITU)
@@ -64,18 +102,21 @@ class Main(object):
     def start(self):
         print("Loading ITU Document '{}' and parsed data file '{}'".format(self.args.ITU,
                                                                            self.args.input))
-        document = self.load_itu_document()
-        self.sections = SectionList()
-        self.sections.load(self.args.input)
+        self.preparsed.load(self.args.input)
+        for version in self.preparsed.versions:
+            self.parsed.add(version)
 
+        document = self.load_itu_document()
         self.paragraphs = document.paragraphs
         # doc_sections = document.sections
         # styles = document.styles
         # self.body = document.element.body
 
         print('Extracting ME Class ID values')
-        self.class_ids = ClassIdList.parse_sections(self.sections,
-                                                    self.args.classes)
+        class_ids = ClassIdList.parse_sections(self.section_list,
+                                               self.args.classes)
+        for _cid, me_class in class_ids.items():
+            self.parsed.add(me_class)
 
         print('Found {} ME Class ID entries. {} have sections associated to them'.
               format(len(self.class_ids),
@@ -117,7 +158,6 @@ class Main(object):
         # for cid, c in todo_class_ids.items():
         #     if c.cid in att_openomci:
         #         final_class_ids.add(c)
-
         print('')
         print('working on {} OpenOMCI MEs'.format(len(todo_class_ids)))
         print('')
@@ -203,9 +243,16 @@ class Main(object):
                         print('\t\t\t\tNO SIZE INFORMATION')
                         c.failure(None, None)       # Mark invalid
 
+        print('Section parsing is complete, saving JSON output...')
+        print('=======================================================')
+
         # Output the results to a JSON file so it can be used by a code-generation
         # tool
-        self.class_ids.save(self.args.output)
+        self.parsed.save(self.args.output)
+
+        # Restore and verify
+        self.parsed.load(self.args.output)
+        self.parsed.dump()
 
         # Results
         print("Of the {} class ID, {} had issues: {} had no actions and {} had no attributes and {} with too many".
@@ -382,4 +429,8 @@ att_openomci = {
 
 
 if __name__ == '__main__':
-    Main().start()
+    try:
+        Main().start()
+
+    except Exception as _e:
+        raise

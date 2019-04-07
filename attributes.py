@@ -140,6 +140,18 @@ class Attribute(object):
             'table-support': self.table_support,
         }
 
+    def dump(self, prefix="      "):
+        print('{}Attribute: {}'.format(prefix, self.name))
+        print('{}    Index    : {}'.format(prefix, self.index))
+        print('{}    Access   : {}'.format(prefix, self.access))
+        print('{}    Optional : {}'.format(prefix, self.optional))
+        print('{}    Size     : {}'.format(prefix, self.size))
+        print('{}    Avc      : {}'.format(prefix, self.avc))
+        print('{}    Tca      : {}'.format(prefix, self.tca))
+        print('{}    Counter  : {}'.format(prefix, self.counter))
+        print('{}    Table    : {}'.format(prefix, self.table_support))
+        print('')
+
     @staticmethod
     def load(data, index):
         attr = Attribute()

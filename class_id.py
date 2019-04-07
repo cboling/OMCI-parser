@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# #
+#
 # Copyright (c) 2018 - present.  Boling Consulting Solutions (bcsw.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,6 @@ from attributes import AttributeList, Attribute
 from actions import Actions
 from avc import AVC
 from alarms import Alarm
-import json
 
 
 class ClassIdList(object):
@@ -145,23 +144,23 @@ class ClassIdList(object):
                                                                   e))
         return table
 
-    def save(self, output):
-        final = dict()      # Key = class-id, Value = data
-
-        try:
-            for cid, me_class in self._entities.items():
-                if me_class.state != 'complete':
-                    continue
-                assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
-                final[cid] = me_class.to_dict()
-
-            # Convert to JSON
-            data = json.dumps(final, indent=2, separators=(',', ': '))
-            with open(output, 'w') as f:
-                f.write(data)
-
-        except Exception as _e:
-            raise
+    # def save(self, output):
+    #     final = dict()      # Key = class-id, Value = data
+    #
+    #     try:
+    #         for cid, me_class in self._entities.items():
+    #             if me_class.state != 'complete':
+    #                 continue
+    #             assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
+    #             final[cid] = me_class.to_dict()
+    #
+    #         # Convert to JSON
+    #         data = json.dumps(final, indent=2, separators=(',', ': '))
+    #         with open(output, 'w') as f:
+    #             f.write(data)
+    #
+    #     except Exception as _e:
+    #         raise
 
     @staticmethod
     def load(data):
@@ -294,6 +293,17 @@ class ClassId(object):
         cid.avcs = AVC.load(class_data.get('avcs'))
         # cid.??? = class_data.get('test_results') # TODO: self.test_results.to_dict()
         return cid
+
+    def dump(self, prefix="    "):
+        print('{}Class       : {} ({})'.format(prefix, self.name, self.cid))
+        print('{}Hidden      : {}'.format(prefix, self.hidden))
+        print('{}Actions     : {}/{}'.format(prefix, self.actions, self.optional_actions))
+        print('{}Alarms      : {}'.format(prefix, self.alarms))
+        print('{}Avcs        : {}'.format(prefix, self.avcs))
+        print('{}Attributes  : {}'.format(prefix, len(self.attributes)))
+        for attribute in self.attributes:
+            attribute.dump(prefix + '    ')
+        print('')
 
     def deep_parse(self, paragraphs):
         """ Fill out detailed class information """
