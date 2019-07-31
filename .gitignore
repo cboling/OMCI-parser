@@ -161,7 +161,7 @@ celerybeat-schedule
 .env
 .venv
 env/
-venv/
+venv*/
 ENV/
 env.bak/
 venv.bak/
@@ -185,6 +185,5 @@ venv.bak/
 /G.988.Parsed.json
 /G.988.PreCompiled.json
 /venv-windows/
-/T-REC-G.988-201711.docx
-/T-REC-G.988-201711-I!!MSW-E.docx
+/T-REC-G.988-*.docx
 /sav/
