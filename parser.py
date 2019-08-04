@@ -359,7 +359,17 @@ class Main(object):
             item = class_list[325]
             try:
                 from actions import Actions
-                # Type in document, not table attibutes present
+                # Type in document, not table attributes present
+                item.actions.remove(Actions.GetNext)
+            except KeyError:
+                pass
+
+        # xDSL line inventory and status data part 8
+        if 414 in class_list.keys():
+            item = class_list[414]
+            try:
+                from actions import Actions
+                # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
             except KeyError:
                 pass
