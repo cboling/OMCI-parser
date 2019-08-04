@@ -354,6 +354,16 @@ class Main(object):
             sz._octets = 24
             item.attributes[5].size = sz
 
+        # xDSL line inventory and status data part 5
+        if 325 in class_list.keys():
+            item = class_list[325]
+            try:
+                from actions import Actions
+                # Type in document, not table attibutes present
+                item.actions.remove(Actions.GetNext)
+            except KeyError:
+                pass
+
         return class_list
 
 
