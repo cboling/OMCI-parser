@@ -265,6 +265,10 @@ class Main(object):
     def fix_difficult_class_ids(self, class_list):
         # Special exception. Ethernet frame performance monitoring history data downstream
         # is in identical upstream and only a note of that exists. Fix it now
+        from actions import Actions
+        from size import AttributeSize
+        from attributes import AttributeAccess
+
         if 321 in class_list.keys() and 322 in class_list.keys():
             down = class_list[321]
             up = class_list[322]
@@ -280,7 +284,6 @@ class Main(object):
         # to a security methods ME and is 2 bytes but is in the document as
         # just (2)
         if 153 in class_list.keys():
-            from size import AttributeSize
             sip = class_list[153]
             sz = AttributeSize()
             sz._octets = 2
@@ -288,7 +291,6 @@ class Main(object):
 
         # For multicast subscriber config info. very hard to decode automatically
         if 310 in class_list.keys():
-            from size import AttributeSize
             msci = class_list[310]
             msci.attributes.remove(8)
             msci.attributes.remove(7)
@@ -299,7 +301,6 @@ class Main(object):
 
         # Extended vlan config table.  Table is 16 octets
         if 171 in class_list.keys():
-            from size import AttributeSize
             exvlan = class_list[171]
             sz = AttributeSize()
             sz._octets = 16
@@ -307,7 +308,6 @@ class Main(object):
 
         # Mcast gem interworking.  IPv6 Table is 24N octets
         if 281 in class_list.keys():
-            from size import AttributeSize
             item = class_list[281]
             item.attributes.remove(8)
             item.attributes.remove(4)
@@ -318,7 +318,6 @@ class Main(object):
 
         # OMCI.  IPv6 Table is 24N octets
         if 287 in class_list.keys():
-            from size import AttributeSize
             item = class_list[287]
             sz = AttributeSize()
             sz._octets = 2
@@ -332,7 +331,6 @@ class Main(object):
 
         # Dot1ag maintenance domain
         if 299 in class_list.keys():
-            from size import AttributeSize
             item = class_list[299]
             sz = AttributeSize()
             sz._octets = 25
@@ -342,7 +340,6 @@ class Main(object):
 
         # Dot1ag maintenance domain
         if 300 in class_list.keys():
-            from size import AttributeSize
             item = class_list[300]
             sz = AttributeSize()
             sz._octets = 25
@@ -368,9 +365,17 @@ class Main(object):
         if 414 in class_list.keys():
             item = class_list[414]
             try:
-                from actions import Actions
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
+            except KeyError:
+                pass
+
+        # Enhanced security control
+        if 332 in class_list.keys():
+            item = class_list[332]
+            try:
+                # Type in document, not table attributes present
+                item.attributes[7].access.add(AttributeAccess.Read)
             except KeyError:
                 pass
 
