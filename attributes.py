@@ -116,6 +116,7 @@ class Attribute(object):
         self.avc = False            # If true, an AVC notification can occur for the attribute
         self.tca = False            # If true, a threshold crossing alert alarm notification
                                     # can occur for the attribute
+        self.deprecated = False     # If true, attribute is deprecated (may still be mandatory)
         self.counter = False        # Counter attribute
         self.table = None           # (dict) Table information related to attribute
         self.table_support = False  # Supports table operations
@@ -133,6 +134,7 @@ class Attribute(object):
             'description': self.description,
             'access': [a.name for a in self.access],
             'optional': self.optional,
+            'deprecated': self.deprecated,
             'size': self.size.to_dict(),
             'avc': self.avc,
             'tca': self.tca,
@@ -142,14 +144,15 @@ class Attribute(object):
 
     def dump(self, prefix="      "):
         print('{}Attribute: {}'.format(prefix, self.name))
-        print('{}    Index    : {}'.format(prefix, self.index))
-        print('{}    Access   : {}'.format(prefix, self.access))
-        print('{}    Optional : {}'.format(prefix, self.optional))
-        print('{}    Size     : {}'.format(prefix, self.size))
-        print('{}    Avc      : {}'.format(prefix, self.avc))
-        print('{}    Tca      : {}'.format(prefix, self.tca))
-        print('{}    Counter  : {}'.format(prefix, self.counter))
-        print('{}    Table    : {}'.format(prefix, self.table_support))
+        print('{}    Index     : {}'.format(prefix, self.index))
+        print('{}    Access    : {}'.format(prefix, self.access))
+        print('{}    Optional  : {}'.format(prefix, self.optional))
+        print('{}    Deprecated: {}'.format(prefix, self.deprecated))
+        print('{}    Size      : {}'.format(prefix, self.size))
+        print('{}    Avc       : {}'.format(prefix, self.avc))
+        print('{}    Tca       : {}'.format(prefix, self.tca))
+        print('{}    Counter   : {}'.format(prefix, self.counter))
+        print('{}    Table     : {}'.format(prefix, self.table_support))
         print('')
 
     @staticmethod
@@ -159,6 +162,7 @@ class Attribute(object):
         attr.index = index
         attr.description = data.get('description')
         attr.optional = data.get('optional', False)
+        attr.deprecated = data.get('deprecated', False)
         attr.tca = data.get('tca', False)
         attr.avc = data.get('avc', False)
         attr.size = AttributeSize.load(data.get('size'))
@@ -239,6 +243,7 @@ class Attribute(object):
 
             attribute.name = attribute.name.strip()
             attribute.description.append(content)
+            attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 
         return attribute
 
