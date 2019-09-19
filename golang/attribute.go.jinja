@@ -228,8 +228,8 @@ func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.D
 		// who know how long the data really is.
 		size := attr.GetSize()
 		if size != 0 && len(data) < attr.GetSize() {
-            df.SetTruncated()
-            return nil, NewMessageTruncatedError("packet too small for field")
+			df.SetTruncated()
+			return nil, NewMessageTruncatedError("packet too small for field")
 		} else {
 			size = len(data)
 		}
@@ -344,7 +344,7 @@ func GetAttributeDefinitionByName(attrMap *AttributeDefinitionMap, name string) 
 			return attrVal, nil
 		}
 	}
-	return nil, errors.New("attribute not found")
+	return nil, errors.NewAttributeFailureError(fmt.Sprintf("attribute '%s' not found", name)
 }
 
 // GetAttributeDefinitionMapKeys is a convenience functions since we may need to
