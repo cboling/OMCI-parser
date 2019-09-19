@@ -145,7 +145,7 @@ func (entity *ManagedEntity) SetAttribute(name string, value interface{}) error 
 	}
 	mask := uint16(1 << (16 - attrDef.GetIndex()))
 	// check any constraints
-	if constraintCheck := attrDef.GetConstraints(); constraintsCheck != nil {
+	if constraintCheck := attrDef.GetConstraints(); constraintCheck != nil {
 		err = constraintCheck(value)
 		if err != nil {
 			return NewParameterError(mask, err)
@@ -166,8 +166,8 @@ func (entity *ManagedEntity) SetAttributeByIndex(index uint, value interface{}) 
 	}
 	mask := uint16(1 << (16 - attrDef.GetIndex()))
 	// check any constraints
-	if constraintCheck := attrDef.GetConstraints(); constraintsCheck != nil {
-		err = constraintCheck(value)
+	if constraintCheck := attrDef.GetConstraints(); constraintCheck != nil {
+		err := constraintCheck(value)
 		if err != nil {
 			return NewParameterError(mask, err)
 		}
