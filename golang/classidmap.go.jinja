@@ -28,7 +28,7 @@ type ParamData struct {
 }
 {# blank line #}
 // CreateME wraps a function that makes it a creator of a Managed Entity
-type CreateME func(params ...ParamData) (*ManagedEntity, error)
+type CreateME func(params ...ParamData) (*ManagedEntity, OmciErrors)
 {# blank line #}
 var classToManagedEntityMap map[ClassID]CreateME
 {# blank line #}
@@ -40,7 +40,7 @@ func init() {
 {%- endfor %}
 }
 {# blank line #}
-func LoadManagedEntityDefinition(classID ClassID, params ...ParamData) (*ManagedEntity, error) {
+func LoadManagedEntityDefinition(classID ClassID, params ...ParamData) (*ManagedEntity, OmciErrors) {
 	newFunc, ok := classToManagedEntityMap[classID]
 	if ok {
 		return newFunc(params...)
@@ -56,3 +56,4 @@ func GetSupportedClassIDs() []ClassID {
 	}
 	return supported
 }
+{# blank line #}
