@@ -14,7 +14,8 @@ import (
 type ManagedEntityDefinition struct {
 	Name                 string
 	ClassID              ClassID
-	MessageTypes         mapset.Set
+	MessageTypes         mapset.Set // Mandatory
+	// TODO: Support Optional Message types
 	AllowedAttributeMask uint16
 	AttributeDefinitions AttributeDefinitionMap
 }
