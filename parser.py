@@ -379,8 +379,28 @@ class Main(object):
             except KeyError:
                 pass
 
+        # Now even some other crazy things
+        class_list = self.fix_other_difficulties(class_list)
+
         return class_list
 
+    def fix_other_difficulties(self, class_list):
+        # ThresholdData12Id is used by many Historical Interval PMs and is actually two Attributes
+        # and not one
+        for cid, cls in class_list.items():
+            import copy
+            for index, attr in enumerate(cls.attributes):
+                if attr.name.lower() == "threshold data 1_2 id":
+                    attr.name = "Threshold Data 1 Id"
+                    attr2 = copy.deepcopy(attr)
+                    attr2.name = "Threshold Data 2 Id"
+                    cls.attributes.insert(index + 1, attr2)
+                    # attr2.index = attr.index + 1
+                    # for remainder in cls.attributes[index + 2:]:
+                    #    remainder.index += 1
+                    break
+
+        return class_list
 
 att_openomci = {
     2,

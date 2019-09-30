@@ -80,6 +80,9 @@ class AttributeList(object):
         self._attributes.append(attribute)
         return self
 
+    def insert(self, index, attribute):
+        return self._attributes.insert(index, attribute)
+
     def get(self, index):
         return self._attributes[index]
 
