@@ -325,6 +325,7 @@ class Main(object):
         # Managed entity tables.  4 tables need fixing
         if 288 in class_list.keys():
             me = class_list[288]
+            class_list[288].name += ' ME'       # To avoid conflicts with Go file/struct names
             sz = AttributeSize()
             sz._octets = 2
             me.attributes[2].size = sz
@@ -336,6 +337,7 @@ class Main(object):
         # Managed entity code points table.  Table is 2*n octets
         if 289 in class_list.keys():
             attr = class_list[289]
+            class_list[289].name += ' ME'       # To avoid conflicts with Go file/struct names
             sz = AttributeSize()
             sz._octets = 2
             attr.attributes[8].size = sz
