@@ -192,12 +192,12 @@ class Main(object):
         print('\n\n\nValidating ME Class Information, total of {}:\n'.
               format(len(final_class_ids)))
 
-        class_with_issues = 0
-        class_with_no_actions = 0
-        class_with_no_attributes = 0
-        attributes_with_no_access = 0
-        attributes_with_no_size = 0
-        class_with_too_many_attributes = 0
+        class_with_issues = dict()
+        class_with_no_actions = dict()
+        class_with_no_attributes = dict()
+        attributes_with_no_access = dict()
+        attributes_with_no_size = dict()
+        class_with_too_many_attributes = dict()
         num_attributes = 0
 
         for c in final_class_ids.values():
@@ -206,26 +206,26 @@ class Main(object):
 
             if c.state != 'complete':
                 print('\t\tParsing ended in state {}', c.state)
-                class_with_issues += 1
+                class_with_issues[c.cid] = c
 
             if len(c.actions) == 0:
                 print('\t\tActions: No actions decoded for ME')
-                class_with_issues += 1
-                class_with_no_actions += 1
+                class_with_issues[c.cid] = c
+                class_with_no_actions[c.cid] = c
                 c.failure(None, None)       # Mark invalid
             else:
                 print('\t\tActions: {}'.format({a.name for a in c.actions}))
 
             if len(c.attributes) == 0:
                 print('\t\tNO ATTRIBUTES')      # TODO Look for 'set' without 'get'
-                class_with_issues += 1
-                class_with_no_attributes += 1
+                class_with_issues[c.cid] = c
+                class_with_no_attributes[c.cid] = c
                 c.failure(None, None)       # Mark invalid
 
             elif len(c.attributes) > 17:        # Entity ID counts as well in this list
                 print('\t\tTOO MANY ATTRIBUTES')
-                class_with_issues += 1
-                class_with_too_many_attributes += 1
+                class_with_issues[c.cid] = c
+                class_with_too_many_attributes[c.cid] = c
                 c.failure(None, None)       # Mark invalid
 
             else:
@@ -234,12 +234,12 @@ class Main(object):
                     print('\t\t\t\t{}'.format(attr.name), end='')
                     if attr.access is None or len(attr.access) == 0:
                         print('\t\t\t\tNO ACCESS INFORMATION')
-                        attributes_with_no_access += 1
+                        attributes_with_no_access[c.cid] = c
                         c.failure(None, None)       # Mark invalid
                     else:
                         print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
                     if attr.size is None:
-                        attributes_with_no_size += 1
+                        attributes_with_no_size[c.cid] = c
                         print('\t\t\t\tNO SIZE INFORMATION')
                         c.failure(None, None)       # Mark invalid
 
@@ -255,12 +255,12 @@ class Main(object):
         self.parsed.dump()
 
         # Results
-        print("Of the {} class ID, {} had issues: {} had no actions and {} had no attributes and {} with too many".
-              format(len(final_class_ids), class_with_issues, class_with_no_actions,
-                     class_with_no_attributes, class_with_too_many_attributes))
+        print("Of the {} class IDs, {} had issues: {} had no actions and {} had no attributes and {} with too many".
+              format(len(final_class_ids), len(class_with_issues), len(class_with_no_actions),
+                     len(class_with_no_attributes), len(class_with_too_many_attributes)))
 
         print("Of the {} attributes, {} had no access info and {} had no size info".
-              format(num_attributes, attributes_with_no_access, attributes_with_no_size))
+              format(num_attributes, len(attributes_with_no_access), len(attributes_with_no_size)))
 
     def fix_difficult_class_ids(self, class_list):
         # Special exception. Ethernet frame performance monitoring history data downstream
@@ -269,16 +269,19 @@ class Main(object):
         from size import AttributeSize
         from attributes import AttributeAccess
 
-        if 321 in class_list.keys() and 322 in class_list.keys():
-            down = class_list[321]
-            up = class_list[322]
-            down.attributes = up.attributes
-            down.actions = up.actions
-            down.optional_actions = up.optional_actions
-            down.alarms = up.alarms
-            down.avcs = up.avcs
-            down.test_results = up.test_results
-            down.hidden = up.hidden
+        # MAC Bridge port filter table data.  Table is 8*n octets
+        if 49 in class_list.keys():
+            macbridge = class_list[49]
+            sz = AttributeSize()
+            sz._octets = 8
+            macbridge.attributes[1].size = sz
+
+        # MAC Bridge port bridge table data.  Table is 8*n octets
+        if 50 in class_list.keys():
+            macbridge = class_list[50]
+            sz = AttributeSize()
+            sz._octets = 8
+            macbridge.attributes[1].size = sz
 
         # For SIP user data, the Username&Password attribute is a pointer
         # to a security methods ME and is 2 bytes but is in the document as
@@ -288,16 +291,6 @@ class Main(object):
             sz = AttributeSize()
             sz._octets = 2
             sip.attributes[4].size = sz
-
-        # For multicast subscriber config info. very hard to decode automatically
-        if 310 in class_list.keys():
-            msci = class_list[310]
-            msci.attributes.remove(8)
-            msci.attributes.remove(7)
-            sz = AttributeSize()
-            sz._octets = 22
-            sz.getnext_required = True
-            msci.attributes[6].size = sz
 
         # Extended vlan config table.  Table is 16 octets
         if 171 in class_list.keys():
@@ -329,6 +322,24 @@ class Main(object):
             sz.getnext_required = True
             item.attributes[2].size = sz
 
+        # Managed entity tables.  4 tables need fixing
+        if 288 in class_list.keys():
+            me = class_list[288]
+            sz = AttributeSize()
+            sz._octets = 2
+            me.attributes[2].size = sz
+            sz._octets = 1
+            me.attributes[4].size = sz
+            me.attributes[5].size = sz
+            me.attributes[7].size = sz
+
+        # Managed entity code points table.  Table is 2*n octets
+        if 289 in class_list.keys():
+            attr = class_list[289]
+            sz = AttributeSize()
+            sz._octets = 2
+            attr.attributes[8].size = sz
+
         # Dot1ag maintenance domain
         if 299 in class_list.keys():
             item = class_list[299]
@@ -351,20 +362,32 @@ class Main(object):
             sz._octets = 24
             item.attributes[5].size = sz
 
+        # For multicast subscriber config info. very hard to decode automatically
+        if 310 in class_list.keys():
+            msci = class_list[310]
+            msci.attributes.remove(8)
+            msci.attributes.remove(7)
+            sz = AttributeSize()
+            sz._octets = 22
+            sz.getnext_required = True
+            msci.attributes[6].size = sz
+
+        if 321 in class_list.keys() and 322 in class_list.keys():
+            down = class_list[321]
+            up = class_list[322]
+            down.attributes = up.attributes
+            down.actions = up.actions
+            down.optional_actions = up.optional_actions
+            down.alarms = up.alarms
+            down.avcs = up.avcs
+            down.test_results = up.test_results
+            down.hidden = up.hidden
+
         # xDSL line inventory and status data part 5
         if 325 in class_list.keys():
             item = class_list[325]
             try:
                 from actions import Actions
-                # Type in document, not table attributes present
-                item.actions.remove(Actions.GetNext)
-            except KeyError:
-                pass
-
-        # xDSL line inventory and status data part 8
-        if 414 in class_list.keys():
-            item = class_list[414]
-            try:
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
             except KeyError:
@@ -379,27 +402,52 @@ class Main(object):
             except KeyError:
                 pass
 
+        # xDSL line inventory and status data part 8
+        if 414 in class_list.keys():
+            item = class_list[414]
+            try:
+                # Type in document, not table attributes present
+                item.actions.remove(Actions.GetNext)
+            except KeyError:
+                pass
+
+        # Ethernet frame extended PM 64-bit. fix actions
+        if 426 in class_list.keys():
+            item = class_list[426]
+            item.actions.update([Actions.Create, Actions.Delete,
+                                Actions.Get, Actions.Set])
+            item.optional_actions.add(Actions.GetCurrentData)
+            try:
+                import copy
+                if 334 in class_list.keys():
+                    extended32 = class_list[334]
+                    extended64 = class_list[426]
+                    extended64.attributes = copy.deepcopy(extended32.attributes)
+                    extended64.actions = extended32.actions
+                    extended64.optional_actions = extended32.optional_actions
+                    extended64.alarms = extended32.alarms
+                    extended64.avcs = extended32.avcs
+                    extended64.test_results = extended32.test_results
+                    extended64.hidden = extended32.hidden
+
+                    sz = AttributeSize()
+                    sz._octets = 8
+                    for index in range(3, 17):
+                        extended64.attributes[index].size = sz
+
+                pass    # TODO: Also no attributes are getting decoded
+            except KeyError:
+                pass
+
         # Now even some other crazy things
         class_list = self.fix_other_difficulties(class_list)
 
         return class_list
 
     def fix_other_difficulties(self, class_list):
-        # ThresholdData12Id is used by many Historical Interval PMs and is actually two Attributes
-        # and not one
-        for cid, cls in class_list.items():
-            import copy
-            for index, attr in enumerate(cls.attributes):
-                if attr.name.lower() == "threshold data 1_2 id":
-                    attr.name = "Threshold Data 1 Id"
-                    attr2 = copy.deepcopy(attr)
-                    attr2.name = "Threshold Data 2 Id"
-                    cls.attributes.insert(index + 1, attr2)
-                    # attr2.index = attr.index + 1
-                    # for remainder in cls.attributes[index + 2:]:
-                    #    remainder.index += 1
-                    break
-
+        # Placeholder for further cleanups
+        # for cid, cls in class_list.items():
+        #     pass
         return class_list
 
 att_openomci = {
