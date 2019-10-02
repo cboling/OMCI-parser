@@ -197,6 +197,7 @@ class Main(object):
         class_with_no_attributes = dict()
         attributes_with_no_access = dict()
         attributes_with_no_size = dict()
+        attributes_with_zero_size = dict()
         class_with_too_many_attributes = dict()
         num_attributes = 0
 
@@ -238,9 +239,15 @@ class Main(object):
                         c.failure(None, None)       # Mark invalid
                     else:
                         print('\t\t\t\tAccess: {}'.format({a.name for a in attr.access}))
+
                     if attr.size is None:
                         attributes_with_no_size[c.cid] = c
                         print('\t\t\t\tNO SIZE INFORMATION')
+                        c.failure(None, None)       # Mark invalid
+
+                    elif attr.size.octets == 0:
+                        attributes_with_zero_size[c.cid] = c
+                        print('\t\t\t\tSIZE zero')
                         c.failure(None, None)       # Mark invalid
 
         print('Section parsing is complete, saving JSON output...')
@@ -259,8 +266,9 @@ class Main(object):
               format(len(final_class_ids), len(class_with_issues), len(class_with_no_actions),
                      len(class_with_no_attributes), len(class_with_too_many_attributes)))
 
-        print("Of the {} attributes, {} had no access info and {} had no size info".
-              format(num_attributes, len(attributes_with_no_access), len(attributes_with_no_size)))
+        print("Of the {} attributes, {} had no access info and {} had no size info and {} had zero size".
+              format(num_attributes, len(attributes_with_no_access), len(attributes_with_no_size),
+                     len(attributes_with_zero_size)))
 
     def fix_difficult_class_ids(self, class_list):
         # Special exception. Ethernet frame performance monitoring history data downstream
