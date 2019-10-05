@@ -24,20 +24,22 @@ ME_TEMPLATE = 'managedentity.go.jinja'
 jinja2.filters.FILTERS['camelcase'] = camelcase
 
 
-def create_managed_entity_file(class_id, outdir, templateEnv):
+def create_managed_entity_file(class_id, outdir, templateEnv, paragraphs):
     """
     Create the Managed Entity Map type structure
 
     :param class_id: (ClassID) Entity objects (ClassID)
     :param outdir: (str) Output directory for code generation
     :param templateEnv: (Jinja2 Environment) Environment for generator
+    :param paragraphs: (Docx paragraphs) Paragraph object for text generation
     """
     class_name = class_id.name.replace('/', ' ')
     file = ''.join(t.strip().lower() for t in class_name.split(' '))
     filename = os.path.join(outdir, ME_FILENAME.format(file))
     template = templateEnv.get_template(ME_TEMPLATE)
 
-    # TODO: For MessageType generation, sort the output list so we always get the same output
+    # Load class and attribute paragraphs for documentation
+    class_id.load_descriptions(paragraphs)
 
     with open(filename, 'w') as f:
         output = template.render(copyright=COPYRIGHT,

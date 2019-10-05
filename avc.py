@@ -47,7 +47,10 @@ class AVC(object):
             return None
 
         avc = AVC(None)
-        avc._attributes = data
+        try:
+            avc._attributes = {int(index): text for index, text in data.items()}
+        except Exception as _e:
+            pass
         return avc
 
     def has_avc(self, attr):

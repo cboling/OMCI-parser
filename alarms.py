@@ -40,17 +40,18 @@ class Alarm(object):
             return None
 
         alarm = Alarm(None)
-        alarm._alarms = data
+        try:
+            alarm._alarms = {int(index): text for index, text in data.items()}
+        except Exception as _e:
+            pass
         return alarm
 
     @staticmethod
     def create_from_table(table):
         if len(table.rows) == 0:
             return None
-
         try:
             alarm = Alarm(table)
-
             for row_num, row in enumerate(table.rows):
                 number = row.get('Alarm number')
                 name = row.get('Alarm')

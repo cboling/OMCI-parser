@@ -253,6 +253,8 @@ class ClassId(object):
         self.avcs = None                   # Attribute Value Change (if any)
         self.test_results = None           # Test Results (if any)
         self.hidden = False                # Not reported or ignore in MIB upload
+        # Loaded paragraph text (only populated prior to code generation)
+        self._paragraph_text = dict()
 
     def __str__(self):
         return 'Class ID: {}: {}, State: {}, Section: {}'.\
@@ -273,6 +275,9 @@ class ClassId(object):
             'test_results': {},                         # TODO: self.test_results.to_dict()
             'hidden': self.hidden                       # bool
         }
+
+    def text_section(self, section):
+        return self._paragraph_text.get(section)
 
     @staticmethod
     def load(class_data):
@@ -483,6 +488,80 @@ class ClassId(object):
     def on_enter_end_of_section(self, _text, _content):
         """ Handles trailing information that we do not care or support"""
         self.parser = eos_parser
+
+    def load_descriptions(self, paragraphs):
+        if len(self._paragraph_text):
+            return
+
+        self._paragraph_text = {
+            'description': self._load_description_text(paragraphs),
+            'relationships': self._load_relationships_text(paragraphs),
+            'attributes': self._load_attributes_text(paragraphs),
+            'actions': self._load_actions_text(paragraphs),
+            'optional_actions': self._load_optional_actions_text(paragraphs),
+            'alarms': self._load_alarms_text(paragraphs),
+            'avcs': self._load_avcs_text(paragraphs),
+            'test_results': self._load_test_results_text(paragraphs),
+        }
+
+    def _load_text_list(self, text_list, paragraphs):
+        text = list()
+        for content in text_list:
+            try:
+                txt = paragraphs[content].text.strip()
+                if len(txt):
+                    text.append(txt)
+            except Exception as _e:
+                pass
+        return text
+
+    def _load_text_dict(self, text_list, paragraphs):
+        text = dict()
+        if text_list:
+            for item in text_list:
+                try:
+                    for content in item.description:
+                        txt = paragraphs[content].text.strip()
+                        if len(txt):
+                            text[item.name] = txt
+                except Exception as _e:
+                    pass
+        return text
+
+    def _load_description_text(self, paragraphs):
+        return self._load_text_list(self._description, paragraphs)
+
+    def _load_relationships_text(self, paragraphs):
+        return self._load_text_list(self._relationships, paragraphs)
+
+    def _load_attributes_text(self, paragraphs):
+        return self._load_text_dict(self.attributes, paragraphs)
+
+    def _load_actions_text(self, paragraphs):
+        return None    # TODO: self._load_text_dict(self.actions, paragraphs)
+
+    def _load_optional_actions_text(self, paragraphs):
+        return None    # TODO: self._load_text_dict(self.optional_actions, paragraphs)
+
+    def _load_alarms_text(self, _paragraphs):
+        return self.alarms.to_dict() if self.alarms is not None else dict()
+
+    def _load_avcs_text(self, _paragraphs):
+        if self.avcs is None:
+            return dict()
+        try:
+            return {index: values[1:] for index, values in self.avcs.to_dict().items() if values[0]}
+        except Exception as _e:
+            return dict()
+
+    def _load_test_results_text(self, paragraphs):
+        if self.test_results is None:
+            return dict()
+        try:
+            text = dict()      # TODO: Implement me
+            return text
+        except Exception as _e:
+            return dict()
 
 
 if __name__ == '__main__':

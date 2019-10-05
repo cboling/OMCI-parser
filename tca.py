@@ -20,7 +20,7 @@ class ThresholdCrossingAlert(object):
     """
     TCA Alarm Notification information.
 
-    TODO: Can we refactot this to be a subclass of Alarms?
+    TODO: Can we refactor this to be a subclass of Alarms?
     """
     def __init__(self, table):
         # Table number for debug purposes
