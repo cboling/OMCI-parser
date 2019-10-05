@@ -363,7 +363,7 @@ class ClassId(object):
         self.parser = relationships_parser
 
         if text is not None and len(text):
-            self._description.append(content)
+            self._relationships.append(content)
 
     def on_enter_attributes(self, text, content):
         self.parser = attributes_parser

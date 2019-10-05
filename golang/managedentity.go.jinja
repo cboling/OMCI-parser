@@ -24,8 +24,10 @@ const {{classID.name|camelcase}}ClassId ClassID = ClassID({{classID.cid}})
 var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition
 {# blank line #}
 // {{ classID.name|camelcase }} (class ID #{{classID.cid}})
-{{ GoMacros.class_description(classID.text_section('description')) }}
+{{ GoMacros.class_description(classID.text_section('description')) -}}
 {{ GoMacros.class_relationships(classID.text_section('relationships')) -}}
+{{ GoMacros.class_attributes(classID.text_section('attributes')) }}
+//{# TODO: ADD Alarms, Notifications, and Test Result documentation #}
 type {{ classID.name|camelcase }} struct {
 	ManagedEntityDefinition
 	Attributes AttributeValueMap

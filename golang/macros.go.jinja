@@ -21,14 +21,38 @@ GO specific Jinja2 macros
 {%- if not loop.last %}
 //
 {% endif -%}
-{%- endfor -%}
+{%- endfor %}
 {%- endmacro -%}
 
 {%- macro class_relationships(text_list) -%}
-{%- for text in text_list -%}
-//	{{ text | wordwrap(wrap_column,wrapstring='\n//	') }}
+    {%- if text_list|length %}
+//
+//	Relationships
+{% for text in text_list -%}
+//		{{ text | wordwrap(wrap_column,wrapstring='\n//		') }}
 {%- if not loop.last -%}
 //
 {%- endif -%}
 {%- endfor -%}
+{%- else %}
+{%- endif -%}
+{%- endmacro -%}
+
+{# Output Attributes
+    Key:    Atribute Name
+    Value:  Text
+#}
+{%- macro class_attributes(text_dict) -%}
+{%- if text_dict|length %}
+//
+//	Attributes
+{%- for key, value in text_dict.items() %}
+//		{{ key }}
+//			{{ value | wordwrap(wrap_column,wrapstring='\n//			') }}
+{%- if not loop.last %}
+//
+{%- endif -%}
+{% endfor %}
+{%- else %}
+{%- endif -%}
 {%- endmacro -%}
