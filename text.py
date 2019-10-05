@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import types
+import re
 
 
 def camelcase(inp):
@@ -64,6 +65,9 @@ def ascii_only(input_text):
              else i if ord(i) < 128
              else u' ' for i in text])
 
+
+def ascii_no_control(input_text):
+    return ascii_only(input_text).replace('\n', ' ').replace('\r', '').strip()
 
 ########################################################################
 # Headers

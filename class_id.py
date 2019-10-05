@@ -27,6 +27,7 @@ from attributes import AttributeList, Attribute
 from actions import Actions
 from avc import AVC
 from alarms import Alarm
+from text import ascii_no_control
 
 
 class ClassIdList(object):
@@ -508,7 +509,7 @@ class ClassId(object):
         text = list()
         for content in text_list:
             try:
-                txt = paragraphs[content].text.strip()
+                txt = ascii_no_control(paragraphs[content].text)
                 if len(txt):
                     text.append(txt)
             except Exception as _e:
@@ -521,7 +522,7 @@ class ClassId(object):
             for item in text_list:
                 try:
                     for content in item.description:
-                        txt = paragraphs[content].text.strip()
+                        txt = ascii_no_control(paragraphs[content].text)
                         if len(txt):
                             text[item.name] = txt
                 except Exception as _e:
