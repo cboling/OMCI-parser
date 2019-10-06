@@ -1,4 +1,4 @@
-{#
+{#-
 Copyright (c) 2018 - present.  Boling Consulting Solutions (bcsw.net)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,7 +10,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-#}
+-#}
 {%- import 'macros.jinja' as Macros with context -%}
 {%- import 'macros.go.jinja' as GoMacros with context -%}
 {{copyright}}
@@ -52,6 +52,6 @@ func init() {
 // Managed Entity definition that is used to validate an ME of this type that
 // is received from the wire, about to be sent on the wire.
 func New{{ classID.name|camelcase }}(params ...ParamData) (*ManagedEntity, OmciErrors) {
-	return NewManagedEntity({{classID.name|camelcase|lower}}BME, params...)
+	return NewManagedEntity(*{{classID.name|camelcase|lower}}BME, params...)
 }
 {# blank line #}
