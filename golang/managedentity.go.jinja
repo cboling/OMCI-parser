@@ -15,10 +15,13 @@ limitations under the License.
 {%- import 'macros.go.jinja' as GoMacros with context -%}
 {{copyright}}
 {{generator_warning}}
+{# blank line #}
 package {{package_name}}
 {# blank line #}
 import "github.com/deckarep/golang-set"
 {# blank line #}
+// {{classID.name|camelcase}}ClassId is the 16-bit ID for the OMCI
+// Managed entity {{classID.name}}
 const {{classID.name|camelcase}}ClassId ClassID = ClassID({{classID.cid}})
 {# blank line #}
 var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition

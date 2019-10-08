@@ -14,6 +14,7 @@ limitations under the License.
 {% import 'macros.jinja' as Macros with context -%}
 {{copyright}}
 {{generator_warning}}
+{# blank line #}
 package {{package_name}}
 {# blank line #}
 import (
@@ -77,7 +78,7 @@ func (bme ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p 
 			if attrDef.IsTableAttribute() {
 				switch msgType {
 				default:
-					return nil, errors.New(fmt.Sprintf("unsupported Message Type '%v' for table serialization", msgType))
+					return nil, fmt.Errorf("unsupported Message Type '%v' for table serialization", msgType)
 
 				case byte(Get) | AK: // Get Response
 					attrMap[name] = value
