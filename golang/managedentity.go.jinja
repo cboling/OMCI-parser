@@ -20,9 +20,9 @@ package {{package_name}}
 {# blank line #}
 import "github.com/deckarep/golang-set"
 {# blank line #}
-// {{classID.name|camelcase}}ClassId is the 16-bit ID for the OMCI
+// {{classID.name|camelcase}}ClassID is the 16-bit ID for the OMCI
 // Managed entity {{classID.name}}
-const {{classID.name|camelcase}}ClassId ClassID = ClassID({{classID.cid}})
+const {{classID.name|camelcase}}ClassID ClassID = ClassID({{classID.cid}})
 {# blank line #}
 var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition
 {# blank line #}
