@@ -198,7 +198,7 @@ func (entity *ManagedEntity) SetAttributeByIndex(index uint, value interface{}) 
 	if constraintCheck := attrDef.GetConstraints(); constraintCheck != nil {
 		err := constraintCheck(value)
 		if err != nil {
-			return NewParameterError(mask, err)
+			return NewParameterError(mask, entity.GetAttributeDefinitions(), err)
 		}
 	}
 	entity.attributes[attrDef.Name] = value
