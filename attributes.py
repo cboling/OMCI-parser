@@ -229,6 +229,7 @@ class Attribute(object):
                 ('M Anagement', 'Management'),
                 ('Battery B Ackup', 'Battery Backup'),
                 ('O Ption', 'Option'),
+                ('U Nit', 'Unit'),
                 ('( S F )', ''),
                 ('( Dsl )', ''),
                 ('( Arc )', ''),
@@ -244,7 +245,7 @@ class Attribute(object):
             for orig, new in fixups:
                 attribute.name = re.sub(orig, new, attribute.name)
 
-            attribute.name = attribute.name.strip()
+            attribute.name = ' '.join(attribute.name.strip().split())
             attribute.description.append(content)
             attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 
