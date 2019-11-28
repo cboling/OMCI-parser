@@ -53,9 +53,9 @@ func init() {
 	}
 }
 {# blank line #}
-// New{{classID.name|camelcase }} (class ID {{classID.cid}} creates the basic
+// New{{classID.name|camelcase }} (class ID {{classID.cid}}) creates the basic
 // Managed Entity definition that is used to validate an ME of this type that
-// is received from the wire, about to be sent on the wire.
+// is received from or transmitted to the OMCC.
 func New{{ classID.name|camelcase }}(params ...ParamData) (*ManagedEntity, OmciErrors) {
 	return NewManagedEntity(*{{classID.name|camelcase|lower}}BME, params...)
 }

@@ -92,7 +92,7 @@ false
 			{%- if loop.index > 1 -%}
 				{%- set pow = (2 ** (17-loop.index)) -%}
 				{%- set mask.value = pow + mask.value -%}
-				{%- if loop.last -%}{{ '%#0X' % mask.value }}{%- endif -%}
+				{%- if loop.last -%}{{ '%#0x' % mask.value }}{%- endif -%}
 			{%- endif -%}
 		{%- endfor -%}
 	{%- endif -%}
