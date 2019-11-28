@@ -22,6 +22,7 @@ except ImportError:
     # Python 2
     from itertools import izip_longest as zip_longest
 from transitions import Machine
+from enum import IntEnum
 from contents import *
 from attributes import AttributeList, Attribute
 from actions import Actions
@@ -96,7 +97,7 @@ class ClassIdList(object):
                                     return name.strip()
                                 return name[:pos].strip()
 
-                            cid.name = name_cleanup(heading_name)
+                            cid.name = ' '.join(name_cleanup(heading_name).split())
                             cid_list.add(cid)
                             cid.section = sections.find_section_by_name(cid.name)
 
@@ -172,6 +173,23 @@ class ClassIdList(object):
         return class_id_list
 
 
+class ClassAccess(IntEnum):
+    """ This attribute represents who creates this ME """
+    UnknownAccess = 0
+    CreatedByOnu = 1
+    CreatedByOlt = 2
+    CreatedByBoth = 3
+
+
+class ClassSupport(IntEnum):
+    """ This attribute specifies the support capability of this me """
+    UnknownSupport = 0      # Not specified
+    Supported = 1           # Supported as defined by this object
+    Unsupported = 2         # OMCI returns error code if accessed
+    PartiallySupported = 3  # some aspects of ME supported
+    Ignored = 4             # OMCI supported, but underlying function is now
+
+
 class ClassId(object):
     """ Managed Entity Class Information """
     STATES = ['initial', 'description', 'relationships', 'attributes', 'actions',
@@ -243,17 +261,19 @@ class ClassId(object):
                                name='{}-{}'.format(self.name, self.cid))
 
         # Following hold lists of paragraph numbers
-        self._description = list()         # Description (paragraph numbers)
-        self._relationships = list()       # Relationships paragraph # (if any)
+        self._description = list()             # Description (paragraph numbers)
+        self._relationships = list()           # Relationships paragraph # (if any)
         # Following hold lists of associated objects
         # TODO: Make next three None so we can tell if they ever get decoded
-        self.attributes = AttributeList()  # Ordered list of attributes
-        self.actions = set()               # Mandatory actions/message-types
-        self.optional_actions = set()      # Allowed actions/message-types
-        self.alarms = None                 # Alarm list (if any)
-        self.avcs = None                   # Attribute Value Change (if any)
-        self.test_results = None           # Test Results (if any)
-        self.hidden = False                # Not reported or ignore in MIB upload
+        self.attributes = AttributeList()    # Ordered list of attributes
+        self.actions = set()                 # Mandatory actions/message-types
+        self.optional_actions = set()        # Allowed actions/message-types
+        self.alarms = None                   # Alarm list (if any)
+        self.avcs = None                     # Attribute Value Change (if any)
+        self.test_results = None             # Test Results (if any)
+        self.hidden = False                  # Not reported or ignore in MIB upload
+        self.access = ClassAccess.UnknownAccess     # Who creates the ME
+        self.support = ClassSupport.UnknownSupport  # Support by the ONU
         # Loaded paragraph text (only populated prior to code generation)
         self._paragraph_text = dict()
 
@@ -274,7 +294,9 @@ class ClassId(object):
             'alarms': self.alarms.to_dict() if self.alarms is not None else {},
             'avcs': self.avcs.to_dict() if self.avcs is not None else {},
             'test_results': {},                         # TODO: self.test_results.to_dict()
-            'hidden': self.hidden                       # bool
+            'hidden': self.hidden,                      # bool
+            'access': self.access.value,                # int value from ClassAccess IntEnum
+            'support': self.support.value,              # int value from ClassSupport IntEnum
         }
 
     def text_section(self, section):
@@ -290,6 +312,8 @@ class ClassId(object):
         cid._description = class_data.get('description')
         cid._relationships = class_data.get('relationships')
         cid.hidden = class_data.get('hidden')
+        cid.access = ClassAccess(class_data.get('access', ClassAccess.UnknownAccess.value))
+        cid.support = ClassSupport(class_data.get('support', ClassSupport.UnknownSupport.value))
 
         cid.section = SectionHeading.load(class_data.get('section'))
         cid.actions = Actions.load(class_data.get('actions'))
@@ -307,6 +331,8 @@ class ClassId(object):
         print('{}Alarms      : {}'.format(prefix, self.alarms))
         print('{}Avcs        : {}'.format(prefix, self.avcs))
         print('{}Attributes  : {}'.format(prefix, len(self.attributes)))
+        print('{}Access      : {}'.format(prefix, len(self.access.name)))
+        print('{}Support     : {}'.format(prefix, len(self.support.name)))
         for attribute in self.attributes:
             attribute.dump(prefix + '    ')
         print('')
@@ -503,6 +529,7 @@ class ClassId(object):
             'alarms': self._load_alarms_text(paragraphs),
             'avcs': self._load_avcs_text(paragraphs),
             'test_results': self._load_test_results_text(paragraphs),
+            'access': self._load_access_text(paragraphs),
         }
 
     def _load_text_list(self, text_list, paragraphs):
@@ -555,7 +582,7 @@ class ClassId(object):
         except Exception as _e:
             return dict()
 
-    def _load_test_results_text(self, paragraphs):
+    def _load_test_results_text(self, _paragraphs):
         if self.test_results is None:
             return dict()
         try:
@@ -563,6 +590,16 @@ class ClassId(object):
             return text
         except Exception as _e:
             return dict()
+
+    def _load_access_text(self, _paragraphs):
+        """ Created based on access value """
+        txt = {
+            ClassAccess.UnknownAccess: "The creator of this ME is not specified",
+            ClassAccess.CreatedByOnu: "This ME is  created by the ONU",
+            ClassAccess.CreatedByOlt: "This ME is created by the OLT",
+            ClassAccess.CreatedByBoth: "This ME is created by both the ONU and OLT",
+        }
+        return txt.get(self.access)
 
 
 if __name__ == '__main__':

@@ -48,6 +48,8 @@ func init() {
 		AttributeDefinitions: AttributeDefinitionMap{
 			{%-if classID.attributes|length %}{{Macros.generate_attributes(classID)}}{%endif%}
 		},
+		Access:  {{ classID.access.name }},
+		Support: {{ classID.support.name }},
 	}
 }
 {# blank line #}
