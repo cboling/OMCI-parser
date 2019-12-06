@@ -83,6 +83,20 @@ class ClassIdList(object):
                 # table fixup is needed (and not detected during pre-parse)
                 cid_table = ClassIdList.fix_me_table(cid_table, 2)
 
+                # Two CID's are missing in the 11/2017 spec (fixed in following addendum)
+                if not any(cid_row.get('Managed entity class value', 0) == 2 for cid_row in cid_table.rows):
+                    pass
+
+                if not any(cid_row.get('Managed entity class value', 0) == 453 for cid_row in cid_table.rows):
+                    cid_table.rows.append({
+                        'Managed entity class value': 453,
+                        'Managed entity': 'Enhanced FEC performance monitoring history data'})
+
+                if not any(cid_row.get('Managed entity class value', 0) == 454 for cid_row in cid_table.rows):
+                    cid_table.rows.append({
+                        'Managed entity class value': 454,
+                        'Managed entity': 'Enhanced TC performance monitoring history data'})
+
                 headings = cid_table.heading
                 for row in cid_table.rows:
                     try:
@@ -106,7 +120,6 @@ class ClassIdList(object):
 
                     except Exception as _e:
                         raise              # Not expected
-
         return cid_list
 
     @staticmethod
