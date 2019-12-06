@@ -14,11 +14,21 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-import re
 from enum import IntEnum
 from text import *
 from size import AttributeSize
 from tables import Table
+
+
+class AttributeType(IntEnum):
+    UnknownType = 0
+    Pointer = 1
+    BitField = 2
+    SignedInteger = 3
+    UnsignedInteger = 4
+    String = 5
+    Enumeration = 6
+    Table = 7
 
 
 class AttributeAccess(IntEnum):
@@ -110,25 +120,67 @@ class AttributeList(object):
 #       counter
 class Attribute(object):
     def __init__(self):
-        self.name = None            # Attribute name (with spaces)
-        self.index = None           # Sequence in the attribute list (0..n)
-        self.description = []       # Description (text, paragraph numbers & Table objects)
-        self.access = set()         # (AttributeAccess) Allowed access
-        self.optional = None        # If true, attribute is option, else mandatory
-        self.size = None            # (Size) Size object
-        self.avc = False            # If true, an AVC notification can occur for the attribute
-        self.tca = False            # If true, a threshold crossing alert alarm notification
-                                    # can occur for the attribute
-        self.deprecated = False     # If true, attribute is deprecated (may still be mandatory)
-        self.counter = False        # Counter attribute
-        self.table = None           # (dict) Table information related to attribute
-        self.table_support = False  # Supports table operations
-        # TODO: Constraints?
+        self.name = None             # Attribute name (with spaces)
+        self.index = None            # Sequence in the attribute list (0..n)
+        self.description = []        # Description (text, paragraph numbers & Table objects)
+        self.access = set()          # (AttributeAccess) Allowed access
+        self.optional = None         # If true, attribute is option, else mandatory
+        self.size = None             # (Size) Size object
+        self.avc = False             # If true, an AVC notification can occur for the attribute
+        self.tca = False             # If true, a threshold crossing alert alarm notification
+                                     # can occur for the attribute
+        self.deprecated = False      # If true, attribute is deprecated (may still be mandatory)
+        self._counter = False        # Counter attribute
+        self.table = None            # (dict) Table information related to attribute
+        self._table_support = False  # Supports table operations
+        self.attribute_type = AttributeType.UnknownType
+        ###################################################################################
+        # Constraints will always be a string (or None) composed of substrings separated
+        # by a comma. If no constraint string (None) is specified, the attribute can take on'
+        # any value allowed for the type within the limits of the attribute 'size'. The
+        # substrings are:
+        #   integer           Discrete value that is allowed.  Used for Integers, Pointers,
+        #                     Enumerations, an strings. If string, this is the maximum length
+        #                     allowed for the string
+        #   integer..integer  Range of values allowed. Used for Integers, Pointers, Enumerations,
+        #                     and strings. If string, this is the minimum..maximum length of the
+        #                     string allowed.
+        #   'reg-ex'          Regular expression (strings). Commonly followed by an 'integer' or''
+        #                     'integer..integer' field to specify string length limits
+        #   :integer:         A bitmask of valid bits. Integer may be in decimal or hexadecimal format
+        #
+        self.constraint = None
 
     def __str__(self):
         return 'Attribute: {}, Access: {}, Optional: {}, Size: {}, AVC/TCA: {}/{}'.\
             format(self.name, self.access, self.optional, self.size,
                    self.avc, self.tca)
+
+    @property
+    def table_support(self):
+        return self._table_support
+
+    @table_support.setter
+    def table_support(self, value):
+        self._table_support = value
+        if value:
+            assert self.attribute_type in (AttributeType.UnknownType, AttributeType.Table)
+            self.attribute_type = AttributeType.Table
+        else:
+            assert self.attribute_type != AttributeType.Table
+
+    @property
+    def counter(self):
+        return self._counter
+
+    @counter.setter
+    def counter(self, value):
+        self._counter = value
+        if value:
+            assert self.attribute_type in (AttributeType.UnknownType, AttributeType.UnsignedInteger)
+            self.attribute_type = AttributeType.UnsignedInteger
+        else:
+            assert self.attribute_type != AttributeType.UnsignedInteger
 
     def to_dict(self):
         # TODO: Save/restore table info?
@@ -143,6 +195,8 @@ class Attribute(object):
             'tca': self.tca,
             'counter': self.counter,
             'table-support': self.table_support,
+            'type': self.attribute_type.value,
+            'constraint': self.constraint,
         }
 
     def dump(self, prefix="      "):
@@ -156,6 +210,8 @@ class Attribute(object):
         print('{}    Tca       : {}'.format(prefix, self.tca))
         print('{}    Counter   : {}'.format(prefix, self.counter))
         print('{}    Table     : {}'.format(prefix, self.table_support))
+        print('{}    Type      : {}'.format(prefix, self.attribute_type.name))
+        print('{}    Constraint: {}'.format(prefix, self.constraint))
         print('')
 
     @staticmethod
@@ -172,6 +228,8 @@ class Attribute(object):
         attr.counter = data.get('counter', False)
         attr.access = AttributeAccess.load(data.get('access'))
         attr.table_support = data.get('table-support', False)
+        attr.attribute_type = AttributeType(data.get('type', AttributeType.UnknownType))
+        attr.constraint = data.get('constraint', None)
         return attr
 
     @staticmethod
@@ -229,6 +287,7 @@ class Attribute(object):
                 ('M Anagement', 'Management'),
                 ('Battery B Ackup', 'Battery Backup'),
                 ('O Ption', 'Option'),
+                ('U Nit', 'Unit'),
                 ('( S F )', ''),
                 ('( Dsl )', ''),
                 ('( Arc )', ''),
@@ -244,7 +303,7 @@ class Attribute(object):
             for orig, new in fixups:
                 attribute.name = re.sub(orig, new, attribute.name)
 
-            attribute.name = attribute.name.strip()
+            attribute.name = ' '.join(attribute.name.strip().split())
             attribute.description.append(content)
             attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 

@@ -18,7 +18,7 @@ import os
 from . import COPYRIGHT, GENERATOR_WARNING, PACKAGE_NAME, camelcase
 
 ME_FILENAME = '{}.go'
-ME_TEMPLATES = ['attribute', 'omcidefs', 'omcierror', 'me', 'medef']
+ME_TEMPLATES = ['attribute', 'omcidefs', 'omcierror', 'me', 'medef', 'classaccess', 'classsupport']
 
 # Set up filters for this module
 jinja2.filters.FILTERS['camelcase'] = camelcase
