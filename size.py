@@ -119,3 +119,11 @@ class AttributeSize(object):
             return self._bits / 8
 
         return None
+
+    @property
+    def repeat_count(self):
+        return self._repeat_count
+
+    @property
+    def repeat_max(self):
+        return self._repeat_max
