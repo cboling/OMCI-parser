@@ -289,6 +289,7 @@ class Attribute(object):
                 ('O Ption', 'Option'),
                 ('U Nit', 'Unit'),
                 ('( S F )', ''),
+                (' Sd ', ''),
                 ('( Dsl )', ''),
                 ('( Arc )', ''),
                 ('"', ''),

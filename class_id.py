@@ -327,7 +327,6 @@ class ClassId(object):
         cid.hidden = class_data.get('hidden')
         cid.access = ClassAccess(class_data.get('access', ClassAccess.UnknownAccess.value))
         cid.support = ClassSupport(class_data.get('support', ClassSupport.UnknownSupport.value))
-
         cid.section = SectionHeading.load(class_data.get('section'))
         cid.actions = Actions.load(class_data.get('actions'))
         cid.optional_actions = Actions.load(class_data.get('optional_actions'))

@@ -38,7 +38,7 @@ class AttributeSize(object):
         # Finally, is it a size item (watch out for bits and bytes in description text)
         if any(s in text.lower() for s in AttributeSize.SKIP_KEYWORDS) or \
             not any(s in text.lower() for s in AttributeSize.SIZE_KEYWORDS) or \
-                len(text) >= 14:
+                (len(text) >= 14 and 'bytes' not in text.lower()):
             return None
 
         size = AttributeSize()
@@ -67,8 +67,12 @@ class AttributeSize(object):
                         size.getnext_required = True
 
                     elif 'n bytes' in text.lower():
-                        # TODO: figure out what N refers to
-                        size._octets = int(text[:-len('n bytes')])
+                        # TODO: figure out what N refers to (usually it is just table rows)
+                        try:
+                            size._octets = int(text[:-len('n bytes')])
+                        except ValueError:
+                            txt = text[:text.lower().find('n bytes')]
+                            size._octets = int(txt)
                     else:
                         print("TODO: Further decode work needed here")
                         raise    # TODO: more work needed here

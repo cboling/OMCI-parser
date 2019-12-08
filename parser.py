@@ -178,7 +178,9 @@ class Main(object):
                                                        c.name,
                                                        camelcase(c.name)))
             c.deep_parse(self.paragraphs)
+            pass
 
+        # 281 310
         # Some just need some manual intervention
         final_class_ids = self.fix_difficult_class_ids(final_class_ids)
 
@@ -277,20 +279,6 @@ class Main(object):
         from size import AttributeSize
         from attributes import AttributeAccess
 
-        # MAC Bridge port filter table data.  Table is 8*n octets
-        if 49 in class_list.keys():
-            macbridge = class_list[49]
-            sz = AttributeSize()
-            sz._octets = 8
-            macbridge.attributes[1].size = sz
-
-        # MAC Bridge port bridge table data.  Table is 8*n octets
-        if 50 in class_list.keys():
-            macbridge = class_list[50]
-            sz = AttributeSize()
-            sz._octets = 8
-            macbridge.attributes[1].size = sz
-
         # For SIP user data, the Username&Password attribute is a pointer
         # to a security methods ME and is 2 bytes but is in the document as
         # just (2)
@@ -300,30 +288,20 @@ class Main(object):
             sz._octets = 2
             sip.attributes[4].size = sz
 
-        # Extended vlan config table.  Table is 16 octets
-        if 171 in class_list.keys():
-            exvlan = class_list[171]
-            sz = AttributeSize()
-            sz._octets = 16
-            exvlan.attributes[6].size = sz
-
-        # Mcast gem interworking.  IPv6 Table is 24N octets
+        # MCAST GEM Interworking - IPv4
         if 281 in class_list.keys():
             item = class_list[281]
-            item.attributes.remove(8)
-            item.attributes.remove(4)
             sz = AttributeSize()
-            sz._octets = 24
+            sz._octets = 12
             sz.getnext_required = True
-            item.attributes[7].size = sz
+            item.attributes[9].size = sz
+            item.attributes[9].access.add(AttributeAccess.Read)
+            item.attributes[9].access.add(AttributeAccess.Write)
 
         # OMCI.  IPv6 Table is 24N octets
         if 287 in class_list.keys():
             item = class_list[287]
-            sz = AttributeSize()
-            sz._octets = 2
-            sz.getnext_required = True
-            item.attributes[1].size = sz
+            item.attributes[1].getnext_required = True
 
             sz = AttributeSize()
             sz._octets = 1
@@ -335,39 +313,25 @@ class Main(object):
             me = class_list[288]
             class_list[288].name += ' ME'       # To avoid conflicts with Go file/struct names
             sz = AttributeSize()
-            sz._octets = 2
-            me.attributes[2].size = sz
             sz._octets = 1
             me.attributes[4].size = sz
             me.attributes[5].size = sz
-            me.attributes[7].size = sz
 
         # Managed entity code points table.  Table is 2*n octets
         if 289 in class_list.keys():
-            attr = class_list[289]
             class_list[289].name += ' ME'       # To avoid conflicts with Go file/struct names
-            sz = AttributeSize()
-            sz._octets = 2
-            attr.attributes[8].size = sz
 
         # Dot1ag maintenance domain
         if 299 in class_list.keys():
             item = class_list[299]
-            sz = AttributeSize()
-            sz._octets = 25
-            sz._repeat_count = 2
-            sz._repeat_max = 2
-            item.attributes[3].size = sz
+            item.attributes[3].size._repeat_count = 2
+            item.attributes[3].size._repeat_max = 2
 
         # Dot1ag maintenance domain
         if 300 in class_list.keys():
             item = class_list[300]
-            sz = AttributeSize()
-            sz._octets = 25
-            sz._repeat_count = 2
-            sz._repeat_max = 2
-            item.attributes[3].size = sz
-
+            item.attributes[3].size._repeat_count = 2
+            item.attributes[3].size._repeat_max = 2
             sz = AttributeSize()
             sz._octets = 24
             item.attributes[5].size = sz
@@ -376,11 +340,13 @@ class Main(object):
         if 310 in class_list.keys():
             msci = class_list[310]
             msci.attributes.remove(8)
-            msci.attributes.remove(7)
+            item = msci.attributes[7]
             sz = AttributeSize()
             sz._octets = 22
             sz.getnext_required = True
-            msci.attributes[6].size = sz
+            item.size = sz
+            item.access.add(AttributeAccess.Read)
+            item.access.add(AttributeAccess.Write)
 
         if 321 in class_list.keys() and 322 in class_list.keys():
             down = class_list[321]
