@@ -422,21 +422,8 @@ class Main(object):
 
     def fix_other_difficulties(self, class_list):
         # Some uncommon cleanups
-        for cid, cls in class_list.items():
-            # If Threshold Data specified (Threshold Data 1/2 ID) as an attribute, split it into
-            # two distinct attributes
-            if any('threshold data 1_2 id' in attr.name.lower() for attr in cls.attributes):
-                lower_list = [attr.name.lower() for attr in cls.attributes]
-                try:
-                    import copy
-                    index = lower_list.index('threshold data 1_2 id')
-                    td1 = cls.attributes[index]
-                    td1.name = 'Threshold Data 1 ID'
-                    td2 = copy.deepcopy(td1)
-                    td2.name = 'Threshold Data 2 ID'
-                    cls.attributes.insert(index + 1, td2)
-                except ValueError:
-                    pass
+        # for cid, cls in class_list.items():
+        #     pass
 
         return class_list
 
