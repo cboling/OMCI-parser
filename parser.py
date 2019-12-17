@@ -415,17 +415,31 @@ class Main(object):
             except KeyError:
                 pass
 
+        # Find counter attributes
+        self.find_counters(class_list)
+
         # Now even some other crazy things
         class_list = self.fix_other_difficulties(class_list)
-
         return class_list
 
     def fix_other_difficulties(self, class_list):
         # Some uncommon cleanups
         # for cid, cls in class_list.items():
         #     pass
-
         return class_list
+
+    def find_counters(self, class_list):
+        # Look for counters
+        from attributes import AttributeAccess
+        read_only = {AttributeAccess.Read}
+
+        for _, cls in class_list.items():
+            if 'history data' in cls.name.lower():
+                for attr in cls.attributes[1:]:
+                    if 'end time' not in attr.name.lower() and attr.access == read_only and not attr.table_support:
+                        attr.counter = True
+        return class_list
+
 
 att_openomci = {
     2,
