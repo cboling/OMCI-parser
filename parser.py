@@ -434,7 +434,7 @@ class Main(object):
         read_only = {AttributeAccess.Read}
 
         for _, cls in class_list.items():
-            if 'history data' in cls.name.lower():
+            if 'history data' in cls.name.lower() or 'extended pm' in cls.name.lower():
                 for attr in cls.attributes[1:]:
                     if 'end time' not in attr.name.lower() and attr.access == read_only and not attr.table_support:
                         attr.counter = True
