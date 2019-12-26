@@ -26,7 +26,7 @@ from actions import Actions
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='G.988 Final Parser')
+    parser = argparse.ArgumentParser(description='G.988 CSV Parser')
 
     parser.add_argument('--ITU', '-I', action='store',
                         default='T-REC-G.988-201711-I!!MSW-E.docx',
