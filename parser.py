@@ -415,29 +415,32 @@ class Main(object):
             except KeyError:
                 pass
 
-        # Find counter attributes
-        self.find_counters(class_list)
-
         # Now even some other crazy things
         class_list = self.fix_other_difficulties(class_list)
+
+        # Find counter and other types of attributes
+        self.find_attribute_types(class_list)
+
         return class_list
 
-    def fix_other_difficulties(self, class_list):
+    @staticmethod
+    def fix_other_difficulties(class_list):
         # Some uncommon cleanups
         # for cid, cls in class_list.items():
         #     pass
         return class_list
 
-    def find_counters(self, class_list):
-        # Look for counters
-        from attributes import AttributeAccess
-        read_only = {AttributeAccess.Read}
+    @staticmethod
+    def find_attribute_types(class_list):
+        # A bit more in depth look at the attributes
+        from attributes import AttributeType
 
-        for _, cls in class_list.items():
-            if 'history data' in cls.name.lower() or 'extended pm' in cls.name.lower():
-                for attr in cls.attributes[1:]:
-                    if 'end time' not in attr.name.lower() and attr.access == read_only and not attr.table_support:
-                        attr.counter = True
+        for _, item in class_list.items():
+            for attr in item.attributes:
+                # Only set unknown types (or integer since it may be a counter)
+                if attr.attribute_type == AttributeType.Unknown:
+                    attr.find_type(item)
+
         return class_list
 
 

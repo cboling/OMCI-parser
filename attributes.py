@@ -24,12 +24,13 @@ class AttributeType(IntEnum):
     Unknown = 0          # Not known
     Octets = 1           # Series of zero or more octets
     String = 2           # Readable String
-    UnsignedInteger = 3  # Integer  (0..max)
+    UnsignedInteger = 3  # Integer (0..max)
     Table = 4            # Table (of Octets)
     SignedInteger = 5    # Signed integer, often expressed as 2's complement
-    Pointer = 6          # Pointer to an instance of another Managed Entity
+    Pointer = 6          # Managed Entity ID or pointer to a Managed instance
     BitField = 7         # Bitfield
     Enumeration = 8      # Fixed number of values (Unsigned Integers)
+    Counter = 9          # Incrementing counter
 
 
 class AttributeAccess(IntEnum):
@@ -88,6 +89,8 @@ class AttributeList(object):
 
     def add(self, attribute):
         assert isinstance(attribute, Attribute), 'Invalid type'
+        if attribute.index is None:
+            attribute.index = len(self._attributes)
         self._attributes.append(attribute)
         return self
 
@@ -131,10 +134,10 @@ class Attribute(object):
         self.tca = False             # If true, a threshold crossing alert alarm notification
                                      # can occur for the attribute
         self.deprecated = False      # If true, attribute is deprecated (may still be mandatory)
-        self._counter = False        # Counter attribute
+        self.default = None          # Default value
         self.table = None            # (dict) Table information related to attribute
-        self._table_support = False  # Supports table operations
         self.attribute_type = AttributeType.Unknown
+
         ###################################################################################
         # Constraints will always be a string (or None) composed of substrings separated
         # by a comma. If no constraint string (None) is specified, the attribute can take on'
@@ -159,11 +162,10 @@ class Attribute(object):
 
     @property
     def table_support(self):
-        return self._table_support
+        return self.attribute_type == AttributeType.Table
 
     @table_support.setter
     def table_support(self, value):
-        self._table_support = value
         if value:
             assert self.attribute_type in (AttributeType.Unknown, AttributeType.Table)
             self.attribute_type = AttributeType.Table
@@ -172,16 +174,7 @@ class Attribute(object):
 
     @property
     def counter(self):
-        return self._counter
-
-    @counter.setter
-    def counter(self, value):
-        self._counter = value
-        if value:
-            assert self.attribute_type in (AttributeType.Unknown, AttributeType.UnsignedInteger)
-            self.attribute_type = AttributeType.UnsignedInteger
-        else:
-            assert self.attribute_type != AttributeType.UnsignedInteger
+        return self.attribute_type == AttributeType.Counter
 
     def to_dict(self):
         # TODO: Save/restore table info?
@@ -194,10 +187,10 @@ class Attribute(object):
             'size': self.size.to_dict(),
             'avc': self.avc,
             'tca': self.tca,
-            'counter': self.counter,
             'table-support': self.table_support,
             'type': self.attribute_type.name,
             'constraint': self.constraint,
+            'default': self.default,
         }
 
     def dump(self, prefix="      "):
@@ -209,10 +202,9 @@ class Attribute(object):
         print('{}    Size      : {}'.format(prefix, self.size))
         print('{}    Avc       : {}'.format(prefix, self.avc))
         print('{}    Tca       : {}'.format(prefix, self.tca))
-        print('{}    Counter   : {}'.format(prefix, self.counter))
-        print('{}    Table     : {}'.format(prefix, self.table_support))
         print('{}    Type      : {}'.format(prefix, self.attribute_type.name))
         print('{}    Constraint: {}'.format(prefix, self.constraint))
+        print('{}    Default   : {}'.format(prefix, self.default))
         print('')
 
     @staticmethod
@@ -226,14 +218,11 @@ class Attribute(object):
         attr.tca = data.get('tca', False)
         attr.avc = data.get('avc', False)
         attr.size = AttributeSize.load(data.get('size'))
-        attr.counter = data.get('counter', False)
+        attr.default = data.get('default', None)
         attr.access = AttributeAccess.load(data.get('access'))
-        attr.table_support = data.get('table-support', False)
         attr.attribute_type = AttributeType[data.get('type', AttributeType.Unknown.name)]
         attr.constraint = data.get('constraint', None)
         return attr
-
-
 
     @staticmethod
     def create_from_paragraph(content, paragraph):
@@ -372,5 +361,45 @@ class Attribute(object):
             # assert self.table is None, 'Attribute already has a table'
             self.table = content.rows
 
+    def find_type(self, managed_entity):
+        read_only = {AttributeAccess.Read}
+        try:
+            if self.index == 0:        # Always a pointer
+                if self.size is None or self.size.octets != 2:
+                    return
+                self.attribute_type = AttributeType.Pointer
+                return
+
+            else:
+                # PM Counters are a pain, but manageable
+                if 'history data' in managed_entity.name.lower() or 'extended pm' in managed_entity.name.lower():
+                    if 'end time' not in self.name.lower() and self.access == read_only and not self.table_support:
+                        self.attribute_type = AttributeType.Counter
+                        return
+
+            if self.attribute_type == AttributeType.Unknown and self.size is not None:
+                # Do some more investigation.  So far Counter, ME Instance(pointer), and Table have been identified
+                # above or during previous parsing.
+                if self.size.octets in (1, 2, 4, 8):
+                    self.attribute_type = AttributeType.UnsignedInteger
+                    return
+                else:
+                    self.attribute_type = AttributeType.Octets
+                    return
+            #
+            if self.attribute_type == AttributeType.Unknown:
+                return
+                #
+                # String = 2           # Readable String
+                # SignedInteger = 5    # Signed integer, often expressed as 2's complement
+                # Pointer = 6          # Managed Entity ID or pointer to a Managed instance
+                # BitField = 7         # Bitfield
+                # Enumeration = 8      # Fixed number of values (Unsigned Integers)
+
+        except Exception as _e:
+            pass
+#
+#
+#
 # TODO: Still need to test/decode AVC flag
 # TODO: Still need to test/decode TCA flag
