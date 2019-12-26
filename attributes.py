@@ -21,14 +21,15 @@ from tables import Table
 
 
 class AttributeType(IntEnum):
-    UnknownType = 0
-    Pointer = 1
-    BitField = 2
-    SignedInteger = 3
-    UnsignedInteger = 4
-    String = 5
-    Enumeration = 6
-    Table = 7
+    Unknown = 0          # Not known
+    Octets = 1           # Series of zero or more octets
+    String = 2           # Readable String
+    UnsignedInteger = 3  # Integer  (0..max)
+    Table = 4            # Table (of Octets)
+    SignedInteger = 5    # Signed integer, often expressed as 2's complement
+    Pointer = 6          # Pointer to an instance of another Managed Entity
+    BitField = 7         # Bitfield
+    Enumeration = 8      # Fixed number of values (Unsigned Integers)
 
 
 class AttributeAccess(IntEnum):
@@ -133,7 +134,7 @@ class Attribute(object):
         self._counter = False        # Counter attribute
         self.table = None            # (dict) Table information related to attribute
         self._table_support = False  # Supports table operations
-        self.attribute_type = AttributeType.UnknownType
+        self.attribute_type = AttributeType.Unknown
         ###################################################################################
         # Constraints will always be a string (or None) composed of substrings separated
         # by a comma. If no constraint string (None) is specified, the attribute can take on'
@@ -164,7 +165,7 @@ class Attribute(object):
     def table_support(self, value):
         self._table_support = value
         if value:
-            assert self.attribute_type in (AttributeType.UnknownType, AttributeType.Table)
+            assert self.attribute_type in (AttributeType.Unknown, AttributeType.Table)
             self.attribute_type = AttributeType.Table
         else:
             assert self.attribute_type != AttributeType.Table
@@ -177,7 +178,7 @@ class Attribute(object):
     def counter(self, value):
         self._counter = value
         if value:
-            assert self.attribute_type in (AttributeType.UnknownType, AttributeType.UnsignedInteger)
+            assert self.attribute_type in (AttributeType.Unknown, AttributeType.UnsignedInteger)
             self.attribute_type = AttributeType.UnsignedInteger
         else:
             assert self.attribute_type != AttributeType.UnsignedInteger
@@ -195,7 +196,7 @@ class Attribute(object):
             'tca': self.tca,
             'counter': self.counter,
             'table-support': self.table_support,
-            'type': self.attribute_type.value,
+            'type': self.attribute_type.name,
             'constraint': self.constraint,
         }
 
@@ -228,9 +229,11 @@ class Attribute(object):
         attr.counter = data.get('counter', False)
         attr.access = AttributeAccess.load(data.get('access'))
         attr.table_support = data.get('table-support', False)
-        attr.attribute_type = AttributeType(data.get('type', AttributeType.UnknownType))
+        attr.attribute_type = AttributeType[data.get('type', AttributeType.Unknown.name)]
         attr.constraint = data.get('constraint', None)
         return attr
+
+
 
     @staticmethod
     def create_from_paragraph(content, paragraph):
