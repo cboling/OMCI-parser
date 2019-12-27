@@ -18,7 +18,6 @@ from __future__ import (
 import argparse
 import os
 import base64
-import json
 from parsed_json import ParsedJson
 from parsed_yaml import MetadataYAML
 from attributes import AttributeType
@@ -166,7 +165,7 @@ class Main(object):
             return '0..0xFFFF'
 
         if attr_type == AttributeType.BitField:
-            return '0x{:X}'.format(0xFF if size.octetse == 1 else
+            return '0x{:X}'.format(0xFF if size.octets == 1 else
                                    0xFFFF if size.octets == 2 else
                                    0xFFFFFFFF if size.octets == 4 else
                                    0xFFFFFFFFFFFFFFFF)

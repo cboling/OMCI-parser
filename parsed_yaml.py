@@ -126,8 +126,13 @@ class MetadataYAML(object):
                             attr['type'] = AttributeType[attr.get('type', 'Unknown')]
                             attributes[attr['index']] = attr
 
+        except FileNotFoundError:
+             pass
+
         except Exception as _e:
             raise
+
+        return self._class_ids
 
     _yaml_header = """###############################################################################
 #
@@ -162,6 +167,9 @@ class MetadataYAML(object):
 #                    attributes will need to be further specified by the user of this
 #                    library in order to specify a better default.
 #
+#                    For tables, a 'null' (without quotes) specifies an empty table
+#                    by default.
+#
 #    o Constraints   The constraints for write and read-by-create attributes allows the
 #                    code generator to produce code that can check whether or not a
 #                    value being assigned to a variable is valid. See the 'Constraint'
@@ -193,12 +201,12 @@ class MetadataYAML(object):
 #    sets these as needed.
 #
 #    Default Types:  Constraint definitions for default types are provided
-#      Octets           len(<values>)[,<allowed-pattern>][,fill:<value>]
+#      Octets           len(<values>)[,regex(<allowed-pattern>)][,fill(<value>)]
 #      UnsignedInteger  <values>
 #      Table            - see Octets above -
 #
 #    Custom Types:   These are specified in the metadata section below as appropriate:
-#      String          len(<values>)[,re:<allowed-pattern>][,fill:<value>]
+#      String          len(<values>)[,regex(<allowed-pattern>)][,fill(<value>)]
 #      SignedInteger   <values>
 #      Pointer         <16-bit values>
 #      BitField        <bitmask>
@@ -207,14 +215,15 @@ class MetadataYAML(object):
 #    where:
 #
 #     len()    is a function that checks a string/octets for a specific length and the
-#              result should match one of the <values>
+#              result should match one of the <values>.  For tables, this is the length
+#              of a row entry
 #
-#     re:<allowed-pattern> is an optional regular expression that will check the values of
-#                          the collection of octets.
+#     regex()  is an optional regular expression that will check the values of
+#              the collection of octets.
 #
-#     fill:<value>  is an optional fill value to add to the end of a supplied string so that
-#                   the entire string length is set to the maximum allowed. Typically this is
-#                   either an ASCII space (0x20) or a null (0x00).
+#     fill())  is an optional fill value to add to the end of a supplied string so that
+#              the entire string length is set to the maximum allowed. Typically this is
+#              either an ASCII space (0x20) or a null (0x00).
 #
 #     <values> is a pattern of one or more numbers as indicated below.
 #              <value>                   a single numerical value

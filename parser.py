@@ -21,6 +21,7 @@ from docx import Document
 
 from class_id import ClassIdList
 from parsed_json import ParsedJson
+from parsed_yaml import MetadataYAML
 from preparsed_json import PreParsedJson
 from versions import VersionHeading
 from text import camelcase
@@ -39,6 +40,10 @@ def parse_args():
     parser.add_argument('--input', '-i', action='store',
                         default='G.988.PreCompiled.json',
                         help='Path to pre-parsed G.988 data, default: G.988.PreCompiled.json')
+
+    parser.add_argument('--hints', '-H', action='store',
+                        default='G.988.augment.yaml',
+                        help='Path to hand modified G.988 input data, default: G.988.augment.yaml')
 
     parser.add_argument('--output', '-o', action='store',
                         default='G.988.Parsed.json',
@@ -61,6 +66,7 @@ class Main(object):
 
         self.preparsed = PreParsedJson()
         self.parsed = ParsedJson()
+        self.attribute_hints = dict()       # Class ID -> attribute hints list
         version = VersionHeading()
         version.name = 'parser'
         version.create_time = time.time()
@@ -105,6 +111,8 @@ class Main(object):
         self.preparsed.load(self.args.input)
         for version in self.preparsed.versions:
             self.parsed.add(version)
+
+        self.attribute_hints = MetadataYAML().load(self.args.hints)
 
         document = self.load_itu_document()
         self.paragraphs = document.paragraphs
@@ -430,12 +438,24 @@ class Main(object):
         #     pass
         return class_list
 
-    @staticmethod
-    def find_attribute_types(class_list):
+    def find_attribute_types(self, class_list):
         # A bit more in depth look at the attributes
         from attributes import AttributeType
 
-        for _, item in class_list.items():
+        for cid, item in class_list.items():
+            # Any hints to apply before seeding default settings?
+            if cid in self.attribute_hints:
+                hints = self.attribute_hints[cid]
+                for index, attr_hint in hints['attributes'].items():
+                    item_attribute = next((attr for attr in item.attributes if attr.index == index), None)
+                    if item_attribute is not None:
+                        if 'type' in attr_hint:
+                            item_attribute.attribute_type = attr_hint['type']
+                        if 'default' in attr_hint:
+                            item_attribute.default = attr_hint['default']
+                        if 'constraint' in attr_hint:
+                            item_attribute.constraint = attr_hint['constraint']
+
             for attr in item.attributes:
                 # Only set unknown types (or integer since it may be a counter)
                 if attr.attribute_type == AttributeType.Unknown:
