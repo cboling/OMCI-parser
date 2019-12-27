@@ -66,9 +66,6 @@ class Main(object):
             # Load JSON class ID
             self.parsed.load(self.args.input)
 
-            # class_ids = [c for c in self.parsed.class_ids.values()]
-            # class_ids.sort(key=lambda x: x.cid)
-
             for cid, item in self.parsed.class_ids.items():
                 if cid not in _class_ids_of_interest:
                     continue
