@@ -17,15 +17,20 @@ limitations under the License.
     {%-endfor-%}
 {%-endmacro-%}
 
-{% macro attribute_field(size) %}
-    {%- if size.octets == 1 -%}
+
+{% macro attribute_field(attr) %}
+    {%- if (attr.attribute_type.name == "Octets") -%}
+MultiByteField
+    {%- elif (attr.attribute_type.name == "String") -%}
+MultiByteField
+    {%- elif attr.size.octets == 1 -%}
 ByteField
-    {%- elif size.octets == 2 -%}
+    {%- elif attr.size.octets == 2 -%}
 Uint16Field
-    {%- elif size.octets == 4 -%}
+    {%- elif attr.size.octets == 4 -%}
 Uint32Field
-    {%- elif size.octets == 8 -%}
-Uint64Field
+    {%- elif attr.size.octets == 8 -%}
+Uint64Field {{ attr_type }}
     {%- else -%}
 MultiByteField
     {%- endif -%}
@@ -45,17 +50,27 @@ MultiByteField
     {%- endif -%}
 {% endmacro %}
 
-{% macro table_attribute_zero_default(size) %}
-    {%- if size.octets == 1 -%}
-0
-    {%- elif size.octets == 2 -%}
-0
-    {%- elif size.octets == 4 -%}
-0
-    {%- elif size.octets == 8 -%}
-0
+{% macro attribute_default(attr) %}
+    {%- if attr.default is not none -%}
+        {%- if attr.default is string -%}
+{{attr.size.octets}}, toOctets("{{ attr.default }}")
+        {%- else -%}
+{{ attr.default }}
+        {%- endif -%}
     {%- else -%}
-0
+{{attribute_zero_default(attr.size)}}
+    {%- endif -%}
+{% endmacro %}
+
+{% macro table_attribute_default(attr) %}
+    {%- if attr.default is not none -%}
+        {%- if attr.default is string -%}
+toOctets("{{ attr.default }}")
+        {%- else -%}
+{{ attr.default }}
+        {%- endif -%}
+    {%- else -%}
+nil
     {%- endif -%}
 {% endmacro %}
 
@@ -76,9 +91,9 @@ false
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_zero_default(attr.size)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- else -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr.size)}}("{{attr.name|camelcase}}", {{attribute_zero_default(attr.size)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- endif -%}
 	{%-endfor-%}
 {%- endmacro -%}
