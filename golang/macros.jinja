@@ -30,7 +30,7 @@ Uint16Field
     {%- elif attr.size.octets == 4 -%}
 Uint32Field
     {%- elif attr.size.octets == 8 -%}
-Uint64Field {{ attr_type }}
+Uint64Field
     {%- else -%}
 MultiByteField
     {%- endif -%}
