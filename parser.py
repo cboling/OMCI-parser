@@ -157,17 +157,6 @@ class Main(object):
         todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.section is not None}
 
-        # num_att_end = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
-        #
-        # print('Of {} AT&T OpenOMCI MEs, {} after eliminating hard ones, and {} after ones with sections'.
-        #       format(num_att_before, num_att_after_hard_me, num_att_end))
-        #
-        # final_class_ids = ClassIdList()
-        # for cid, c in todo_class_ids.items():
-        #     if c.cid in att_openomci:
-        #         final_class_ids.add(c)
-        print('')
-        print('working on {} OpenOMCI MEs'.format(len(todo_class_ids)))
         print('')
         print('Parsing deeper for managed Entities with Sections')
 
@@ -191,6 +180,9 @@ class Main(object):
         # 281 310
         # Some just need some manual intervention
         final_class_ids = self.fix_difficult_class_ids(final_class_ids)
+
+        # Who creates them
+        final_class_ids = self.find_class_access(final_class_ids)
 
         completed = len([c for c in final_class_ids.values() if c.state == 'complete'])
         failed = len([c for c in final_class_ids.values() if c.state == 'failure'])
@@ -436,6 +428,18 @@ class Main(object):
         # Some uncommon cleanups
         # for cid, cls in class_list.items():
         #     pass
+        return class_list
+
+    @staticmethod
+    def find_class_access(class_list):
+        from class_id import ClassAccess, Actions
+        for _, item in class_list.items():
+            if item.access == ClassAccess.UnknownAccess and len(item.actions):
+                if Actions.Create in item.actions:
+                    item.access = ClassAccess.CreatedByOlt
+                else:
+                    item.access = ClassAccess.CreatedByOnu
+
         return class_list
 
     def find_attribute_types(self, class_list):

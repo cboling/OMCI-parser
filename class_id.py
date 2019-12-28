@@ -607,7 +607,7 @@ class ClassId(object):
         """ Created based on access value """
         txt = {
             ClassAccess.UnknownAccess: "The creator of this ME is not specified",
-            ClassAccess.CreatedByOnu: "This ME is  created by the ONU",
+            ClassAccess.CreatedByOnu: "This ME is created by the ONU",
             ClassAccess.CreatedByOlt: "This ME is created by the OLT",
             ClassAccess.CreatedByBoth: "This ME is created by both the ONU and OLT",
         }
