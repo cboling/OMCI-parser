@@ -27,6 +27,7 @@ from golang.basetemplates import create_base_templates
 from golang.versionfile import create_version_file
 from parsed_json import ParsedJson
 from versions import VersionHeading
+import base64
 
 
 def parse_args():
@@ -55,6 +56,10 @@ def parse_args():
     return args
 
 
+def zero_b64_string(size):
+    return 'toOctets("{}")'.format(str(base64.b64encode(bytearray(size)))[2:-1])
+
+
 class Main(object):
     """ Main program """
     def __init__(self):
@@ -62,6 +67,7 @@ class Main(object):
         self.paragraphs = None
         loader = jinja2.FileSystemLoader(searchpath=self.args.templates)
         self.templateEnv = jinja2.Environment(loader=loader)
+        self.templateEnv.filters['zero_b64_string'] = zero_b64_string
 
         self.parsed = ParsedJson()
         self.version = VersionHeading()
@@ -70,6 +76,7 @@ class Main(object):
         self.version.itu_document = self.args.ITU
         self.version.version = self.get_version()
         self.version.sha256 = self.get_file_hash(self.version.itu_document)
+
 
     @staticmethod
     def get_version():

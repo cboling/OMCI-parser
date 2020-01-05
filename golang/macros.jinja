@@ -17,7 +17,6 @@ limitations under the License.
     {%-endfor-%}
 {%-endmacro-%}
 
-
 {% macro attribute_field(attr) %}
     {%- if (attr.attribute_type.name == "Octets") -%}
 MultiByteField
@@ -36,6 +35,11 @@ MultiByteField
     {%- endif -%}
 {% endmacro %}
 
+{%- macro attribute_type(attr) -%}
+{{attr.attribute_type.name}}AttributeType
+{%- endmacro -%}
+
+
 {% macro attribute_zero_default(size) %}
     {%- if size.octets == 1 -%}
 0
@@ -46,7 +50,7 @@ MultiByteField
     {%- elif size.octets == 8 -%}
 0
     {%- else -%}
-{{size.octets}}, nil
+{{ size.octets }}, {{ size.octets|zero_b64_string }}
     {%- endif -%}
 {% endmacro %}
 
@@ -91,9 +95,9 @@ false
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", {{attribute_type(attr)}}, TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- else -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.counter)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- endif -%}
 	{%-endfor-%}
 {%- endmacro -%}
