@@ -116,3 +116,2391 @@ managed_entities:
     type: UnsignedInteger
     default: 0
     constraint: 0..0xFF
+- class_id: 5
+  name: Cardholder
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Actual Plug In Unit Type
+    type: Enumeration
+    default: 0
+    constraint: 0..49,192..223
+  - index: 2
+    name: Expected Plug_In Unit Type
+    type: Enumeration
+    default: 0
+    constraint: 0..49,192..223
+  - index: 3
+    name: Expected Port Count
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 4
+    name: Expected Equipment Id
+    type: String
+    default: ICAgICAgICAgICAgICAgICAgICA=
+    constraint: len(0..20),fill(0x20)
+  - index: 5
+    name: Actual Equipment Id
+    type: String
+    default: ICAgICAgICAgICAgICAgICAgICA=
+    constraint: len(0..20),fill(0x20)
+  - index: 6
+    name: Protection Profile Pointer
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 7
+    name: Invoke Protection Switch
+    type: Enumeration
+    default: 0
+    constraint: 0..3
+  - index: 8
+    name: Alarm _ Reporting Control
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 9
+    name: Arc Interval
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+- class_id: 6
+  name: Circuit pack
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Type
+    type: Enumeration
+    default: 0
+    constraint: 0..49,192..223
+  - index: 2
+    name: Number Of Ports
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 3
+    name: Serial Number
+    type: Octets
+    default: ICAgICAgICA=           # 8 spaces
+    constraint: len(8)
+  - index: 4
+    name: Version
+    type: Octets
+    default: ICAgICAgICAgICAgICA=   # 14 spaces
+    constraint: len(1..14),fill(0x20)
+  - index: 5
+    name: Vendor Id
+    type: String
+    default: ICAgIA==               # 4 spaces
+    constraint: len(4)
+  - index: 6
+    name: Administrative State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 7
+    name: Operational State
+    type: Enumeration
+    default: 2
+    constraint: 0..2
+  - index: 8
+    name: Bridged Or Ip Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 9
+    name: Equipment Id
+    type: String
+    default: ICAgICAgICAgICAgICAgICAgICA=   # 20 spaces
+    constraint: len(0..20),fill(0x20)
+  - index: 10
+    name: Card Configuration
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 11
+    name: Total T_Cont Buffer Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 12
+    name: Total Priority Queue Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 13
+    name: Total Traffic Scheduler Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 14
+    name: Power Shed Override
+    type: BitField
+    default: 0
+    constraint: 0xFFFFFFFF
+- class_id: 7
+  name: Software image
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..1
+  - index: 1
+    name: Version
+    type: String
+    default: ICAgICAgICAgICAgICAgICAgICA=
+    constraint: len(1..14),fill(0x20)
+  - index: 2
+    name: Is Committed
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 3
+    name: Is Active
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 4
+    name: Is Valid
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 5
+    name: Product Code
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==   # 25 nulls
+    constraint: len(1..25),fill(0x00)
+  - index: 6
+    name: Image Hash
+    type: String
+    default: AAAAAAAAAAAAAAAAAAAAAA==   # 16 nulls
+    constraint: len(16)
+- class_id: 11
+  name: Physical path termination point Ethernet UNI
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Expected Type
+    type: Enumeration
+    default: 0
+    constraint: 0..49,192..223
+  - index: 2
+    name: Sensed Type
+    type: Enumeration
+    default: 0
+    constraint: 0..49,192..223
+  - index: 3
+    name: Auto Detection Configuration
+    type: Enumeration
+    default: 0
+    constraint: 0..0x14,0x20,0x30
+  - index: 4
+    name: Ethernet Loopback Configuration
+    type: Enumeration
+    default: 0
+    constraint: 0,3
+  - index: 5
+    name: Administrative State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 6
+    name: Operational State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 7
+    name: Configuration Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..0x08,0x11..0x13
+  - index: 8
+    name: Max Frame Size
+    type: UnsignedInteger
+    default: 1518
+    constraint: 0..0xFFFF
+  - index: 9
+    name: Dte Or Dce Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 10
+    name: Pause Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 11
+    name: Bridged Or Ip Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 12
+    name: Arc
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 13
+    name: Arc Interval
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 14
+    name: Pppoe Filter
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 15
+    name: Power Control
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+- class_id: 24
+  name: Ethernet performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Fcs Errors
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Excessive Collision Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Late Collision Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Frames Too Long
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Buffer Overflows On Receive
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Buffer Overflows On Transmit
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Single Collision Frame Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Multiple Collisions Frame Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Sqe Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Deferred Transmission Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Internal Mac Transmit Error Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Carrier Sense Error Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Alignment Error Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Internal Mac Receive Error Counter
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 45
+  name: MAC bridge service profile
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Spanning Tree Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 2
+    name: Learning Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 3
+    name: Port Bridging Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 4
+    name: Priority
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Max Age
+    type: UnsignedInteger
+    default: 0x0600
+    constraint: 0x0600..0x2800
+  - index: 6
+    name: Hello Time
+    type: UnsignedInteger
+    default: 0x0100
+    constraint: 0x0100..0x0A00
+  - index: 7
+    name: Forward Delay
+    type: UnsignedInteger
+    default: 0x0400
+    constraint: 0x0400..0x1E00
+  - index: 8
+    name: Unknown Mac Address Discard
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 9
+    name: Mac Learning Depth
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 10
+    name: Dynamic Filtering Ageing Time
+    type: UnsignedInteger
+    default: 300
+    constraint: 0,10..1000000
+- class_id: 46
+  name: MAC bridge configuration data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Bridge Mac Address
+    type: Octets
+    default: AAAAAAAA        # 6 zeros
+    constraint: len(6)
+  - index: 2
+    name: Bridge Priority
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Designated Root
+    type: Octets
+    default: AAAAAAAAAAA=    # 8 zeros
+    constraint: len(8)
+  - index: 4
+    name: Root Path Cost
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Bridge Port Count
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 6
+    name: Root Port Num
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 7
+    name: Hello Time
+    type: UnsignedInteger
+    default: 0x0100
+    constraint: 0x0100..0x0A00
+  - index: 8
+    name: Forward Delay
+    type: UnsignedInteger
+    default: 0x0400
+    constraint: 0x0400..0x1E00
+- class_id: 47
+  name: MAC bridge port configuration data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Bridge Id Pointer
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 2
+    name: Port Num
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 3
+    name: Tp Type
+    type: Enumeration
+    default: 1
+    constraint: 1..9,11..13
+  - index: 4
+    name: Tp Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Port Priority
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 6
+    name: Port Path Cost
+    type: UnsignedInteger
+    default: 1
+    constraint: 1..0xFFFF
+  - index: 7
+    name: Port Spanning Tree Ind
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 8
+    name: Deprecated 1
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 9
+    name: Deprecated 2
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 10
+    name: Port Mac Address
+    type: Octets
+    default: AAAAAAAA           # 6 zeros
+    constraint: len(6)
+  - index: 11
+    name: Outbound Td Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 12
+    name: Inbound Td Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 13
+    name: Mac Learning Depth
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+- class_id: 48
+  name: MAC bridge port designation data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Designated Bridge Root Cost Port
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    constraint: len(24)
+  - index: 2
+    name: Port State
+    type: Enumeration
+    default: 0
+    constraint: 0..6
+- class_id: 49
+  name: MAC bridge port filter table data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Mac Filter Table
+    type: Table
+    default: null
+    constraint: len(8)
+- class_id: 51
+  name: MAC bridge performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Bridge Learning Entry Discard Count
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 52
+  name: MAC bridge port performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Forwarded Frame Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Delay Exceeded Discard Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Maximum Transmission Unit Mtu Exceeded Discard Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Received Frame Counter
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Received And Discarded Counter
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 78
+  name: VLAN tagging operation configuration data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Upstream Vlan Tagging Operation Mode
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 2
+    name: Upstream Vlan Tag Tci Value
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Downstream Vlan Tagging Operation Mode
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 4
+    name: Association Type
+    type: Enumeration
+    default: 0
+    constraint: 0..13
+  - index: 5
+    name: Associated Me Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+- class_id: 84
+  name: VLAN tagging filter data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Vlan Filter List
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA       # 24 zeros
+    constraint: len(0..24),fill(0x00)
+  - index: 2
+    name: Forward Operation
+    type: Enumeration
+    default: 0
+    constraint: 0..0x21
+  - index: 3
+    name: Number Of Entries
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..12
+- class_id: 89
+  name: Ethernet performance monitoring history data 2
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Pppoe Filtered Frame Counter
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 131
+  name: OLT-G
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Olt Vendor Id
+    type: String
+    default: ICAgIA==                      # 4 spaces
+    constraint: len(4)
+  - index: 2
+    name: Equipment Id
+    type: String
+    default: ICAgICAgICAgICAgICAgICAgICA=  # 20 spaces
+    constraint: len(20),fill(0x20)
+  - index: 3
+    name: Version
+    type: String
+    default: MAAAAAAAAAAAAAAAAAA=          # Left justified "0" with nulls
+    constraint: len(0..14),fill(0x00)
+  - index: 4
+    name: Time Of Day Information
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAA=          # 14 zeros
+    constraint: len(14)
+- class_id: 171
+  name: Extended VLAN tagging operation configuration data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Association Type
+    type: Enumeration
+    default: 0
+    constraint: 0..12
+  - index: 2
+    name: Received Frame Vlan Tagging Operation Table Max Size
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Input Tpid
+    type: UnsignedInteger
+    default: 0x88A8
+    constraint: 0x8100,0x88A8,0x9100
+  - index: 4
+    name: Output Tpid
+    type: UnsignedInteger
+    default: 0x88A8
+    constraint: 0x8100,0x88A8,0x9100
+  - index: 5
+    name: Downstream Mode
+    type: Enumeration
+    default: 0
+    constraint: 0..8
+  - index: 6
+    name: Received Frame Vlan Tagging Operation Table
+    type: Table
+    default: null
+    constraint: len(16)
+  - index: 7
+    name: Associated Me Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 8
+    name: Dscp To P Bit Mapping
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA     # 24 zeros
+    constraint: len(24)
+- class_id: 256
+  name: ONU-G
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0
+  - index: 1
+    name: Vendor Id
+    type: String
+    default: ICAgIA==       # 4 spaces
+    constraint: len(4)
+  - index: 2
+    name: Version
+    type: String
+    default: MAAAAAAAAAAAAAAAAAA=
+    constraint: len(0..14),fill(0x00)
+  - index: 3
+    name: Serial Number
+    type: Octets
+    default: AAAAAAAAAAA=         # 8 zeros
+    constraint: len(8)
+  - index: 4
+    name: Traffic Management Option
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 5
+    name: Deprecated
+    type: UnsignedInteger
+    default: 0
+    constraint: 0
+  - index: 6
+    name: Battery Backup
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 7
+    name: Administrative State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 8
+    name: Operational State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 9
+    name: Onu Survival Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 10
+    name: Logical Onu Id
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    # 24 zeros
+    constraint: len(0..24),fill(0x00)
+  - index: 11
+    name: Logical Password
+    type: Octets
+    default: AAAAAAAAAAAAAAAA              # 12 zeros
+    constraint: len(0..12),fill(0x00)
+  - index: 12
+    name: Credentials Status
+    type: Enumeration
+    default: 0
+    constraint: 0..4
+  - index: 13
+    name: Extended Tc_Layer Options
+    type: BitField
+    default: 0
+    constraint: 0x0003
+- class_id: 257
+  name: ONU2-G
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0
+  - index: 1
+    name: Equipment Id
+    type: String
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAA=     # 20 nulls
+    constraint: len(0..20),fill(0x00)
+  - index: 2
+    name: Optical Network Unit Management And Control Channel Omcc Version
+    type: Enumeration
+    default: 0xA4
+    constraint: 0xA0..0xA3,0xB0..0xB4
+  - index: 3
+    name: Vendor Product Code
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Security Capability
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 5
+    name: Security Mode
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 6
+    name: Total Priority Queue Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 7
+    name: Total Traffic Scheduler Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 8
+    name: Deprecated
+    type: UnsignedInteger
+    default: 1
+    constraint: 1
+  - index: 9
+    name: Total Gem Port_Id Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 10
+    name: Sysuptime
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 11
+    name: Connectivity Capability
+    type: BitField
+    default: 0
+    constraint: 0x007F
+  - index: 12
+    name: Current Connectivity Mode
+    type: BitField
+    default: 0
+    constraint: 0x007F
+  - index: 13
+    name: Quality Of Service Qos Configuration Flexibility
+    type: BitField
+    default: 0
+    constraint: 0x3F
+  - index: 14
+    name: Priority Queue Scale Factor
+    type: UnsignedInteger
+    default: 1
+    constraint: 0..0xFFFF
+- class_id: 262
+  name: T-CONT
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Alloc_Id
+    type: UnsignedInteger
+    default: 0xFFFF
+    constraint: 0..0xFFFF
+  - index: 2
+    name: Deprecated
+    type: UnsignedInteger
+    default: 1
+    constraint: 1
+  - index: 3
+    name: Policy
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+- class_id: 263
+  name: ANI-G
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Sr Indication
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 2
+    name: Total TCont Number
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Gem Block Length
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Piggyback Dba Reporting
+    type: Enumeration
+    default: 0
+    constraint: 0..4
+  - index: 5
+    name: Deprecated
+    type: UnsignedInteger
+    default: 0
+    constraint: 0
+  - index: 6
+    name: Signal Fail Threshold
+    type: UnsignedInteger
+    default: 5
+    constraint: 3..8
+  - index: 7
+    name: Signal Degrade Threshold
+    type: UnsignedInteger
+    default: 9
+    constraint: 4..10
+  - index: 8
+    name: Arc
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 9
+    name: Arc Interval
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 10
+    name: Optical Signal Level
+    type: SignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 11
+    name: Lower Optical Threshold
+    type: SignedInteger
+    default: 0xFF
+    constraint: 0..0xFF
+  - index: 12
+    name: Upper Optical Threshold
+    type: SignedInteger
+    default: 0xFF
+    constraint: 0..0xFF
+  - index: 13
+    name: Onu Response Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0,34000..36000
+  - index: 14
+    name: Transmit Optical Level
+    type: SignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 15
+    name: Lower Transmit Power Threshold
+    type: SignedInteger
+    default: 0x81
+    constraint: 0..0xFF
+  - index: 16
+    name: Upper Transmit Power Threshold
+    type: SignedInteger
+    default: 0x81
+    constraint: 0..0xFF
+- class_id: 264
+  name: UNI-G
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Deprecated
+    type: UnsignedInteger
+    default: 0
+    constraint: 0
+  - index: 2
+    name: Administrative State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 3
+    name: Management Capability
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+  - index: 4
+    name: Non_Omci Management Identifier
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Relay Agent Options
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+- class_id: 266
+  name: GEM interworking termination point
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Gem Port Network Ctp Connectivity Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 2
+    name: Interworking Option
+    type: Enumeration
+    default: 0
+    constraint: 0,1,4..7
+  - index: 3
+    name: Service Profile Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Interworking Termination Point Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Pptp Counter
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 6
+    name: Operational State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 7
+    name: Gal Profile Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 8
+    name: Gal Loopback Configuration
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+- class_id: 268
+  name: GEM port network CTP
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Port_Id
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 2
+    name: T_Cont Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Direction
+    type: Enumeration
+    default: 3
+    constraint: 1..3
+  - index: 4
+    name: Traffic Management Pointer For Upstream
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Traffic Descriptor Profile Pointer For Upstream
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 6
+    name: Uni Counter
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 7
+    name: Priority Queue Pointer For Down Stream
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 8
+    name: Encryption State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 9
+    name: Traffic Descriptor Profile Pointer For Downstream
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 10
+    name: Encryption Key Ring
+    type: Enumeration
+    default: 0
+    constraint: 0..3
+- class_id: 272
+  name: GAL Ethernet profile
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Maximum Gem Payload Size
+    type: UnsignedInteger
+    default: 48
+    constraint: 48..0xFFFF
+- class_id: 273
+  name: Threshold data 1
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Threshold Value_1
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 2
+    name: Threshold Value_2
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 3
+    name: Threshold Value_3
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 4
+    name: Threshold Value_4
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Threshold Value_5
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 6
+    name: Threshold Value_6
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 7
+    name: Threshold Value_7
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+- class_id: 274
+  name: Threshold data 2
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Threshold Value_8
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 2
+    name: Threshold Value_9
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 3
+    name: Threshold Value_10
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 4
+    name: Threshold Value_11
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Threshold Value_12
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 6
+    name: Threshold Value_13
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 7
+    name: Threshold Value_14
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+- class_id: 276
+  name: GAL Ethernet performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Discarded Frames
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 277
+  name: Priority queue
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Queue Configuration Option
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Maximum Queue Size
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Allocated Queue Size
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Discard_Block Counter Reset Interval
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Threshold Value For Discarded Blocks Due To Buffer Overflow
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 6
+    name: Related Port
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 7
+    name: Traffic Scheduler Pointer
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 8
+    name: Weight
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 9
+    name: Back Pressure Operation
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 10
+    name: Back Pressure Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 11
+    name: Back Pressure Occur Queue Threshold
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 12
+    name: Back Pressure Clear Queue Threshold
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 13
+    name: Packet Drop Queue Thresholds
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFFFFFFFFFF
+  - index: 14
+    name: Packet Drop Max_P
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 15
+    name: Queue Drop W_Q
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 16
+    name: Drop Precedence Colour Marking
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+- class_id: 278
+  name: Traffic scheduler
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: T_Cont Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 2
+    name: Traffic Scheduler Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Policy
+    type: Enumeration
+    default: 0
+    constraint: 0..3
+  - index: 4
+    name: Priority_Weight
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+- class_id: 280
+  name: Traffic descriptor
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Cir
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 2
+    name: Pir
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 3
+    name: Cbs
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 4
+    name: Pbs
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Colour Mode
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 6
+    name: Ingress Colour Marking
+    type: Enumeration
+    default: 0
+    constraint: 0,2..7
+  - index: 7
+    name: Egress Colour Marking
+    type: Enumeration
+    default: 0
+    constraint: 0..7
+  - index: 8
+    name: Meter Type
+    type: Enumeration
+    default: 0
+    constraint: 0..2
+- class_id: 281
+  name: Multicast GEM interworking termination point
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Gem Port Network Ctp Connectivity Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 2
+    name: Interworking Option
+    type: Enumeration
+    default: 0
+    constraint: 0,1,5
+  - index: 3
+    name: Service Profile Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Not Used 1
+    type: UnsignedInteger
+    default: 0
+    constraint: 0
+  - index: 5
+    name: Pptp Counter
+    type: UnsignedInteger
+    default: 0xFF
+    constraint: 0..0xFF
+  - index: 6
+    name: Operational State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 7
+    name: Gal Profile Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 8
+    name: Not Used 2
+    type: UnsignedInteger
+    default: 0
+    constraint: 0
+  - index: 9
+    name: Ipv4 Multicast Address Table
+    type: Table
+    default: null
+    constraint: len(12)
+  - index: 10
+    name: Ipv6 Multicast Address Table
+    type: Table
+    default: null
+    constraint: len(24)
+- class_id: 287
+  name: OMCI
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Me Type Table
+    type: Table
+    default: null
+    constraint: len(1)
+  - index: 2
+    name: Message Type Table
+    type: Table
+    default: null
+    constraint: len(2)
+- class_id: 296
+  name: Ethernet performance monitoring history data 3
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Drop Events
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Broadcast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Multicast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Undersize Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Fragments
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Jabbers
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Packets 64 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Packets 65 To 127 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Packets 128 To 255 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Packets 256 To 511 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Packets 512 To 1023 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Packets 1024 To 1518 Octets
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 310
+  name: Multicast subscriber config info
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Me Type
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 2
+    name: Multicast Operations Profile Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Max Simultaneous Groups
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 4
+    name: Max Multicast Bandwidth
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Bandwidth Enforcement
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 6
+    name: Multicast Service Package Table
+    type: Table
+    default: null
+    constraint: len(20)
+  - index: 7
+    name: Allowed Preview Groups Table
+    type: Table
+    default: null
+    constraint: len(22)
+- class_id: 311
+  name: Multicast subscriber monitor
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Me Type
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 2
+    name: Current Multicast Bandwidth
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 3
+    name: Join Messages Counter
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 4
+    name: Bandwidth Exceeded Counter
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFFFFFFFF
+  - index: 5
+    name: Ipv4 Active Group List Table
+    type: Table
+    default: null
+    constraint: len(24)
+  - index: 6
+    name: Ipv6 Active Group List Table
+    type: Table
+    default: null
+    constraint: len(58)
+- class_id: 321
+  name: Ethernet frame performance monitoring history data downstream
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Drop Events
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Broadcast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Multicast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Crc Errored Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Undersize Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Oversize Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Packets 64 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Packets 65 To 127 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Packets 128 To 255 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Packets 256 To 511 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Packets 512 To 1023 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Packets 1024 To 1518 Octets
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 322
+  name: Ethernet frame performance monitoring history data upstream
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Drop Events
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Broadcast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Multicast Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Crc Errored Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Undersize Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Oversize Packets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Packets 64 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Packets 65 To 127 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Packets 128 To 255 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Packets 256 To 511 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Packets 512 To 1023 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Packets 1024 To 1518 Octets
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 329
+  name: Virtual Ethernet interface point
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Administrative State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 2
+    name: Operational State
+    type: Enumeration
+    default: 0
+    constraint: 0..1
+  - index: 3
+    name: Interdomain Name
+    type: String
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==   # 25 Nulls
+    constraint: len(0..25),fill(0x00)
+  - index: 4
+    name: Tcp_Udp Pointer
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 5
+    name: Iana Assigned Port
+    type: UnsignedInteger
+    default: 0xFFFF
+    constraint: 0..0xFFFF
+- class_id: 334
+  name: Ethernet frame extended PM
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Control Block
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAA==   # 16 zeros
+    constraint: len(16)
+  - index: 3
+    name: Drop Events
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Broadcast Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Multicast Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Crc Errored Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Undersize Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Oversize Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Frames 64 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Frames 65 To 127 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Frames 128 To 255 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Frames 256 To 511 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Frames 512 To 1 023 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Frames 1024 To 1518 Octets
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 341
+  name: GEM port network CTP performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Transmitted Gem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Received Gem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Received Payload Bytes
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Transmitted Payload Bytes
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Encryption Key Errors
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 343
+  name: Energy consumption performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Doze Time
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Cyclic Sleep Time
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Watchful Sleep Time
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Energy Consumed
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 344
+  name: XG-PON TC performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Psbd Hec Error Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Xgtc Hec Error Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Unknown Profile Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Transmitted Xg_Pon Encapsulation Method Xgem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Fragment Xgem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Xgem Hec Lost Words Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Xgem Key Errors
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Xgem Hec Error Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Transmitted Bytes In Non_Idle Xgem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Received Bytes In Non_Idle Xgem Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Loss Of Downstream Synchronization Lods Event Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Lods Event Restored Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Onu Reactivation By Lods Events
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 345
+  name: XG-PON downstream management performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Ploam Message Integrity Check Mic Error Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Downstream Ploam Messages Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Profile Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Ranging_Time Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Deactivate_Onu_Id Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Disable_Serial_Number Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Request_Registration Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Assign_Alloc_Id Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Key_Control Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Sleep_Allow Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Baseline Omci Messages Received Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Extended Omci Messages Received Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Assign_Onu_Id Messages Received
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Omci Mic Error Count
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 346
+  name: XG-PON upstream management performance monitoring history data
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Threshold Data 1_2 Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 3
+    name: Upstream Ploam Message Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Serial_Number_Onu Message Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Registration Message Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Key_Report Message Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Acknowledge Message Count
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Sleep_Request Message Count
+    type: Counter
+    default: 0
+    constraint: null
+- class_id: 426
+  name: Ethernet frame extended PM 64-bit
+  attributes:
+  - index: 0
+    name: Managed Entity Id
+    type: Pointer
+    default: 0
+    constraint: 0..0xFFFF
+  - index: 1
+    name: Interval End Time
+    type: UnsignedInteger
+    default: 0
+    constraint: 0..0xFF
+  - index: 2
+    name: Control Block
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAA==      # 16 zeros
+    constraint: len(16)
+  - index: 3
+    name: Drop Events
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 4
+    name: Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 5
+    name: Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 6
+    name: Broadcast Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 7
+    name: Multicast Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 8
+    name: Crc Errored Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 9
+    name: Undersize Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 10
+    name: Oversize Frames
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 11
+    name: Frames 64 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 12
+    name: Frames 65 To 127 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 13
+    name: Frames 128 To 255 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 14
+    name: Frames 256 To 511 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 15
+    name: Frames 512 To 1 023 Octets
+    type: Counter
+    default: 0
+    constraint: null
+  - index: 16
+    name: Frames 1024 To 1518 Octets
+    type: Counter
+    default: 0
+    constraint: null
