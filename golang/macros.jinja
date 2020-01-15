@@ -95,14 +95,14 @@ false
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", {{attribute_type(attr)}}, TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- else -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- endif -%}
 	{%-endfor-%}
 {%- endmacro -%}
 
-{%- macro attribute_mask(classID) -%}
+{%- macro allowed_attribute_mask(classID) -%}
     {%- set mask = namespace(value=0) -%}
 	{%- if classID.attributes|length == 1 -%}
 			0x0

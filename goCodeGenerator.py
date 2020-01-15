@@ -60,6 +60,12 @@ def zero_b64_string(size):
     return 'toOctets("{}")'.format(str(base64.b64encode(bytearray(size)))[2:-1])
 
 
+def attribute_bitmask(index):
+    if index <= 0:
+        return '0x0000'
+    return '{0:#0{1}x}'.format(1 << (16 - index), 6)
+
+
 class Main(object):
     """ Main program """
     def __init__(self):
@@ -68,6 +74,7 @@ class Main(object):
         loader = jinja2.FileSystemLoader(searchpath=self.args.templates)
         self.templateEnv = jinja2.Environment(loader=loader)
         self.templateEnv.filters['zero_b64_string'] = zero_b64_string
+        self.templateEnv.filters['attribute_bitmask'] = attribute_bitmask
 
         self.parsed = ParsedJson()
         self.version = VersionHeading()
