@@ -523,7 +523,7 @@ func GetAttributeBitmap(attrMap AttributeDefinitionMap, name string) (uint16, er
 	if index == 0 {
 		return 0, errors.New("managed entity ID should not be used in an attribute bitmask")
 	}
-	return uint16(1<<(16 - index)), nil
+	return uint16(1 << (16 - index)), nil
 }
 
 // GetAttributesBitmap is a convenience functions to scan a list of attributes
@@ -562,7 +562,7 @@ func GetAttributesValueMap(attrDefs AttributeDefinitionMap, mask uint16, access 
 		// Return map, but signaled failed attributes
 		return attrMap, NewParameterError(mask)
 	}
-	return attrMap, nil
+	return attrMap, NewOmciSuccess()
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -751,7 +751,7 @@ type AttributeValueMap map[string]interface{}
 func MergeInDefaultValues(classID ClassID, attributes AttributeValueMap) OmciErrors {
 	// Get default values for non-SetByCreate attributes
 	attrDefs, err := GetAttributesDefinitions(classID)
-	if err != nil {
+	if err.StatusCode() != Success {
 		return err
 	} else if attributes == nil {
 		return NewProcessingError("Invalid (nil) Attribute Value Map referenced")
@@ -764,6 +764,6 @@ func MergeInDefaultValues(classID ClassID, attributes AttributeValueMap) OmciErr
 			}
 		}
 	}
-	return nil
+	return err
 }
 {# blank line #}
