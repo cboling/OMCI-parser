@@ -39,7 +39,7 @@ class MetadataYAML(object):
 
         self._class_ids[cid]['name'] = name
 
-    def add_attribute(self, cid, index, attr_name, attr_type, attr_default, attr_constraint):
+    def add_attribute(self, cid, index, attr_name, attr_type, attr_default, attr_constraint, force):
         assert cid in self._class_ids, 'Class {} not defined'.format(cid)
         attributes = self._class_ids[cid]['attributes']
 
