@@ -258,7 +258,7 @@ managed_entities:
   - index: 1
     name: Version
     type: String
-    default: ICAgICAgICAgICAgICAgICAgICA=
+    default: ICAgICAgICAgICAgICA=
     constraint: len(1..14),fill(0x20)
   - index: 2
     name: Is Committed
