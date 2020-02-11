@@ -47,8 +47,8 @@ class ThresholdCrossingAlert(object):
                 name = row.get(table.heading[1])
                 tca = row.get(table.heading[2])
 
-                if number is None or name is None or tca is None:
-                    return None   # TODO: remove after debugging
+                # if number is None or name is None or tca is None:
+                #     return None   # TODO: remove after debugging
 
                 try:
                     value = int(number.strip())

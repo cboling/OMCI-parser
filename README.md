@@ -12,18 +12,36 @@ able to retrieve this document.
 
 ## Current Status
 
-This is a work in progress.  Decode of several MEs has been performed but decode of all
-possible is still in the works.
-
-Currently, the final parser stage detects 317 ME Class ID Entries in the G.988 document
+The parser has is now fairly mature and can decode over 180 Managed Entity definitions. The
+preparsing stage detects 317 ME Class ID Entries in the 2017 ITU G.988 document
 and can associate 220 of them with specific document sections.  There is a fair chance
 that this is all that are actually defined by this version of the document. (See Item 1
 of the **Future Work** section below).
 
 ## How To Run
 
-There are currently two parsing stages in order to minimize debug time of the final stage
-and this may help out in the future when attempting to support multiple document versions.
+There are a number of steps to perform in order to generate code from the ITU Document
+(Microsoft Word format).  I currently use the 11/2017 version but have not added that
+document to this repo since it is available only if you have an ITU TIES loging and I
+did not want to violate any privacy policies.  If anyone knows if it is okay to distribute
+this document via the repo, please point me to the proper place on the ITU website
+stating that policy and I will be happy to share it.
+
+The steps to run it are:
+
+  1. Pre-parse the G.988 Word Document via 'preParse.py' to create the 'G.988.Precompiled.json' file
+  2. Parse the G.988 JSON via 'parser.py' to create the G.988.Parsed.json file.  At this point,
+     there is just a minimal fragment 'G.988.augment.yaml' file that really as a little bit of data
+  3. Run the 'augmentGenerator.py' file to create an 'augmented.yaml' file in the 'metadata' sub-
+     directory. This will have all the newly parsed JSON converted to YAML form.
+  4. Hand edit the augmented.yaml file by hand and adjust the values as needed.  Once you are done,
+     overwrite the base directory's 'G.988.augment.yaml' file with this.  You now have a
+     metadata file that will be used everytime you either run the parser (or code generator) with
+     you updated metadata.
+  5. Run the 'parser.py' program again. This will pick up the metadata hint you created in step 4
+     and will create an updated 'G.988.Parsed.json' file with your data.
+  6. Run either the C or Go code generator to generate your classes. (only the Go code generator
+     is public at this time)
 
 ### Stage 1 - PreParsing
 
@@ -42,13 +60,15 @@ only need to be ran once.
                             Output filename, default: G.988.PreCompiiled.json
 ```
 
-### Stage 2 - Final Parsing
+### Stage 2 - Initial Parsing
 
-This stage takes the pre-processed data from the first stage and peforms the final
+This stage takes the pre-processed data from the first stage and performs the final
 deep parsing of the G.988 document.  Its output is a JSON file that describes the
 basic structure of all the Managed Entities that are defined in the document.  This
 output can then be feed into another program that is used to generate code that
-can be used to encode & decode OMCI frames containing these managed entities.
+can be used to encode & decode OMCI frames containing these managed entities.  This stage
+can also accept a metadata.yaml file that can be used to provide customized attributes
+to the output JSON such as constraints.
 
 ```bash
     usage: parser.py [-h] [--ITU ITU] [--input INPUT] [--output OUTPUT]
@@ -66,10 +86,47 @@ can be used to encode & decode OMCI frames containing these managed entities.
       --classes CLASSES, -c CLASSES
                             Document section number with ME Class IDs, default:
                             11.2.4
+      --hints INPUT, -H INPUT
+                            Path to a hand nodified G.988 input data file to augment the
+                            parser. default: G.988.augment.yaml
 ```
 
-***NOTE***: The second parser is currently being implemented and is not yet
-fully functional.
+#### Stage 3 - Augment Generation (Optional)
+
+This step takes the output of Stage 2 and creates an output YAML file that can be
+hand modified to feed back into the Stage 2 parser to create a more customized
+output. YAML was chosen since it supports commenting and can be a bit easier to
+read at times. The two main purposes of this file is to provide default values
+for each attribute (parser not smart enough and ITU does not provide all of them)
+and to provide constraints (same parser/ITU comment as before). 
+
+The way the augment file works in a Stage 2 re-run is that as the parser is parsing
+a particular ME Class ID, it will look for the values first in the Augmented YAML input,
+and then the ITU document. This allows for most any field to be customized via the
+YAML input, but I would suggest only supplying the bare minimum of changes as work
+on the parser will continue to improve over time. The default values and constraints
+will probably never get much better, so that is why I mentioned them as good targets.
+
+At the top of the augmentGenerator.py file are a list of class IDs I personally am
+most interested in for my purposes. Feel free to add your own. Should I have time in
+the future, may provide a command line option to specify these IDs.
+
+```bash
+    usage: augmentGenerator.py [-h] [--ITU ITU] [--input INPUT] [--output OUTPUT]
+                     [--classes CLASSES]
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --input INPUT, -i INPUT
+                            Path to parsed G.988 data, default:
+                            G.988.Parsed.json
+      --output DIR, -o DIR
+                            Output dirctory to place the generated YAML file, default:
+                            metadata
+      --existing YAML, -e YAML
+                            Existing Augment YAML file to append too. default:
+                            G.988.augment.yaml
+```
 
 #### Parsed output format
 
@@ -131,7 +188,7 @@ sections:
   ...
 ```
 
-### Stage 3 - Code Generation
+### Stage 5 - Code Generation
 
 The third stage is to generate source code. In the first implementation, go-lang
 will be the target language. There is a companion Go project related to this parser
@@ -161,15 +218,13 @@ To generate Go code, use the following command:
 
 ## Remaining Items To Implement
 
-The following items need to be done before this project can be demonstrated.
-
- - Implement Jinja2 templates to convert the data definition into Golang Entity Types
- 
- - Provide base OMCI encode/decode frame source code to use the code generated ME source
-   files. (Target language: golang) (currently in progress at [OMCI](https://github.com/cboling/omci))
+The following items need some work or attention:
    
  - The 'Software Image' ME provides an extra set of attributes & actions. This needs to
    be compensated for.
+   
+ - Use of the AVC and/or Alarm parsed tables need to be incorporated into the code
+   generation phase.
 
 
 ## Future Work
@@ -178,10 +233,9 @@ The following items need to be done before this project can be demonstrated.
    lists all IDs that have been defined, but the G.988 document only lists the ones that
    are valid for this specification. 
   
- - Support parsing previous/future versions of the ITU G.988 document. This will reuire
-   that a few classes be modified to parse appropriately for a given document.
-   
- - Support for parsing the AT&T OpenOMCI V3.0 specification if a .docx formatted document
-   becomes available. If not, provide a hand-coded filter that can be applied against
-   the appropriately parsed G.988 version to create appropriate output.
+ - Support parsing previous/future versions of the ITU G.988 document. This will require
+   that a few classes be modified to parse appropriately for a given document. For now,
+   I would suggest using the augment feature. This is useful to pull in a few changes from
+   the two existing G.988 admendments.
+
    
