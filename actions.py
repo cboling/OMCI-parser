@@ -119,6 +119,7 @@ class Actions(IntEnum):
 
             names = text.split(',')
             actions = {Actions.keywords_to_access_set(a) for a in names}
+            optional = set()  # Currently always matches the non-bold case
 
             if all(a is None for a in actions):
                 actions = None
@@ -127,15 +128,29 @@ class Actions(IntEnum):
                 assert all(a is not None for a in actions), \
                     'Partial decode: {}'.format(text)
         else:
+            actions = None
+            optional = None
             # Some actions are not in bold. Check text until no keywords found
-            text = paragraph.text.split(',')
-            actions = set()
+            if 'optional' not in paragraph.text.lower():
+                text = paragraph.text.split(',')
+                actions = set()
 
-            for name in text:
-                if len(name.strip()):
-                    action = Actions.keywords_to_access_set(name.strip())
-                    if action is None:
-                        break
-                    actions.add(action)
+                for name in text:
+                    if len(name.strip()):
+                        action = Actions.keywords_to_access_set(name.strip())
+                        if action is None:
+                            break
+                        actions.add(action)
+            else:
+                optional = set()
+                text = re.split(', |: |\(|\*|\n', paragraph.text.lower())
+                for name in text:
+                    if len(name.strip()):
+                        if 'optional' in name:
+                            break
+                        action = Actions.keywords_to_access_set(name.strip())
+                        if action is None:
+                            break
+                        optional.add(action)
 
-        return actions
+        return actions, optional

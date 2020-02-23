@@ -349,6 +349,10 @@ class ClassId(object):
             attribute.dump(prefix + '    ')
         print('')
 
+    @property
+    def all_actions(self):
+        return self.actions | self.optional_actions
+
     def deep_parse(self, paragraphs):
         """ Fill out detailed class information """
         if self.section is None:
@@ -432,10 +436,21 @@ class ClassId(object):
         self.parser = actions_parser
         if text is not None and len(text):
             if isinstance(content, int):
-                actions = Actions.create_from_paragraph(self._paragraphs[content])
+                actions, optional_actions = Actions.create_from_paragraph(self._paragraphs[content])
                 if actions is not None:
                     self.actions.update(actions)
                     if Actions.GetNext in actions:
+                        # Scan attribute lists for table attributes.  To be a
+                        # table attribute, the attribute name 'Ends' with the
+                        # word table:
+                        if self.attributes is not None:
+                            for attribute in self.attributes:
+                                name = attribute.name.lower()
+                                attribute.table_support = len(name) > len('table') and 'table' in name[-5:]
+
+                if optional_actions is not None:
+                    self.optional_actions.update(optional_actions)
+                    if Actions.GetNext in optional_actions:
                         # Scan attribute lists for table attributes.  To be a
                         # table attribute, the attribute name 'Ends' with the
                         # word table:
