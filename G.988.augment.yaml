@@ -128,12 +128,12 @@ managed_entities:
     name: Actual Plug In Unit Type
     type: Enumeration
     default: 0
-    constraint: 0..49,192..223
+    constraint: 0..49,192..223,237..255
   - index: 2
     name: Expected Plug_In Unit Type
     type: Enumeration
     default: 0
-    constraint: 0..49,192..223
+    constraint: 0..49,192..223,237..255
   - index: 3
     name: Expected Port Count
     type: UnsignedInteger
@@ -142,12 +142,12 @@ managed_entities:
   - index: 4
     name: Expected Equipment Id
     type: String
-    default: ICAgICAgICAgICAgICAgICAgICA=
+    default: ICAgICAgICAgICAgICAgICAgICA=     # 20 spaces
     constraint: len(0..20),fill(0x20)
   - index: 5
     name: Actual Equipment Id
     type: String
-    default: ICAgICAgICAgICAgICAgICAgICA=
+    default: ICAgICAgICAgICAgICAgICAgICA=     # 20 spaces
     constraint: len(0..20),fill(0x20)
   - index: 6
     name: Protection Profile Pointer
@@ -181,7 +181,7 @@ managed_entities:
     name: Type
     type: Enumeration
     default: 0
-    constraint: 0..49,192..223
+    constraint: 0..49,192..223,237..255
   - index: 2
     name: Number Of Ports
     type: UnsignedInteger
@@ -258,7 +258,7 @@ managed_entities:
   - index: 1
     name: Version
     type: String
-    default: ICAgICAgICAgICAgICA=
+    default: ICAgICAgICAgICAgICA=   # 14 spaces
     constraint: len(1..14),fill(0x20)
   - index: 2
     name: Is Committed
@@ -297,12 +297,12 @@ managed_entities:
     name: Expected Type
     type: Enumeration
     default: 0
-    constraint: 0..49,192..223
+    constraint: 0..49,192..223,237..255
   - index: 2
     name: Sensed Type
     type: Enumeration
     default: 0
-    constraint: 0..49,192..223
+    constraint: 0..49,192..223,237..255
   - index: 3
     name: Auto Detection Configuration
     type: Enumeration

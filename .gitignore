@@ -187,3 +187,6 @@ venv.bak/
 /venv-windows/
 /T-REC-G.988-*.docx
 /sav/
+/c/
+/cCodeGenerator.py
+/G.988.augment.*.yaml

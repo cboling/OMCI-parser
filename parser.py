@@ -17,6 +17,7 @@ from __future__ import (
 )
 import argparse
 import time
+import copy
 from docx import Document
 
 from class_id import ClassIdList
@@ -42,8 +43,8 @@ from text import camelcase
 #
 #   4. Hand edit the augmented.yaml file by hand and adjust the values as needed.  Once you are done,
 #      overwrite the base directory's 'G.988.augment.yaml' file with this.  You now have a
-#      metadata file that will be used everytime you either run the parser (or code generator) with
-#      you updated metadata.
+#      metadata file that will be used every time you either run the parser (or code generator) with
+#      your updated metadata.
 #
 #   5. Run the 'parser.py' program again. This will pick up the metadata hint you created in step 4
 #      and will create an updated 'G.988.Parsed.json' file with your data.
@@ -164,8 +165,6 @@ class Main(object):
                      len([c for c in self.class_ids.values()
                           if c.section is not None])))
 
-        num_att_before = len([c for c in self.class_ids.values() if c.cid in att_openomci])
-
         # TODO: These need more work. skipping for now
         crazy_formatted_mes = \
             {23, 319, 320,  # CES physical interface performance MEs
@@ -180,8 +179,6 @@ class Main(object):
         todo_class_ids = {k: v for k, v in self.class_ids.items()
                           if k not in crazy_formatted_mes}
 
-        # num_att_after_hard_me = len([c for c in todo_class_ids.values() if c.cid in att_openomci])
-
         print('Managed Entities without Sections')
         for c in [c for c in todo_class_ids.values() if c.section is None]:
             print('    {:>4}: {}'.format(c.cid, c.name))
@@ -189,14 +186,10 @@ class Main(object):
         # Work with what we have
         todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
                           if c.section is not None}
-
         print('')
         print('Parsing deeper for managed Entities with Sections')
 
-        # Of 317 MEs, 220 were parsed successfully and 97 failed if we do all
         final_class_ids = todo_class_ids
-        #
-        # If we just do AT&T, can do 61 total
 
         for c in final_class_ids.values():
             if c.section is None:
@@ -210,7 +203,6 @@ class Main(object):
             c.deep_parse(self.paragraphs)
             pass
 
-        # 281 310
         # Some just need some manual intervention
         final_class_ids = self.fix_difficult_class_ids(final_class_ids)
 
@@ -321,6 +313,14 @@ class Main(object):
             sz._octets = 2
             sip.attributes[4].size = sz
 
+        # ONU remote debug - reply table size not bounded
+        if 158 in class_list.keys():
+            item = class_list[158]
+            reply_table = item.attributes[3]
+            sz = copy.deepcopy(reply_table.size)
+            sz._octets = -1
+            reply_table.size = sz
+
         # MCAST GEM Interworking - IPv4
         if 281 in class_list.keys():
             item = class_list[281]
@@ -368,6 +368,22 @@ class Main(object):
             sz = AttributeSize()
             sz._octets = 24
             item.attributes[5].size = sz
+
+        # Octet Stirng - 1..15 row entries
+        if 307 in class_list.keys():
+            item = class_list[307]
+            part1 = item.attributes[2]
+            part1.name = 'Part 1 to 15'
+            part1.optional = False
+            part1.size._repeat_max = 15
+
+        # General Purpose Buffer - Buffer table is one big unbounded string
+        if 308 in class_list.keys():
+            item = class_list[308]
+            buffer_table = item.attributes[2]
+            sz = copy.deepcopy(buffer_table.size)
+            sz._octets = -1
+            buffer_table.size = sz
 
         # For multicast subscriber config info. very hard to decode automatically
         if 310 in class_list.keys():
@@ -427,7 +443,6 @@ class Main(object):
                                 Actions.Get, Actions.Set])
             item.optional_actions.add(Actions.GetCurrentData)
             try:
-                import copy
                 if 334 in class_list.keys():
                     extended32 = class_list[334]
                     extended64 = class_list[426]
@@ -499,77 +514,6 @@ class Main(object):
                     attr.find_type(item)
 
         return class_list
-
-
-att_openomci = {
-    2,
-    5,
-    6,
-    7,
-    11,
-    24,
-    45,
-    47,
-    53,
-    58,
-    84,
-    130,
-    131,
-    133,
-    134,
-    135,
-    136,
-    137,
-    138,
-    139,
-    142,
-    143,
-    148,
-    150,
-    151,
-    152,
-    153,
-    155,
-    156,
-    157,
-    158,
-    171,
-    256,
-    257,
-    262,
-    263,
-    264,
-    266,
-    268,
-    272,
-    273,
-    274,
-    277,
-    278,
-    280,
-    281,
-    287,
-    290,
-    299,
-    300,
-    302,
-    305,
-    309,
-    310,
-    312,
-    321,
-    322,
-    329,
-    332,
-    335,
-    336,
-    340,
-    341,
-    344,
-    345,
-    346,
-    349,
-}
 
 
 if __name__ == '__main__':
