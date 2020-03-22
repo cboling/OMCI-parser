@@ -283,6 +283,8 @@ class Attribute(object):
                 ('O Ption', 'Option'),
                 ('U Nit', 'Unit'),
                 ('B It', 'Bit'),
+                ('FailThreshold', 'Fail Threshold'),
+                ('DegradeThreshold', 'Degrade Threshold'),
                 ('( S F )', ''),
                 (' Sd ', ''),
                 ('( Dsl )', ''),
