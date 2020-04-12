@@ -27,9 +27,9 @@ import (
 {# blank line #}
 // ManagedEntityDefinition defines a Manage Entity
 type ManagedEntityDefinition struct {
-	Name         string
-	ClassID      ClassID
-	MessageTypes mapset.Set // Mandatory
+	Name                 string
+	ClassID              ClassID
+	MessageTypes         mapset.Set // Mandatory
 	AllowedAttributeMask uint16
 	AttributeDefinitions AttributeDefinitionMap
 	Access               ClassAccess
