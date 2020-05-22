@@ -74,6 +74,7 @@ class ClassIdList(object):
         """
         cid_list = ClassIdList()
         cid_heading_section = sections.find_section(cid_section)
+        found_by_section_number_only = 0
 
         if cid_heading_section is not None:
             cid_table = next((t for t in cid_heading_section.contents
@@ -114,6 +115,11 @@ class ClassIdList(object):
                             cid.name = ' '.join(name_cleanup(heading_name).split())
                             cid_list.add(cid)
                             cid.section = sections.find_section_by_name(cid.name)
+                            # Some sections are listed with a shorter name in the CID than the section
+                            if cid.section is None:
+                                cid.section = sections.find_section_by_alias(cid.name)
+                                if cid.section is not None:
+                                    ++found_by_section_number_only
 
                     except ValueError as _e:
                         pass        # Expected for reserved range statements

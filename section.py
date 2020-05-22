@@ -113,6 +113,18 @@ class SectionList(object):
         return next((s for s in self
                     if s.title.replace(' ', '').lower() == name_lower), None)
 
+    def find_section_by_alias(self, name):
+        name_lower = name.lower()
+        alias = _section_alias_map.get(name_lower, 'notFound').lower()
+        alias_lower = alias.replace(' ', '').lower()
+        return next((s for s in self
+                    if s.title.replace(' ', '').lower() == alias_lower), None)
+
+
+_section_alias_map = {
+    'fec performance monitoring history data': 'Forward error correction performance monitoring history data',
+}
+
 
 class SectionHeading(object):
     """
