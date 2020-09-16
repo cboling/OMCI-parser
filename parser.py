@@ -20,12 +20,12 @@ import time
 import copy
 from docx import Document
 
-from class_id import ClassIdList
-from parsed_json import ParsedJson
-from parsed_yaml import MetadataYAML
+from parser_lib.class_id import ClassIdList
+from parser_lib.parsed_json import ParsedJson
+from parser_lib.parsed_yaml import MetadataYAML
 from preparsed_json import PreParsedJson
-from versions import VersionHeading
-from text import camelcase
+from parser_lib.versions import VersionHeading
+from parser_lib.text import camelcase
 
 #
 #  This application takes the pre-parsed JSON file and further parses it to output suitable for
@@ -299,9 +299,9 @@ class Main(object):
     def fix_difficult_class_ids(self, class_list):
         # Special exception. Ethernet frame performance monitoring history data downstream
         # is in identical upstream and only a note of that exists. Fix it now
-        from actions import Actions
-        from size import AttributeSize
-        from attributes import AttributeAccess
+        from parser_lib.actions import Actions
+        from parser_lib.size import AttributeSize
+        from parser_lib.attributes import AttributeAccess
 
         # For SIP user data, the Username&Password attribute is a pointer
         # to a security methods ME and is 2 bytes but is in the document as
@@ -423,7 +423,7 @@ class Main(object):
         if 325 in class_list.keys():
             item = class_list[325]
             try:
-                from actions import Actions
+                from parser_lib.actions import Actions
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
             except KeyError:
@@ -491,7 +491,7 @@ class Main(object):
 
     @staticmethod
     def find_class_access(class_list):
-        from class_id import ClassAccess, Actions
+        from parser_lib.class_id import ClassAccess, Actions
         for _, item in class_list.items():
             if item.access == ClassAccess.UnknownAccess and len(item.actions):
                 if Actions.Create in item.actions:
@@ -503,7 +503,7 @@ class Main(object):
 
     def find_attribute_types(self, class_list):
         # A bit more in depth look at the attributes
-        from attributes import AttributeType
+        from parser_lib.attributes import AttributeType
 
         for cid, item in class_list.items():
             # Any hints to apply before seeding default settings?

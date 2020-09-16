@@ -20,9 +20,9 @@ from docx import Document
 import os
 import time
 import shutil
-from parsed_json import ParsedJson
-from versions import VersionHeading
-from actions import Actions
+from parser_lib.parsed_json import ParsedJson
+from parser_lib.versions import VersionHeading
+from parser_lib.actions import Actions
 
 
 def parse_args():

@@ -15,8 +15,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import json
-from versions import VersionList, VersionHeading
-from section import SectionList, SectionHeading
+from parser_lib.versions import VersionList, VersionHeading
+from parser_lib.section import SectionList, SectionHeading
 
 
 class PreParsedJson(object):

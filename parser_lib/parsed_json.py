@@ -15,8 +15,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import json
-from versions import VersionList, VersionHeading
-from class_id import ClassIdList, ClassId
+from parser_lib.versions import VersionList, VersionHeading
+from parser_lib.class_id import ClassIdList, ClassId
 
 
 class ParsedJson(object):

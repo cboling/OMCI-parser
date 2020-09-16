@@ -15,8 +15,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import re
-from text import ascii_only
-from tables import Table
+from parser_lib.text import ascii_only
+from parser_lib.tables import Table
 
 
 class SectionList(object):

@@ -21,14 +21,18 @@ try:
 except ImportError:
     # Python 2
     from itertools import izip_longest as zip_longest
-from transitions import Machine
 from enum import IntEnum
-from contents import *
-from attributes import AttributeList, Attribute
-from actions import Actions
-from avc import AVC
-from alarms import Alarm
-from text import ascii_no_control
+from transitions import Machine
+
+from .contents import initial_parser, actions_parser, description_parser, relationships_parser, \
+    alarms_parser, avcs_parser, tests_parser, eos_parser, attributes_parser, notifications_parser
+from .attributes import AttributeList, Attribute
+from .actions import Actions
+from .avc import AVC
+from .alarms import Alarm
+from .text import ascii_only, ascii_no_control
+from .tables import Table
+from .section import SectionHeading
 
 
 class ClassIdList(object):
@@ -119,12 +123,12 @@ class ClassIdList(object):
                             if cid.section is None:
                                 cid.section = sections.find_section_by_alias(cid.name)
                                 if cid.section is not None:
-                                    ++found_by_section_number_only
+                                    found_by_section_number_only += 1
 
                     except ValueError as _e:
                         pass        # Expected for reserved range statements
 
-                    except Exception as _e:
+                    except Exception as _e:     # pylint: disable=try-except-raise
                         raise              # Not expected
         return cid_list
 
@@ -186,7 +190,7 @@ class ClassIdList(object):
     @staticmethod
     def load(data):
         class_id_list = ClassIdList()
-        for cid, class_data in data.items():
+        for _cid, class_data in data.items():
             class_id_list.add(ClassId.load(class_data))
 
         return class_id_list
@@ -209,7 +213,7 @@ class ClassSupport(IntEnum):
     Ignored = 4             # OMCI supported, but underlying function is now
 
 
-class ClassId(object):
+class ClassId(object):   # pylint: disable=too-many-instance-attributes
     """ Managed Entity Class Information """
     STATES = ['initial', 'description', 'relationships', 'attributes', 'actions',
               'notifications', 'alarms', 'avcs', 'tests', 'complete', 'failure',
@@ -297,6 +301,7 @@ class ClassId(object):
         self._paragraph_text = dict()
 
     def __str__(self):
+        # pylint: disable=no-member
         return 'Class ID: {}: {}, State: {}, Section: {}'.\
             format(self.cid, self.name, self.state, self.section.section_number)
 
@@ -323,13 +328,11 @@ class ClassId(object):
 
     @staticmethod
     def load(class_data):
-        from section import SectionHeading
-
         cid = ClassId()
         cid.cid = class_data.get('class_id')
         cid.name = class_data.get('name')
-        cid._description = class_data.get('description')
-        cid._relationships = class_data.get('relationships')
+        cid._description = class_data.get('description')        # pylint: disable=protected-access
+        cid._relationships = class_data.get('relationships')    # pylint: disable=protected-access
         cid.hidden = class_data.get('hidden')
         cid.access = ClassAccess(class_data.get('access', ClassAccess.UnknownAccess.value))
         cid.support = ClassSupport(class_data.get('support', ClassSupport.UnknownSupport.value))
@@ -383,11 +386,11 @@ class ClassId(object):
                 getattr(self, trigger)(text, content)
 
             except Exception as e:
-                self.failure(None, None)
+                self.failure(None, None)   # pylint: disable=no-member
                 print("FAILURE: During deep parsing. Content: {}: '{}'".format(content, e))
                 # raise
 
-        self.complete(None, None)
+        self.complete(None, None)   # pylint: disable=no-member
         return self
 
     def on_enter_initial(self, _text, _content):
@@ -401,7 +404,7 @@ class ClassId(object):
         """
         self.parser = description_parser
 
-        if text is not None and len(text):
+        if text is not None and len(text) > 0:
             self._description.append(content)
 
     def on_enter_relationships(self, text, content):
@@ -411,19 +414,19 @@ class ClassId(object):
         """
         self.parser = relationships_parser
 
-        if text is not None and len(text):
+        if text is not None and len(text) > 0:
             self._relationships.append(content)
 
     def on_enter_attributes(self, text, content):
         self.parser = attributes_parser
         if isinstance(content, int):
-            if text is not None and len(text):
+            if text is not None and len(text) > 0:
                 attribute = Attribute.create_from_paragraph(content,
                                                             self._paragraphs[content])
                 if attribute is not None:
                     self.attributes.add(attribute)
 
-                last = self.attributes[-1] if len(self.attributes) else None
+                last = self.attributes[-1] if len(self.attributes) > 0 else None
                 if last is None:
                     raise KeyError('Unable to decode initial attribute: class_id: {}'.
                                    format(self))
@@ -431,7 +434,7 @@ class ClassId(object):
                 last.parse_attribute_settings_from_text(content,
                                                         self._paragraphs[content])
         elif isinstance(content, Table):
-            last = self.attributes[-1] if len(self.attributes) else None
+            last = self.attributes[-1] if len(self.attributes) > 0 else None
             if last is None:
                 raise KeyError('Unable to decode initial attribute: class_id: {}'.
                                format(self))
@@ -440,7 +443,7 @@ class ClassId(object):
 
     def on_enter_actions(self, text, content):
         self.parser = actions_parser
-        if text is not None and len(text):
+        if text is not None and len(text) > 0:
             if isinstance(content, int):
                 actions, optional_actions = Actions.create_from_paragraph(self._paragraphs[content])
                 if actions is not None:
@@ -472,7 +475,7 @@ class ClassId(object):
         # TODO: Need to be smarter here.  Will get tables and Test Results are formatted
         #       much like attributes sometimes.
         if isinstance(content, int):
-            if text is not None and len(text):
+            if text is not None and len(text) > 0:
                 # Typical to get 'None.' if no notifications supported
                 # TODO: Breakpoint if it is not 'None.' for debugging
                 if 'none' not in ascii_only(text).strip().lower():
@@ -481,7 +484,7 @@ class ClassId(object):
         elif isinstance(content, Table):
             pass        # ignore tables at the 'notification' state
 
-    def on_enter_alarms(self, text, content):
+    def on_enter_alarms(self, _text, content):
         self.parser = alarms_parser
         if isinstance(content, int):
             # We currently ignore extra alarm text
@@ -502,7 +505,7 @@ class ClassId(object):
         self.parser = avcs_parser
         if isinstance(content, int):
             # TODO: Delete if no one calls this
-            if text is not None and len(text):
+            if text is not None and len(text) > 0:
                 pass
 
         elif isinstance(content, Table):
@@ -512,15 +515,15 @@ class ClassId(object):
                 self.avcs = avc
                 # Run through AVCs and touch up any attributes
                 if self.attributes is not None:
-                    for number, tuple in self.avcs.attributes.items():
-                        if tuple is None or not tuple[0]:
+                    for number, tup in self.avcs.attributes.items():
+                        if tup is None or not tup[0]:
                             continue
                         if number < len(self.attributes):
                             self.attributes[number].avc = True
 
     def on_enter_tests(self, text, content):
         self.parser = tests_parser
-        if text is not None and len(text):
+        if text is not None and len(text) > 0:
             if isinstance(content, int):
                 pass
                 # attribute = Attribute.create_from_paragraph(content,
@@ -550,7 +553,7 @@ class ClassId(object):
         self.parser = eos_parser
 
     def load_descriptions(self, paragraphs):
-        if len(self._paragraph_text):
+        if len(self._paragraph_text) > 0:
             return
 
         self._paragraph_text = {
@@ -565,25 +568,25 @@ class ClassId(object):
             'access': self._load_access_text(paragraphs),
         }
 
-    def _load_text_list(self, text_list, paragraphs):
+    def _load_text_list(self, text_list, paragraphs):      # pylint: disable=no-self-use
         text = list()
         for content in text_list:
             try:
                 txt = ascii_no_control(paragraphs[content].text)
-                if len(txt):
+                if len(txt) > 0:
                     text.append(txt)
             except Exception as _e:
                 pass
         return text
 
-    def _load_text_dict(self, text_list, paragraphs):
+    def _load_text_dict(self, text_list, paragraphs):      # pylint: disable=no-self-use
         text = dict()
         if text_list:
             for item in text_list:
                 try:
                     for content in item.description:
                         txt = ascii_no_control(paragraphs[content].text)
-                        if len(txt):
+                        if len(txt) > 0:
                             text[item.name] = txt
                 except Exception as _e:
                     pass
@@ -598,10 +601,10 @@ class ClassId(object):
     def _load_attributes_text(self, paragraphs):
         return self._load_text_dict(self.attributes, paragraphs)
 
-    def _load_actions_text(self, paragraphs):
+    def _load_actions_text(self, _paragraphs):      # pylint: disable=no-self-use
         return None    # TODO: self._load_text_dict(self.actions, paragraphs)
 
-    def _load_optional_actions_text(self, paragraphs):
+    def _load_optional_actions_text(self, _paragraphs):      # pylint: disable=no-self-use
         return None    # TODO: self._load_text_dict(self.optional_actions, paragraphs)
 
     def _load_alarms_text(self, _paragraphs):
@@ -636,12 +639,12 @@ class ClassId(object):
 
 
 if __name__ == '__main__':
-    """
-    Run this as a program and it will produce a PNG image of the ClassID
-    state machine to the current working directory with a name of
-    
-                ClassID-StageDiagram.png
-    """
+    #
+    # Run this as a program and it will produce a PNG image of the ClassID
+    # state machine to the current working directory with a name of
+    #
+    #             ClassID-StageDiagram.png
+    #
     from transitions.extensions import GraphMachine as Machine
 
     c = ClassId()

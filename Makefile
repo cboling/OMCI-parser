@@ -30,7 +30,7 @@ PARSED_JSON		?= G.988.Parsed.json
 AUGMENT_YAML	?= G.988.augment.yaml
 HINT_INPUT		?= --hints ${AUGMENT_YAML}
 
-PARSER_SRC		:= $(wildcard ${WORKING_DIR}/*.py)
+PARSER_SRC		:= $(wildcard ${WORKING_DIR}/*.py) $(wildcard ${WORKING_DIR}/parser_lib/*.py)
 
 GO_OUTPUT		?= generated
 GO_INPUT		?= golang

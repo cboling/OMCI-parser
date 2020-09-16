@@ -33,9 +33,9 @@ from docx.table import Table as DocxTable
 from docx.text.paragraph import Paragraph
 
 from preparsed_json import PreParsedJson
-from section import SectionHeading
-from versions import VersionHeading
-from tables import Table
+from parser_lib.section import SectionHeading
+from parser_lib.versions import VersionHeading
+from parser_lib.tables import Table
 
 #
 #  This application takes the G.988 Word document and preparses the sections. The parsing is divided

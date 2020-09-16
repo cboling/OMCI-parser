@@ -107,7 +107,7 @@ class MetadataYAML(object):
 
     def load(self, filepath):
         try:
-            from attributes import AttributeType
+            from parser_lib.attributes import AttributeType
             with open(filepath, 'r') as fd:
                 data = yaml.full_load(fd)
                 metadata = data.get('managed_entities', dict())

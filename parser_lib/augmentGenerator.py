@@ -18,9 +18,9 @@ from __future__ import (
 import argparse
 import os
 import base64
-from parsed_json import ParsedJson
-from parsed_yaml import MetadataYAML
-from attributes import AttributeType
+from parser_lib.parsed_json import ParsedJson
+from parser_lib.parsed_yaml import MetadataYAML
+from parser_lib.attributes import AttributeType
 
 #
 #  This application takes a newly parsed G.988 JSON file, a new-or-existing Augment YAML

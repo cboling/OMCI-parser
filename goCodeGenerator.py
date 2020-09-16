@@ -25,8 +25,8 @@ from golang.classIdmap import create_class_id_map
 from golang.managedentity import create_managed_entity_file
 from golang.basetemplates import create_base_templates
 from golang.versionfile import create_version_file
-from parsed_json import ParsedJson
-from versions import VersionHeading
+from parser_lib.parsed_json import ParsedJson
+from parser_lib.versions import VersionHeading
 import base64
 
 

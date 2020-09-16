@@ -41,6 +41,10 @@ class AVC(object):
     def attributes(self):
         return self._attributes
 
+    @attributes.setter
+    def attributes(self, value):
+        self._attributes = value
+
     @staticmethod
     def load(data):
         if len(data) == 0:
@@ -48,7 +52,7 @@ class AVC(object):
 
         avc = AVC(None)
         try:
-            avc._attributes = {int(index): text for index, text in data.items()}
+            avc.attributes = {int(index): text for index, text in data.items()}
         except Exception as _e:
             pass
         return avc
@@ -87,13 +91,13 @@ class AVC(object):
                         assert 1 <= value <= 16, 'Invalid attribute number: {}'.format(value)
 
                         is_avc = name.strip().lower() not in ('n/a', 'Reserved')
-                        avc._attributes[value] = (is_avc,
-                                                  name.strip(),
-                                                  description.strip())
+                        avc.attributes[value] = (is_avc,
+                                                 name.strip(),
+                                                 description.strip())
 
                 except ValueError:  # Expected if of form  n..m
                     # Watch out for commentary text in AVC tables. Often a NOTE at the end
-                    if 'note' == number[:4].lower():
+                    if number[:4].lower() == 'note':
                         continue
 
                     values = number.strip().split('..')
@@ -101,10 +105,9 @@ class AVC(object):
                         # NOTE: Attributes are usually 1..16 but ME 329 (vEth Interface Point)
                         #       has an n/a entry coded 0..1
                         assert 0 <= value <= 16, 'Invalid attribute number: {}'.format(value)
-                        avc._attributes[value] = (False,
-                                                  name.strip(),
-                                                  description.strip())
-
+                        avc.attributes[value] = (False,
+                                                 name.strip(),
+                                                 description.strip())
             return avc
 
         except Exception as e:

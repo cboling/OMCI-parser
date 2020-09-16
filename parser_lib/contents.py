@@ -14,8 +14,13 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-from text import *
-from tables import Table
+from .text import is_relationships_text, is_alarms_table, is_attributes_header, is_description_text, \
+    is_normal_style, is_ignored_heading, is_enum_style, is_relationships_header, \
+    is_description_style, is_attribute_text, ascii_only, is_figure_style, is_figure_title_style, \
+    is_alarms_header, is_avcs_header, is_eos_heading, is_notifications_header, is_notifications_text, \
+    is_actions_text, is_avcs_table, is_tests_table, is_alarms_text, is_tests_header, \
+    is_avcs_text, is_tca_table, is_actions_header, is_tests_text
+from .tables import Table
 
 
 def initial_parser(content, paragraphs):
@@ -38,13 +43,13 @@ def initial_parser(content, paragraphs):
         if is_relationships_header(paragraph):
             return 'relationship', None
 
-        elif is_attributes_header(paragraph):
+        if is_attributes_header(paragraph):
             return 'attribute', None
 
-        elif is_description_style(paragraph.style):
+        if is_description_style(paragraph.style):
             return 'description', ascii_only(paragraph.text)
 
-        elif is_normal_style(paragraph.style):
+        if is_normal_style(paragraph.style):
             return 'normal', ascii_only(paragraph.text)
 
     return 'failure', None
@@ -70,10 +75,10 @@ def description_parser(content, paragraphs):
         if is_relationships_header(paragraph):
             return 'relationship', None
 
-        elif is_attributes_header(paragraph):
+        if is_attributes_header(paragraph):
             return 'attribute', None
 
-        elif is_description_text(paragraph) or \
+        if is_description_text(paragraph) or \
                 is_ignored_heading(paragraph) or \
                 is_enum_style(paragraph.style):
             return 'normal', ascii_only(paragraph.text)
@@ -104,7 +109,7 @@ def relationships_parser(content, paragraphs):
         if is_attributes_header(paragraph):
             return 'attribute', None
 
-        elif is_relationships_text(paragraph) or \
+        if is_relationships_text(paragraph) or \
                 is_figure_style(paragraph.style) or \
                 is_figure_title_style(paragraph.style):
             return 'normal', ascii_only(paragraph.text)
@@ -134,10 +139,10 @@ def attributes_parser(content, paragraphs):
         if is_actions_header(paragraph):
             return 'action', None
 
-        elif is_attribute_text(paragraph):
+        if is_attribute_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
-        elif is_normal_style(paragraph.style) or \
+        if is_normal_style(paragraph.style) or \
                 is_figure_style(paragraph.style) or \
                 is_figure_title_style(paragraph.style):
             # Before start of some attribute groups, some descriptive
@@ -169,10 +174,10 @@ def actions_parser(content, paragraphs):
         if is_notifications_header(paragraph):
             return 'notification', None
 
-        elif is_actions_text(paragraph):
+        if is_actions_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
-        elif is_normal_style(paragraph.style):
+        if is_normal_style(paragraph.style):
             # Before start of some actions, some descriptive
             # text may be provided. Ignore that for now.
             return 'normal', None
@@ -185,7 +190,7 @@ def actions_parser(content, paragraphs):
     return 'failure'
 
 
-def notifications_parser(content, paragraphs):
+def notifications_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
     """
     Parse content for this state of an ME.  Unlike other
     ME sections, this will have either the phrase 'None'
@@ -208,38 +213,37 @@ def notifications_parser(content, paragraphs):
         if is_avcs_header(paragraph):
             return 'avc', None
 
-        elif is_alarms_header(paragraph):
+        if is_alarms_header(paragraph):
             return 'alarm', ascii_only(paragraph.text)
 
-        elif is_tests_header(paragraph):
+        if is_tests_header(paragraph):
             return 'test', ascii_only(paragraph.text)
 
-        elif is_eos_heading(paragraph):
+        if is_eos_heading(paragraph):
             return 'end_of_section', None
 
-        elif is_notifications_text(paragraph):
+        if is_notifications_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
     elif isinstance(content, Table):
         if is_avcs_table(content):
             return 'avc', None
 
-        elif is_alarms_table(content):
+        if is_alarms_table(content):
             return 'alarm', None
 
-        elif is_tca_table(content):     # TODO: Merge with alarms
+        if is_tca_table(content):     # TODO: Merge with alarms
             return 'alarm', None
 
-        elif is_tests_table(content):
+        if is_tests_table(content):
             return 'test', None
 
-        else:
-            return 'normal', None       # Ignore other table types
+        return 'normal', None       # Ignore other table types
 
     return 'failure'
 
 
-def alarms_parser(content, paragraphs):
+def alarms_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
     """
     Parse content for this state of an ME
 
@@ -254,20 +258,20 @@ def alarms_parser(content, paragraphs):
         if is_avcs_header(paragraph):
             return 'avc', None
 
-        elif is_tests_header(paragraph):
+        if is_tests_header(paragraph):
             return 'test', ascii_only(paragraph.text)
 
-        elif is_alarms_text(paragraph):
+        if is_alarms_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
     elif isinstance(content, Table):
         if is_avcs_table(content):
             return 'avc', None
 
-        elif is_tests_table(content):
+        if is_tests_table(content):
             return 'test', None
 
-        elif not is_alarms_table(content):
+        if not is_alarms_table(content):
             # Some MEs have additional descriptions and tables related
             # to the alarms.
             return 'normal', None
@@ -275,7 +279,7 @@ def alarms_parser(content, paragraphs):
     return 'failure'
 
 
-def avcs_parser(content, paragraphs):
+def avcs_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
     """
     Parse content for this state of an ME
 
@@ -290,13 +294,13 @@ def avcs_parser(content, paragraphs):
         if is_alarms_header(paragraph):
             return 'alarm', ascii_only(paragraph.text)
 
-        elif is_tests_header(paragraph):
+        if is_tests_header(paragraph):
             return 'test', ascii_only(paragraph.text)
 
-        elif is_eos_heading(paragraph):
+        if is_eos_heading(paragraph):
             return 'end_of_section', None
 
-        elif is_avcs_text(paragraph) or \
+        if is_avcs_text(paragraph) or \
                 is_normal_style(paragraph.style) or \
                 is_enum_style(paragraph.style) or \
                 is_ignored_heading(paragraph):
@@ -306,16 +310,16 @@ def avcs_parser(content, paragraphs):
         if is_alarms_table(content):
             return 'alarm', None
 
-        elif is_tca_table(content):     # TODO: Merge with alarms
+        if is_tca_table(content):     # TODO: Merge with alarms
             return 'alarm', None
 
-        elif is_tests_table(content):
+        if is_tests_table(content):
             return 'test', None
 
     return 'failure'
 
 
-def tests_parser(content, paragraphs):
+def tests_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
     """
     Parse content for this state of an ME
 
@@ -330,20 +334,20 @@ def tests_parser(content, paragraphs):
         if is_avcs_header(paragraph):
             return 'avc', None
 
-        elif is_alarms_header(paragraph):
+        if is_alarms_header(paragraph):
             return 'alarm', ascii_only(paragraph.text)
 
-        elif is_tests_text(paragraph):
+        if is_tests_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
     elif isinstance(content, Table):
         if is_avcs_table(content):
             return 'avc', None
 
-        elif is_alarms_table(content):
+        if is_alarms_table(content):
             return 'alarm', None
 
-        elif is_tca_table(content):     # TODO: Merge with alarms
+        if is_tca_table(content):     # TODO: Merge with alarms
             return 'alarm', None
 
     return 'failure'
@@ -351,4 +355,3 @@ def tests_parser(content, paragraphs):
 
 def eos_parser(_content, _paragraphs):
     return 'end_of_section', None
-
