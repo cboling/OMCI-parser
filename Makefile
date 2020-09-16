@@ -24,7 +24,17 @@ VENV_BIN		?= virtualenv
 VENV_OPTS		?= --python=python3.6 -v
 PYLINT_OUT		= $(WORKING_DIR)pylint.out
 
-G988_SOURCE     ?= T-REC-G.988-2017-11.docx
+G988_SOURCE		?= T-REC-G.988-201711-I!!MSW-E.docx
+PRE_COMPILED	?= G.988.PreCompiled.json
+PARSED_JSON		?= G.988.Parsed.json
+AUGMENT_YAML	?= G.988.augment.yaml
+HINT_INPUT		?= --hints ${AUGMENT_YAML}
+
+PARSER_SRC		:= $(wildcard ${WORKING_DIR}/*.py)
+
+GO_OUTPUT		?= generated
+GO_INPUT		?= golang
+GOLANG_SRC		:= $(wildcard ${GO_INPUT}/*.py) $(wildcard ${GO_INPUT}/*.jinja)
 
 default: help
 
@@ -44,15 +54,18 @@ help:
 	@echo "bandit-test     : Run bandit security test on package code"
 	@echo "bandit-test-all : Run bandit security test on package and imported code"
 	@echo
-	@echo "clean         : Remove files created by the build"
+	@echo "clean           : Remove files created by the build"
+	@echo "distclean       : Remove files created by the build and virtual environments"
 
 # ignore these directories
 .PHONY: test
 
-venv:
+venv: ${VENVDIR}/.built
+
+${VENVDIR}/.built: requirements.txt
 	@ VIRTUAL_ENV_DISABLE_PROMPT=true $(VENV_BIN) ${VENV_OPTS} ${VENVDIR};\
         source ./${VENVDIR}/bin/activate ; set -u ;\
-        pip install -r requirements.txt
+        pip install -r requirements.txt && date >> ${VENVDIR}/.built
 
 ######################################################################
 # Parsing
@@ -61,20 +74,22 @@ venv:
 #   it can be shared without one.  Should I find that I can, I will check a version in at that time
 #
 ${G988_SOURCE}:
+	@ echo "--------------------------------------------------------------"
 	@ echo "You must download the ${G988_SOURCE} from the ITU website"
+	@ echo "--------------------------------------------------------------"
 	@ exit 1
 
-preparsed: ${G988_SOURCE}
-	@ echo "TODO do the pre-parsing steps"
+${PRE_COMPILED}: venv ${G988_SOURCE} ${PARSER_SRC}
+	./preParse.py --input ${G988_SOURCE} --output ${PRE_COMPILED}
 
-postparsed: preparsed
-	@ echo "TODO do the post-parsing steps"
+${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
+	./parser.py --ITU ${G988_SOURCE} --input ${PRE_COMPILED} --output ${PARSED_JSON} ${HINT_INPUT}
 
 generate: go-generate
-	@ echo "TODO do the code generation steps"
+	@ echo "Code generation complete"
 
-go-generate: postparsed
-	@ echo "TODO do the Golang code generation steps"
+go-generate: ${PARSED_JSON} ${GOLANG_SRC}
+	./goCodeGenerator.py --force --ITU ${G988_SOURCE} --input ${PARSED_JSON} --dir ${GO_OUTPUT}
 
 ######################################################################
 # License and security checks support
@@ -112,10 +127,10 @@ clean:
 	@ find . -name '*.pyc' | xargs rm -f
 	@ find . -name '__pycache__' | xargs rm -rf
 	@ -find . -name 'pylint.out.*' | xargs rm -rf
-	@ rm -rf generated
+	@ rm -f ${PRE_COMPILED} ${PARSED_JSON}
+	@ rm -rf ${GO_OUTPUT}
 
 distclean: clean
 	@ rm -rf ${VENVDIR}
-	@ rm -f *.json				# JSON parsed, pre-compiled files !!!
 
 # end file
