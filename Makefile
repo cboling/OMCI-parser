@@ -57,11 +57,6 @@ help:
 	@echo "clean           : Remove files created by the build"
 	@echo "distclean       : Remove files created by the build and virtual environments"
 
-# ignore these directories
-.PHONY: test
-
-venv: ${VENVDIR}/.built
-
 ${VENVDIR}/.built: requirements.txt
 	@ VIRTUAL_ENV_DISABLE_PROMPT=true $(VENV_BIN) ${VENV_OPTS} ${VENVDIR};\
         source ./${VENVDIR}/bin/activate ; set -u ;\
@@ -79,7 +74,7 @@ ${G988_SOURCE}:
 	@ echo "--------------------------------------------------------------"
 	@ exit 1
 
-${PRE_COMPILED}: venv ${G988_SOURCE} ${PARSER_SRC}
+${PRE_COMPILED}: ${VENVDIR}/.built Makefile ${G988_SOURCE} ${PARSER_SRC}
 	./preParse.py --input ${G988_SOURCE} --output ${PRE_COMPILED}
 
 ${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
@@ -88,7 +83,9 @@ ${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
 generate: go-generate
 	@ echo "Code generation complete"
 
-go-generate: ${PARSED_JSON} ${GOLANG_SRC}
+go-generate: ${GO_OUTPUT}/version.go
+
+${GO_OUTPUT}/version.go: ${PARSED_JSON} ${GOLANG_SRC}
 	./goCodeGenerator.py --force --ITU ${G988_SOURCE} --input ${PARSED_JSON} --dir ${GO_OUTPUT}
 
 ######################################################################
