@@ -14,8 +14,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-import yaml
 from collections import OrderedDict
+import yaml
+from .attributes import AttributeType
 
 
 def represent_dictionary_order(self, dict_data):
@@ -59,57 +60,52 @@ class MetadataYAML(object):
             attribute['default'] = attribute.get('default', attr_default)
             attribute['constraint'] = attribute.get('constraint', attr_constraint)
 
-    def save(self, filepath):
-        try:
-            # Load representer for an Ordered Dictionary
-            setup_yaml()
+    def save(self, filepath):   # pylint: disable=too-many-locals
+        # Load representer for an Ordered Dictionary
+        setup_yaml()
 
-            # Get class IDs in order
-            class_ids = [k for k in self._class_ids.keys()]
-            class_ids = sorted(class_ids)
-            entries = list()
-            for cid in class_ids:
-                attributes = list()
-                indexes = self._class_ids[cid]['attributes'].keys()
-                indexes = sorted(indexes)
-                for index in indexes:
-                    attr = self._class_ids[cid]['attributes'][index]
-                    value = OrderedDict([
-                        ('index', attr['index']),
-                        ('name', attr['name']),
-                        ('type', attr['type'].name),
-                        ('default', attr['default']),
-                        ('constraint', attr['constraint'])
-                    ])
-                    attributes.append(value)
-
-                entry = OrderedDict([
-                    ('class_id', cid),
-                    ('name', self._class_ids[cid]['name']),
-                    ('attributes', attributes)
+        # Get class IDs in order
+        class_ids = list(k for k in self._class_ids.keys())  # pylint: disable=consider-iterating-dictionary
+        class_ids = sorted(class_ids)
+        entries = list()
+        for cid in class_ids:
+            attributes = list()
+            indexes = self._class_ids[cid]['attributes'].keys()
+            indexes = sorted(indexes)
+            for index in indexes:
+                attr = self._class_ids[cid]['attributes'][index]
+                value = OrderedDict([
+                    ('index', attr['index']),
+                    ('name', attr['name']),
+                    ('type', attr['type'].name),
+                    ('default', attr['default']),
+                    ('constraint', attr['constraint'])
                 ])
-                entries.append(entry)
+                attributes.append(value)
 
-            output = {'managed_entities': entries}
-            with open(filepath, 'w') as yaml_fd:
-                yaml.dump(output, yaml_fd)
+            entry = OrderedDict([
+                ('class_id', cid),
+                ('name', self._class_ids[cid]['name']),
+                ('attributes', attributes)
+            ])
+            entries.append(entry)
 
-            with open(filepath, 'r') as original:
-                data = original.read()
+        output = {'managed_entities': entries}
+        with open(filepath, 'w') as yaml_fd:
+            yaml.dump(output, yaml_fd)
 
-            with open(filepath, 'w') as modified:
-                # YAML header/comments
-                modified.write(self._yaml_header)
-                modified.write(data)
+        with open(filepath, 'r') as original:
+            data = original.read()
 
-        except Exception as _e:
-            raise
+        with open(filepath, 'w') as modified:
+            # YAML header/comments
+            modified.write(self._yaml_header)
+            modified.write(data)
 
     def load(self, filepath):
         try:
-            from parser_lib.attributes import AttributeType
-            with open(filepath, 'r') as fd:
-                data = yaml.full_load(fd)
+            with open(filepath, 'r') as yaml_file:
+                data = yaml.full_load(yaml_file)
                 metadata = data.get('managed_entities', dict())
                 #
                 # Meta Data is a list of simplified class data
@@ -127,10 +123,7 @@ class MetadataYAML(object):
                             attributes[attr['index']] = attr
 
         except FileNotFoundError:
-             pass
-
-        except Exception as _e:
-            raise
+            pass
 
         return self._class_ids
 

@@ -15,8 +15,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 import json
-from parser_lib.versions import VersionList, VersionHeading
-from parser_lib.class_id import ClassIdList, ClassId
+from .versions import VersionList, VersionHeading
+from .class_id import ClassIdList, ClassId
 
 
 class ParsedJson(object):
@@ -43,30 +43,27 @@ class ParsedJson(object):
 
     def save(self, filepath):
         final = dict()      # Key = class-id, Value = data
-        try:
-            for cid, me_class in self._class_ids.items():
-                if me_class.state != 'complete':
-                    continue
-                assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
-                final[cid] = me_class.to_dict()
 
-            # Convert to JSON
-            data = {
-                'versions': self._versions.as_dict_list(),
-                'classes': final
-            }
-            json_data = json.dumps(data, indent=2, separators=(',', ': '))
-            with open(filepath, 'w') as f:
-                f.write(json_data)
+        for cid, me_class in self._class_ids.items():
+            if me_class.state != 'complete':
+                continue
+            assert cid not in final, 'Duplicate Class ID: {}'.format(cid)
+            final[cid] = me_class.to_dict()
 
-        except Exception as _e:
-            raise
+        # Convert to JSON
+        data = {
+            'versions': self._versions.as_dict_list(),
+            'classes': final
+        }
+        json_data = json.dumps(data, indent=2, separators=(',', ': '))
+        with open(filepath, 'w') as json_file:
+            json_file.write(json_data)
 
     def load(self, filepath):
         self._class_ids = ClassIdList()
 
-        with open(filepath, 'r') as f:
-            data = json.load(f)
+        with open(filepath, 'r') as json_file:
+            data = json.load(json_file)
             self._versions.load(data.get('versions', dict()))
             self._class_ids = ClassIdList.load(data.get('classes', dict()))
 
