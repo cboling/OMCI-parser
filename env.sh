@@ -25,9 +25,15 @@ if [ ! -e "$VENVDIR/.built" ]; then
     echo "Initializing OS-appropriate virtual env."
     echo "This will take a few minutes."
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    virtualenv -p python3 ${VENVDIR}
+
+    if [ "${VENVDIR}" == "venv-darwin" ] ; then
+        VIRTUAL_ENV_DISABLE_PROMPT=true virtualenv -p python3 ${VENVDIR}
+    else
+        virtualenv -p python3 ${VENVDIR}
+    fi
+
     . ${VENVDIR}/bin/activate
-    pip install --upgrade pip
+    #pip install --upgrade pip
     if pip install -r requirements.txt; \
 	    then \
 	        uname -s > ${VENVDIR}/.built; \

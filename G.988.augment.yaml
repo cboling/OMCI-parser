@@ -463,7 +463,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Spanning Tree Ind
     type: Enumeration
@@ -521,7 +521,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Bridge Mac Address
     type: Octets
@@ -569,7 +569,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Bridge Id Pointer
     type: UnsignedInteger
@@ -642,7 +642,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Designated Bridge Root Cost Port
     type: Octets
@@ -660,7 +660,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Mac Filter Table
     type: Table
@@ -673,7 +673,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -696,7 +696,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -739,7 +739,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Upstream Vlan Tagging Operation Mode
     type: Enumeration
@@ -772,7 +772,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Vlan Filter List
     type: Octets
@@ -795,7 +795,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -811,6 +811,14 @@ managed_entities:
     type: Counter
     default: 0
     constraint: null
+- class_id: 130
+  name: IEEE 802.1p mapper service profile
+  attributes:
+  - index: 11
+    name: Dscp To P Bit Mapping
+    type: Octets
+    default: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA       # 24 zeros
+    constraint: null
 - class_id: 131
   name: OLT-G
   attributes:
@@ -818,7 +826,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Olt Vendor Id
     type: String
@@ -846,7 +854,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Association Type
     type: Enumeration
@@ -1132,7 +1140,7 @@ managed_entities:
   - index: 13
     name: Onu Response Time
     type: UnsignedInteger
-    default: 0
+    default: 35000
     constraint: 0,34000..36000
   - index: 14
     name: Transmit Optical Level
@@ -1189,7 +1197,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Gem Port Network Ctp Connectivity Pointer
     type: Pointer
@@ -1237,7 +1245,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Port_Id
     type: UnsignedInteger
@@ -1295,7 +1303,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Maximum Gem Payload Size
     type: UnsignedInteger
@@ -1308,7 +1316,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Threshold Value_1
     type: UnsignedInteger
@@ -1351,7 +1359,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Threshold Value_8
     type: UnsignedInteger
@@ -1394,7 +1402,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -1581,7 +1589,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Gem Port Network Ctp Connectivity Pointer
     type: Pointer
@@ -1639,7 +1647,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 0
   - index: 1
     name: Me Type Table
     type: Table
@@ -1657,7 +1665,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -1745,7 +1753,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Me Type
     type: Enumeration
@@ -1788,7 +1796,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Me Type
     type: Enumeration
@@ -1826,7 +1834,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -1914,7 +1922,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -2035,7 +2043,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -2123,7 +2131,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger
@@ -2423,7 +2431,7 @@ managed_entities:
     name: Managed Entity Id
     type: Pointer
     default: 0
-    constraint: 0..0xFFFF
+    constraint: 1..0xFFFE
   - index: 1
     name: Interval End Time
     type: UnsignedInteger

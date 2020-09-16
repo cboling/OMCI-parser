@@ -171,7 +171,6 @@ class Main(object):
              164,           # MoCA interface performance
              165,           # VDLS2 line config extensions
              157,           # Large String                      (part of AT&T OpenOMCI v3.0)
-             309,           # Multicast operations (Dot1ag)     (part of AT&T OpenOMCI v3.0)
              415}
 
         print('Skipping the following MEs due to complex document formatting')
@@ -384,6 +383,18 @@ class Main(object):
             sz = copy.deepcopy(buffer_table.size)
             sz._octets = -1
             buffer_table.size = sz
+
+        # For multicast operations profile - Attributes getting polluted with table info/descriptions
+        if 309 in class_list.keys():
+            item = class_list[309]
+            if len(item.attributes) == 20:
+                first_bad = 8   # Table Control is description of attribute 7
+                next_good = 11  # Pick back up to good attributes at the Static Access Coltrol List Table
+                # Also attribute 7 lost its information on access...
+                
+                item.attributes = item.attributes[0:first_bad] + item.attributes[next_good:]
+                # And a quick attribute name fixup here
+                item.attributes[16].name = "Downstream IGMP and multicast TCI"
 
         # For multicast subscriber config info. very hard to decode automatically
         if 310 in class_list.keys():
