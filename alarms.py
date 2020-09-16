@@ -14,7 +14,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-from tca import ThresholdCrossingAlert
+from .tca import ThresholdCrossingAlert
 
 
 class Alarm(object):
@@ -34,6 +34,14 @@ class Alarm(object):
         # TODO: Save/restore of table number needed?
         return self._alarms
 
+    @property
+    def alarms(self):
+        return self._alarms
+
+    @alarms.setter
+    def alarms(self, value):
+        self._alarms = value
+
     @staticmethod
     def load(data):
         if len(data) == 0:
@@ -41,7 +49,7 @@ class Alarm(object):
 
         alarm = Alarm(None)
         try:
-            alarm._alarms = {int(index): text for index, text in data.items()}
+            alarm.alarms = {int(index): text for index, text in data.items()}
         except Exception as _e:
             pass
         return alarm
@@ -78,17 +86,15 @@ class Alarm(object):
                                                             'Reserved',
                                                             'Vendor-specific')
                     if is_alarm:
-                        assert value not in alarm._alarms, \
-                            'Alarm {} already defined'.format(value)
-                        alarm._alarms[value] = (name.strip(),
-                                                description.strip())
+                        assert value not in alarm.alarms, 'Alarm {} already defined'.format(value)
+                        alarm.alarms[value] = (name.strip(), description.strip())
 
                 except ValueError:  # Expected if of form  n..m
                     # Watch out for commentary text in Alarm tables
-                    if 'note' == number[:4].lower():
+                    if number[:4].lower() == 'note':
                         continue
 
-                    elif '(note)' == number[-6:].lower():
+                    if number[-6:].lower() == '(note)':
                         continue    # See 9.9.3
 
                     # There is one type with the format n.m
@@ -102,7 +108,7 @@ class Alarm(object):
                     assert len(values) == 2 and \
                            0 <= int(values[0]) <= 223 and \
                            0 <= int(values[1]) <= 223, 'Unexpected format in alarms'
-                    pass  # Do not save (just verify n..m assumption)
+                    # Do not save (just verify n..m assumption)
 
             return alarm
 

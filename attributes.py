@@ -14,10 +14,12 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+import re
 from enum import IntEnum
-from text import *
-from size import AttributeSize
-from tables import Table
+from .text import ascii_only
+from .size import AttributeSize
+from .tables import Table
+# pylint: disable=anomalous-backslash-in-string
 
 
 class AttributeType(IntEnum):
@@ -63,12 +65,12 @@ class AttributeAccess(IntEnum):
     @staticmethod
     def load(data):
         access = set()
-        for a in data:
-            if a.lower() == 'read':
+        for acc in data:
+            if acc.lower() == 'read':
                 access.add(AttributeAccess.Read)
-            elif a.lower() == 'write':
+            elif acc.lower() == 'write':
                 access.add(AttributeAccess.Write)
-            elif a.lower() == 'setbycreate':
+            elif acc.lower() == 'setbycreate':
                 access.add(AttributeAccess.SetByCreate)
         return access
 
@@ -109,8 +111,8 @@ class AttributeList(object):
     @staticmethod
     def load(data):
         attr_list = AttributeList()
-        key_list = [k for k in data.keys()]
-        key_list.sort(key=lambda x: int(x))
+        key_list = list(data.keys())
+        key_list.sort(key=lambda x: int(x))     # pylint: disable=unnecessary-lambda
         index = 0
         for key in key_list:
             attr_list.add(Attribute.load(data[key], index))
@@ -329,7 +331,7 @@ class Attribute(object):
                     self.optional = False
                     continue
 
-                elif item.lower() == 'optional':
+                if item.lower() == 'optional':
                     assert self.optional is None or self.optional, 'Optional flag already decoded'
                     self.optional = True
                     continue
@@ -372,12 +374,11 @@ class Attribute(object):
                 self.attribute_type = AttributeType.Pointer
                 return
 
-            else:
-                # PM Counters are a pain, but manageable
-                if 'history data' in managed_entity.name.lower() or 'extended pm' in managed_entity.name.lower():
-                    if 'end time' not in self.name.lower() and self.access == read_only and not self.table_support:
-                        self.attribute_type = AttributeType.Counter
-                        return
+            # PM Counters are a pain, but manageable
+            if 'history data' in managed_entity.name.lower() or 'extended pm' in managed_entity.name.lower():
+                if 'end time' not in self.name.lower() and self.access == read_only and not self.table_support:
+                    self.attribute_type = AttributeType.Counter
+                    return
 
             if self.attribute_type == AttributeType.Unknown and self.size is not None:
                 # Do some more investigation.  So far Counter, ME Instance(pointer), and Table have been identified
@@ -385,9 +386,9 @@ class Attribute(object):
                 if self.size.octets in (1, 2, 4, 8):
                     self.attribute_type = AttributeType.UnsignedInteger
                     return
-                else:
-                    self.attribute_type = AttributeType.Octets
-                    return
+
+                self.attribute_type = AttributeType.Octets
+                return
             #
             if self.attribute_type == AttributeType.Unknown:
                 return

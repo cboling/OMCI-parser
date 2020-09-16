@@ -16,7 +16,7 @@ from __future__ import (
 )
 import re
 from enum import IntEnum
-from text import *
+from .text import ascii_only
 
 
 class Actions(IntEnum):
@@ -106,13 +106,13 @@ class Actions(IntEnum):
     def load(data):
         actions = set()
         for keyword in data:
-            a = Actions.keywords_to_access_set(keyword)
-            if a is not None:
-                actions.add(a)
+            action = Actions.keywords_to_access_set(keyword)
+            if action is not None:
+                actions.add(action)
         return actions
 
     @staticmethod
-    def create_from_paragraph(paragraph):
+    def create_from_paragraph(paragraph):       # pylint: disable=too-many-branches
         if paragraph.runs[0].bold:
             # New action
             text = ascii_only(' '.join(x.text for x in paragraph.runs if x.bold))
@@ -136,16 +136,17 @@ class Actions(IntEnum):
                 actions = set()
 
                 for name in text:
-                    if len(name.strip()):
+                    if len(name.strip()) > 0:
                         action = Actions.keywords_to_access_set(name.strip())
                         if action is None:
                             break
                         actions.add(action)
             else:
+                # pylint: disable=anomalous-backslash-in-string
                 optional = set()
                 text = re.split(', |: |\(|\*|\n', paragraph.text.lower())
                 for name in text:
-                    if len(name.strip()):
+                    if len(name.strip()) > 0:
                         if 'optional' in name:
                             break
                         action = Actions.keywords_to_access_set(name.strip())
