@@ -50,6 +50,7 @@ func init() {
 		},
 		Access:  {{ classID.access.name }},
 		Support: {{ classID.support.name }},
+		{%-if classID.alarms%}{{Macros.generate_alarmMap(classID.alarms)}}{%endif%}
 	}
 }
 {# blank line #}
