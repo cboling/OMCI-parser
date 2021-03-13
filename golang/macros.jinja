@@ -118,9 +118,9 @@ false
 {%- endmacro -%}
 
 {%macro generate_alarmMap(alarms)%}
-		Alarms: AlarmMap {
+		Alarms: AlarmMap{
     {%-for alarmBit, alarmData in alarms.alarms.items() %}
-			{{ alarmBit }} : "{{ alarmData[0] }}",
+			{{ alarmBit }}: "{{ alarmData[0] }}",
     {%- endfor %}
 		},
 {%- endmacro -%}

@@ -252,6 +252,11 @@ func (entity *ManagedEntity) DeleteAttributeByIndex(index uint) error {
 	return nil
 }
 
+// GetClassSupport returns the ONU support for this managed entity
+func (entity *ManagedEntity) GetClassSupport() ClassSupport {
+	return entity.definition.GetClassSupport()
+}
+
 // GetAlarmMap returns the Alarm Bit Number to Alarm Name (string) mapping.  Nil is returned if
 // the managed entity does not support alarms
 func (entity *ManagedEntity) GetAlarmMap() AlarmMap {
