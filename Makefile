@@ -57,6 +57,8 @@ help:
 	@echo "clean           : Remove files created by the build"
 	@echo "distclean       : Remove files created by the build and virtual environments"
 
+venv: ${VENVDIR}/.built
+
 ${VENVDIR}/.built: requirements.txt
 	@ VIRTUAL_ENV_DISABLE_PROMPT=true $(VENV_BIN) ${VENV_OPTS} ${VENVDIR};\
         source ./${VENVDIR}/bin/activate ; set -u ;\
