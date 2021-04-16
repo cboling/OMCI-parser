@@ -34,7 +34,7 @@ type ManagedEntityDefinition struct {
 	AttributeDefinitions AttributeDefinitionMap
 	Access               ClassAccess
 	Support              ClassSupport
-	Alarms               AlarmMap       // AlarmBit -> AlarmName
+	Alarms               AlarmMap // AlarmBit -> AlarmName
 }
 
 func (bme *ManagedEntityDefinition) String() string {
@@ -71,6 +71,11 @@ func (bme ManagedEntityDefinition) GetAllowedAttributeMask() uint16 {
 // GetAttributeDefinitions retrieves the attribute definitions of a managed entity from a ME Definition
 func (bme ManagedEntityDefinition) GetAttributeDefinitions() AttributeDefinitionMap {
 	return bme.AttributeDefinitions
+}
+
+// GetClassSupport returns ONUs support of this class
+func (bme ManagedEntityDefinition) GetClassSupport() ClassSupport {
+	return bme.Support
 }
 
 // GetAlarmMap returns the Alarm bit number to name map
@@ -130,7 +135,7 @@ func (bme ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p 
 					data = data[len(valueBuffer):]
 
 				case byte(Set) | AR: // Set Request
-					fmt.Println("TODO")
+					// TODO: No support at this time
 
 				case byte(SetTable) | AR: // Set Table Request
 					// TODO: Only baseline supported at this time

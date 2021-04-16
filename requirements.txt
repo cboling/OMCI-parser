@@ -1,8 +1,8 @@
-Jinja2==2.11.2
-lxml==4.5.2
+Jinja2==2.11.3
+lxml==4.6.2
 MarkupSafe==1.1.1
-more-itertools==8.5.0
+more-itertools==8.7.0
 python-docx==0.8.10
 six==1.15.0
-transitions==0.8.2
-pyyaml==5.3.1
+transitions==0.8.6
+pyyaml==5.4.1
