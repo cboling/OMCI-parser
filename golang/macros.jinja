@@ -120,7 +120,7 @@ false
 {%macro generate_alarmMap(alarms)%}
 		Alarms: AlarmMap{
     {%-for alarmBit, alarmData in alarms.alarms.items() %}
-			{{ alarmBit }}:{% if alarmBit < 10 %} {% endif %} "{{ alarmData[0] }}",
+			{{ alarmBit }}:{% if alarmBit < 10 and alarms.alarms|length > 10 %} {% endif %} "{{ alarmData[0] }}",
     {%- endfor %}
 		},
 {%- endmacro -%}
