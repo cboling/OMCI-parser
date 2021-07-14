@@ -24,7 +24,8 @@ VENV_BIN		?= virtualenv
 VENV_OPTS		?= --python=python3.6 -v
 PYLINT_OUT		= $(WORKING_DIR)pylint.out
 
-G988_SOURCE		?= T-REC-G.988-201711-I!!MSW-E.docx
+#G988_SOURCE		?= T-REC-G.988-201711-I!!MSW-E.docx
+G988_SOURCE     ?= T-REC-G.988-202003-I!Amd3!MSW-E.docx
 PRE_COMPILED	?= G.988.PreCompiled.json
 PARSED_JSON		?= G.988.Parsed.json
 AUGMENT_YAML	?= G.988.augment.yaml

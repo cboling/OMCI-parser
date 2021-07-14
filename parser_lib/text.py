@@ -166,7 +166,8 @@ def is_description_style(style):
 
 def is_relationships_style(style):
     """ True if this is a style used for Relationships paragraph text """
-    return is_style(style, 'Description')
+    return is_style(style, 'Description') or \
+           is_style(style, 'Relations')
 
 
 def is_attribute_style(style):

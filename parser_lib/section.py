@@ -203,6 +203,11 @@ class SectionHeading(object):
             return section
 
         except Exception as _e:
+            if len(headings) == 1 and headings[0] == '9.2.21':
+                # 'Blank Clause' in G.988 3/2020 AMD3.  In the 11/2017 version this
+                # was for the TWDM channel OMCI performance monitoring history data.
+                # This ME is also present in 3/2020 and 11/2017 in section 9.16.11.
+                return None
             raise
 
     def dump(self, prefix="    "):

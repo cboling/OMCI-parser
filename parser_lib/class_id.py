@@ -88,16 +88,16 @@ class ClassIdList(object):
                 # table fixup is needed (and not detected during pre-parse)
                 cid_table = ClassIdList.fix_me_table(cid_table, 2)
 
-                # Two CID's are missing in the 11/2017 spec (fixed in following addendum)
-                if not any(cid_row.get('Managed entity class value', 0) == 2 for cid_row in cid_table.rows):
+                # Two CID's are missing in the 11/2017 spec (fixed in following 3/2020 addendum 3)
+                if not any(cid_row.get('Managed entity class value', '') == '2' for cid_row in cid_table.rows):
                     pass
 
-                if not any(cid_row.get('Managed entity class value', 0) == 453 for cid_row in cid_table.rows):
+                if not any(cid_row.get('Managed entity class value', '') == '453' for cid_row in cid_table.rows):
                     cid_table.rows.append({
                         'Managed entity class value': 453,
                         'Managed entity': 'Enhanced FEC performance monitoring history data'})
 
-                if not any(cid_row.get('Managed entity class value', 0) == 454 for cid_row in cid_table.rows):
+                if not any(cid_row.get('Managed entity class value', '') == '454' for cid_row in cid_table.rows):
                     cid_table.rows.append({
                         'Managed entity class value': 454,
                         'Managed entity': 'Enhanced TC performance monitoring history data'})
@@ -117,8 +117,8 @@ class ClassIdList(object):
                                 return name[:pos].strip()
 
                             cid.name = ' '.join(name_cleanup(heading_name).split())
-                            cid_list.add(cid)
                             cid.section = sections.find_section_by_name(cid.name)
+                            cid_list.add(cid)
                             # Some sections are listed with a shorter name in the CID than the section
                             if cid.section is None:
                                 cid.section = sections.find_section_by_alias(cid.name)

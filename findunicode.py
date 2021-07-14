@@ -18,7 +18,7 @@ import json
 
 def parse_args():
     return {
-        'input': 'T-REC-G.988-201711-I!!MSW-E.docx'
+        'input': 'T-REC-G.988-202003-I!Amd3!MSW-E.docx'
     }
 
 
@@ -57,7 +57,7 @@ class Main(object):
         paragraphs = document.paragraphs
 
         for num, paragraph in enumerate(paragraphs):
-            print '{} of {}'.format(num, len(paragraphs))
+            print('{} of {}'.format(num, len(paragraphs)))
             try:
                 text = paragraph.text
                 bad = [ord(i) for i in text if ord(i) > 127 and ord(i) not in good]

@@ -55,7 +55,7 @@ only need to be ran once.
     optional arguments:
       -h, --help            show this help message and exit
       --input INPUT, -i INPUT
-                            Path to ITU G.988 specification document, default T-REC-G.988-201711-I!!MSW-E.docx
+                            Path to ITU G.988 specification document, default T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --output OUTPUT, -o OUTPUT
                             Output filename, default: G.988.PreCompiiled.json
 ```
@@ -77,7 +77,7 @@ to the output JSON such as constraints.
     optional arguments:
       -h, --help            show this help message and exit
       --ITU ITU, -I ITU     Path to ITU G.988 specification document, default:
-                            T-REC-G.988-201711-I!!MSW-E.docx
+                            T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --input INPUT, -i INPUT
                             Path to pre-parsed G.988 data, default:
                             G.988.PreCompiled.json
@@ -203,7 +203,7 @@ To generate Go code, use the following command:
     optional arguments:
       -h, --help            show this help message and exit
       --ITU ITU, -I ITU     Path to ITU G.988 specification document. Default:
-                            T-REC-G.988-201711-I!!MSW-E.docx
+                            T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --input INPUT, -i INPUT
                             Path to parsed G.988 data, default:
                             G.988.parsed.json

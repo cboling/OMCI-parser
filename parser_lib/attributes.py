@@ -241,7 +241,7 @@ class Attribute(object):
         attribute = None
         is_bold = paragraph.runs[0].bold
         style = paragraph.style.name.lower()
-        text = paragraph.text.lower()[:20]
+        text = paragraph.text.lower()[:30]
 
         if is_bold and \
                 (style not in {'attribute follower', 'attribute list'} or
@@ -261,6 +261,8 @@ class Attribute(object):
                 ('C Ounter', 'Counter'),
                 ('C Ontrol', 'Control'),
                 ('P Ointer', 'Pointer'),
+                ('T Ime', 'Time'),
+                ('B Lock', 'Block'),
                 ('1 St', '1st'),
                 ('2 Nd', '2nd'),
                 ('3 Rd', '3rd'),
@@ -316,7 +318,7 @@ class Attribute(object):
             if len(text) == 0:
                 return
 
-            self.description.append(content)
+            self.description.append(content)    # TODO: Make description a set instead of a list
 
             # Check for access, mandatory/optional, and size keywords.  These are in side
             # one or more () groups
