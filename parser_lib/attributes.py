@@ -241,7 +241,7 @@ class Attribute(object):
         attribute = None
         is_bold = paragraph.runs[0].bold
         style = paragraph.style.name.lower()
-        text = paragraph.text.lower()[:30]
+        text = paragraph.text.lower()[:80]
 
         if is_bold and \
                 (style not in {'attribute follower', 'attribute list'} or
@@ -263,12 +263,21 @@ class Attribute(object):
                 ('P Ointer', 'Pointer'),
                 ('T Ime', 'Time'),
                 ('B Lock', 'Block'),
+                ('R Evision', 'Revision'),
+                ('D Ate', 'Date'),
+                ('N Ame', 'Name'),
+                ('P Art', 'Part'),
                 ('1 St', '1st'),
                 ('2 Nd', '2nd'),
                 ('3 Rd', '3rd'),
                 ('4 Th', '4th'),
+                ('1St', '1st'),
+                ('2Nd', '2nd'),
+                ('3Rd', '3rd'),
+                ('4Th', '4th'),
                 ('1 /2', '1/2'),
                 ('1/ 2', '1/2'),
+                ('1 _2', '1_2'),
                 ('/', '_'),
                 ('-', '_'),
                 ('\+', '_'),

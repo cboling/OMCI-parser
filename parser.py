@@ -34,7 +34,7 @@ from parser_lib.text import camelcase
 #  The process from scratch is:
 #
 #   1. Pre-parse the G.988 Word Document via 'preParse.py' to create the 'G.988.Precompiled.json' file
-#
+#.
 #   2. Parse the G.988 JSON via 'parser.py' to create the G.988.Parsed.json file.  At this point,
 #      there is just a minimal fragment 'G.988.augment.yaml' file that really as a little bit of data
 #
@@ -444,33 +444,6 @@ class Main(object):
             try:
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
-            except KeyError:
-                pass
-
-        # Ethernet frame extended PM 64-bit. fix actions
-        if 426 in class_list.keys():
-            item = class_list[426]
-            item.actions.update([Actions.Create, Actions.Delete,
-                                Actions.Get, Actions.Set])
-            item.optional_actions.add(Actions.GetCurrentData)
-            try:
-                if 334 in class_list.keys():
-                    extended32 = class_list[334]
-                    extended64 = class_list[426]
-                    extended64.attributes = copy.deepcopy(extended32.attributes)
-                    extended64.actions = extended32.actions
-                    extended64.optional_actions = extended32.optional_actions
-                    extended64.alarms = extended32.alarms
-                    extended64.avcs = extended32.avcs
-                    extended64.test_results = extended32.test_results
-                    extended64.hidden = extended32.hidden
-
-                    sz = AttributeSize()
-                    sz._octets = 8
-                    for index in range(3, 17):
-                        extended64.attributes[index].size = sz
-
-                pass    # TODO: Also no attributes are getting decoded
             except KeyError:
                 pass
 

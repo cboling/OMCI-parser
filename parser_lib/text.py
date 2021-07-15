@@ -69,9 +69,9 @@ def ascii_only(input_text):
 def ascii_no_control(input_text):
     return ascii_only(input_text).replace('\n', ' ').replace('\r', '').strip()
 
+
 ########################################################################
 # Headers
-
 def is_heading_style(style):
     """ True if this is a style used as a heading """
     return 'heading' in style.name.lower()[:len('heading')]
@@ -99,13 +99,16 @@ def is_relationships_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Relationships' and \
            (is_heading_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships') or
             is_style(paragraph.style, 'Normal'))    # See section 9.9.10
 
 
 def is_attributes_header(paragraph):
     """ True if this paragraph is a heading for the Attributes section """
     text = ascii_only(paragraph.text).strip()
-    return text == 'Attributes' and is_heading_style(paragraph.style)
+    return text == 'Attributes' and \
+           (is_heading_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
 
 
 def is_actions_header(paragraph):
@@ -113,7 +116,8 @@ def is_actions_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Actions' and \
            (is_heading_style(paragraph.style) or
-            is_normal_style(paragraph.style))
+            is_normal_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
 
 
 def is_notifications_header(paragraph):
@@ -121,7 +125,8 @@ def is_notifications_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Notifications' and \
            (is_heading_style(paragraph.style) or
-            is_normal_style(paragraph.style))
+            is_normal_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
 
 
 def is_avcs_header(paragraph):
