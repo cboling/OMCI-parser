@@ -15,6 +15,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
+import os
+
 try:
     # Python 3
     from itertools import zip_longest
@@ -584,10 +587,19 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
         if text_list:
             for item in text_list:
                 try:
+                    colon_appended = item.name.lower() + ': '
+                    col_len = len(colon_appended)
                     for content in item.description:
                         txt = ascii_no_control(paragraphs[content].text)
+                        if colon_appended in txt.lower()[:col_len]:
+                            txt = txt[col_len:]
+
                         if len(txt) > 0:
-                            text[item.name] = txt
+                            if item.name not in text:
+                                text[item.name] = ""
+                            else:
+                                text[item.name] += os.linesep + os.linesep
+                            text[item.name] += txt
                 except Exception as _e:
                     pass
         return text
