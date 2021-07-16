@@ -179,6 +179,7 @@ def is_attribute_style(style):
     """ True if this is a style used for Attributes paragraph text """
     return is_style(style, 'Attribute') or \
            is_style(style, 'attribute') or \
+           is_style(style, 'Normal') or \
            is_style(style, 'Note')
 
 
@@ -256,7 +257,13 @@ def is_attribute_text(paragraph):
             (is_heading_style(paragraph.style) and                 # For bad formatting in
                 'Value\tINPmin' in ascii_only(paragraph.text)) or  # section 9.7.7
             (is_normal_style(paragraph.style) and                  # section 9.2.5
-                'multicast address table:' in ascii_only(paragraph.text)))
+                'multicast address table:' in ascii_only(paragraph.text)) or
+            (is_normal_style(paragraph.style) and                  # section 9.2.12
+             any(txt in ascii_only(paragraph.text) for txt in
+                 ('Multicast MAC address filtering capability:',
+                  'Multicast MAC address registration mode:',
+                  'Multicast MAC address filtering table:',
+                  'Aging timer:'))))
 
 
 def is_actions_text(paragraph):
