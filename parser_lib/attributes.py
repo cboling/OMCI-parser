@@ -128,7 +128,7 @@ class Attribute(object):
     def __init__(self):
         self.name = None             # Attribute name (with spaces)
         self.index = None            # Sequence in the attribute list (0..n)
-        self.description = []        # Description (text, paragraph numbers & Table objects)
+        self.description = set()     # Description (text, paragraph numbers & Table objects)
         self.access = set()          # (AttributeAccess) Allowed access
         self.optional = None         # If true, attribute is option, else mandatory
         self.size = None             # (Size) Size object
@@ -182,7 +182,7 @@ class Attribute(object):
         # TODO: Save/restore table info?
         return {
             'name': self.name,
-            'description': self.description,
+            'description': list(self.description),
             'access': [a.name for a in self.access],
             'optional': self.optional,
             'deprecated': self.deprecated,
@@ -214,7 +214,7 @@ class Attribute(object):
         attr = Attribute()
         attr.name = data.get('name')
         attr.index = index
-        attr.description = data.get('description')
+        attr.description = set(data.get('description', []))
         attr.optional = data.get('optional', False)
         attr.deprecated = data.get('deprecated', False)
         attr.tca = data.get('tca', False)
@@ -288,6 +288,7 @@ class Attribute(object):
                 ('R Eset', 'Reset'),
                 ('I Nterval', 'Interval'),
                 ('M Essage', 'Message'),
+                ('M Ulticast', 'Multicast'),
                 ('T Ype', 'Type'),
                 ('F Ail', 'Fail'),
                 ('P Ayload', 'Payload'),
@@ -315,7 +316,7 @@ class Attribute(object):
                 attribute.name = re.sub(orig, new, attribute.name)
 
             attribute.name = ' '.join(attribute.name.strip().split())
-            attribute.description.append(content)
+            attribute.description.add(content)
             attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 
         return attribute
@@ -327,7 +328,7 @@ class Attribute(object):
             if len(text) == 0:
                 return
 
-            self.description.append(content)    # TODO: Make description a set instead of a list
+            self.description.add(content)
 
             # Check for access, mandatory/optional, and size keywords.  These are in side
             # one or more () groups
