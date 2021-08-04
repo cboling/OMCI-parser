@@ -2503,7 +2503,7 @@ managed_entities:
     default: 0
     constraint: null
   - index: 15
-    name: Frames 512 To 1 023 Octets
+    name: Frames 512 To 1023 Octets
     type: Counter
     default: 0
     constraint: null
