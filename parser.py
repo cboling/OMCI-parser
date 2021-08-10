@@ -353,22 +353,49 @@ class Main(object):
         if 289 in class_list.keys():
             class_list[289].name += ' ME'       # To avoid conflicts with Go file/struct names
 
-        # Dot1ag maintenance domain
+        # Dot1ag maintenance domain. Has multiple attributes defined on one line that need
+        # to be split up
         if 299 in class_list.keys():
             item = class_list[299]
-            item.attributes[3].size._repeat_count = 2
-            item.attributes[3].size._repeat_max = 2
+            for index in range(6, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
 
-        # Dot1ag maintenance domain
+            item.attributes[3].name = "MD Name 1"
+            item.attributes[4].name = "MD Name 2"
+
+        # Dot1ag maintenance association. Has multiple attributes defined on one line that need
+        # to be split up
         if 300 in class_list.keys():
             item = class_list[300]
-            item.attributes[3].size._repeat_count = 2
-            item.attributes[3].size._repeat_max = 2
-            sz = AttributeSize()
-            sz._octets = 24
-            item.attributes[5].size = sz
+            for index in range(7, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
 
-        # Octet Stirng - 1..15 row entries
+            item.attributes[3].name = "Short MA Name 1"
+            item.attributes[4].name = "Short MA Name 2"
+
+        # Dot1ag chassis-managment info. Has multiple attributes defined on one line that need
+        # to be split up.  Three times...
+        if 306 in class_list.keys():
+            item = class_list[306]
+            for index in range(8, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[3].name = "Chassis ID Part 1"
+            item.attributes[4].name = "Chassis ID Part 2"
+
+            for index in range(9, 6, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[6].name = "Management Address Domain 1"
+            item.attributes[7].name = "Management Address Domain 2"
+
+            for index in range(10, 9, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[9].name = "Management Address 1"
+            item.attributes[10].name = "Management Address 2"
+
+        # Octet String - 1..15 row entries
         if 307 in class_list.keys():
             item = class_list[307]
             part1 = item.attributes[2]

@@ -14,11 +14,16 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
+import copy
 import re
 from enum import IntEnum
-from .text import ascii_only
+
 from .size import AttributeSize
 from .tables import Table
+from .text import ascii_only
+
+
 # pylint: disable=anomalous-backslash-in-string
 
 
@@ -81,6 +86,12 @@ class AttributeList(object):
 
     def __getitem__(self, item):
         return self._attributes[item]  # delegate to li.__getitem__
+
+    def __setitem__(self, key, value):
+        # Extend with filler if needed
+        while len(self._attributes) <= key:
+            self.add(Attribute())
+        self._attributes[key] = copy.deepcopy(value)
 
     def __iter__(self):
         for attribute in self._attributes:

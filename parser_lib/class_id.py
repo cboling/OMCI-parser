@@ -589,10 +589,21 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
                 try:
                     colon_appended = item.name.lower() + ': '
                     col_len = len(colon_appended)
+
+                    # 802.1ag has some screwed up attributes to parse
+                    double_name_colon_appended = item.name.lower() + ', ' + item.name.lower() + ': '
+                    double_col_len = len(double_name_colon_appended)
+                    colon_offset = double_col_len - 2
+                    comma_offset = len(item.name.lower())
+
                     for content in item.description:
                         txt = ascii_no_control(paragraphs[content].text)
-                        if colon_appended in txt.lower()[:col_len]:
+                        if colon_appended in txt.lower().replace('\t', ' ')[:col_len]:
                             txt = txt[col_len:]
+                        elif len(txt) >= double_col_len and txt[colon_offset] == ':' and txt[comma_offset] == ',':
+                            txt = txt[double_col_len-1:]
+                        while len(txt) > 0 and txt[0] == ' ':
+                            txt = txt[1:]
 
                         if len(txt) > 0:
                             if item.name not in text:
