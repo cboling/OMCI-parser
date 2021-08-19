@@ -104,12 +104,13 @@ class Actions(IntEnum):
 
     @staticmethod
     def load(data):
-        actions = set()
+        actions = []
         for keyword in data:
             action = Actions.keywords_to_access_set(keyword)
             if action is not None:
-                actions.add(action)
-        return actions
+                actions.append(action)
+        actions.sort()
+        return set(actions)
 
     @staticmethod
     def create_from_paragraph(paragraph):       # pylint: disable=too-many-branches

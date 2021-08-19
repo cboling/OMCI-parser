@@ -60,7 +60,7 @@ class AttributeAccess(IntEnum):
                 results.add(AttributeAccess.Read)
             elif k.strip() == 'w':
                 results.add(AttributeAccess.Write)
-            elif k.strip() [:len('set-by-create')] == 'set-by-create' or k.strip()[:len('setbycreate')] == 'setbycreate':
+            elif k.strip()[:len('set-by-create')] == 'set-by-create' or k.strip()[:len('setbycreate')] == 'setbycreate':
                 results.add(AttributeAccess.SetByCreate)
             else:
                 print('Invalid access type: {}'.format(k))
@@ -310,8 +310,10 @@ class Attribute(object):
                 ('U Nit', 'Unit'),
                 ('B It', 'Bit'),
                 ('FailThreshold', 'Fail Threshold'),
+                ('Failthreshold', 'Fail Threshold'),
                 ('DegradeThreshold', 'Degrade Threshold'),
-                ('\"leftr\"', 'leftr'),
+                ('"leftr"', 'leftr'),
+                ('"Leftr"', 'Leftr'),
                 ('( S F )', ''),
                 (' Sd ', ''),
                 ('( Dsl )', ''),
@@ -350,6 +352,9 @@ class Attribute(object):
                 return
 
             for item in paren_items:
+                if item.lower() == 'all zero bytes':
+                    return
+
                 # Mandatory/optional is the easiest
                 if item.lower() == 'mandatory':
                     assert self.optional is None or not self.optional, 'Optional flag already decoded'
@@ -364,11 +369,15 @@ class Attribute(object):
                 # Try to see if the access for the attribute is this item
                 access_item = item.replace('-', '').strip()
 
-                # Address type if 9.2.3 Port-ID
-                if access_item.lower() == 'rwsc':
+                if access_item.lower() == 'rwsc':                # Address type if 9.2.3 Port-ID
+                    access_item = 'r, w, set-by-create'
+                elif access_item.lower() == 'r, w setbycreate':  # Section 9.7.4
+                    access_item = 'r, w, set-by-create'
+                elif access_item.lower() == 'r,w if applicable, setbycreate if applicable':  # Section 9.1.10
                     access_item = 'r, w, set-by-create'
 
-                access_list = access_item.lower().split(',')
+                access_list = [item for item in access_item.lower().split(',')
+                               if item.strip() != '']
                 if any(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
                     # assert len(self.access) == 0 or all(a in self.access for a in access), \

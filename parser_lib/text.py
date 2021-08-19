@@ -117,7 +117,8 @@ def is_actions_header(paragraph):
     return text == 'Actions' and \
            (is_heading_style(paragraph.style) or
             is_normal_style(paragraph.style) or
-            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
+            is_style(paragraph.style, 'Relationships') or  # See section 9.3.34
+            is_style(paragraph.style, 'Attribute'))        # See section 9.1.15
 
 
 def is_notifications_header(paragraph):
@@ -166,7 +167,7 @@ def is_normal_style(style):
 
 def is_description_style(style):
     """ True if this is a style used for Relationships paragraph text """
-    return is_style(style, 'Normal') or is_style(style, 'Note')
+    return is_style(style, 'Normal') or is_style(style, 'Note') or is_style(style, 'Equation')
 
 
 def is_relationships_style(style):

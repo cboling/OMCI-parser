@@ -22,11 +22,11 @@ import "github.com/deckarep/golang-set"
 {# blank line #}
 // {{classID.name|camelcase}}ClassID is the 16-bit ID for the OMCI
 // Managed entity {{classID.name}}
-const {{classID.name|camelcase}}ClassID ClassID = ClassID({{classID.cid}})
+const {{classID.name|camelcase}}ClassID = ClassID({{classID.cid}}) // {{ '%#04.04x' % classID.cid }}
 {# blank line #}
 var {{classID.name|camelcase|lower}}BME *ManagedEntityDefinition
 {# blank line #}
-// {{ classID.name|camelcase }} (class ID #{{classID.cid}})
+// {{ classID.name|camelcase }} (Class ID: #{{classID.cid}} / {{ '%#04.04x' % classID.cid }})
 {{ GoMacros.class_description(classID.text_section('description')) -}}
 {{ GoMacros.class_relationships(classID.text_section('relationships')) -}}
 {{ GoMacros.class_attributes(classID.text_section('attributes')) }}

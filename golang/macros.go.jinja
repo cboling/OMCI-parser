@@ -17,7 +17,7 @@ GO specific Jinja2 macros
 
 {%- macro class_description(text_list) -%}
 {%- for text in text_list -%}
-//	{{ text | wordwrap(wrap_column,wrapstring='\n//	') }}
+//	{{ text | wordwrap(wrap_column) | indent('	') | indent('//', False, True)}}
 {%- if not loop.last %}
 //
 {% endif -%}
@@ -29,7 +29,7 @@ GO specific Jinja2 macros
 //
 //	Relationships
 {% for text in text_list -%}
-//		{{ text | wordwrap(wrap_column,wrapstring='\n//		') }}
+//		{{ text | wordwrap(wrap_column) | indent('		') | indent('//', False, True)}}
 {%- if not loop.last -%}
 //
 {%- endif -%}
@@ -48,7 +48,7 @@ GO specific Jinja2 macros
 //	Attributes
 {%- for key, value in text_dict.items() %}
 //		{{ key }}
-//			{{ value | wordwrap(wrap_column,wrapstring='\n//			') }}
+//			{{ value | wordwrap(wrap_column) | indent('			') | indent('//', False, True)}}
 {%- if not loop.last %}
 //
 {%- endif -%}
