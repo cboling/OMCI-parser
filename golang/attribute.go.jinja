@@ -484,7 +484,6 @@ func (attr *AttributeDefinition) tableAttributeSerializeTo(value interface{}, b 
 		}
 		return 0, errors.New("unexpected type for table serialization")
 	}
-	panic("HELP")
 	size := attr.GetSize()
 	if bytesAvailable < size {
 		return 0, NewMessageTruncatedError(fmt.Sprintf("not enough space for attribute: %v", attr.Name))

@@ -312,6 +312,8 @@ class Attribute(object):
                 ('FailThreshold', 'Fail Threshold'),
                 ('Failthreshold', 'Fail Threshold'),
                 ('DegradeThreshold', 'Degrade Threshold'),
+                ('LineClass', 'Line Class'),
+                ('Lineclass', 'Line Class'),
                 ('"leftr"', 'leftr'),
                 ('"Leftr"', 'Leftr'),
                 ('( S F )', ''),

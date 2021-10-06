@@ -451,7 +451,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
                 actions, optional_actions = Actions.create_from_paragraph(self._paragraphs[content])
                 if actions is not None:
                     self.actions.update(actions)
-                    if Actions.GetNext in actions:
+                    if any(tbl_action in actions for tbl_action in (Actions.GetNext, Actions.SetTable)):
                         # Scan attribute lists for table attributes.  To be a
                         # table attribute, the attribute name 'Ends' with the
                         # word table:
@@ -462,7 +462,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
 
                 if optional_actions is not None:
                     self.optional_actions.update(optional_actions)
-                    if Actions.GetNext in optional_actions:
+                    if any(tbl_action in optional_actions for tbl_action in (Actions.GetNext, Actions.SetTable)):
                         # Scan attribute lists for table attributes.  To be a
                         # table attribute, the attribute name 'Ends' with the
                         # word table:

@@ -331,13 +331,39 @@ class Main(object):
             item = class_list[6]
             item.access = ClassAccess.CreatedByOnu
 
+        if 58 in class_list.keys():
+            item = class_list[58]
+            item.actions.add(Actions.GetNext)
+
         if 113 in class_list.keys():
             item = class_list[113]
             item.alarms._alarms[7] = ('leftr defect seconds', item.alarms._alarms[7][1])
 
+        if 134 in class_list.keys():
+            item = class_list[134]
+            item.actions.add(Actions.Test)
+
         if 408 in class_list.keys():
             item = class_list[408]
             item.alarms._alarms[0] = ('leftr defect seconds', item.alarms._alarms[0][1])
+
+        if 149 in class_list.keys():
+            sip = class_list[149]       # SIP config portal (zero size for config text table)
+
+            sz = AttributeSize()
+            sz._octets = 25             # Assume it is 25 at most since it is vendor specific
+            sip.attributes[1].size = sz
+
+        if 150 in class_list.keys():
+            item = class_list[150]
+            item.actions.add(Actions.GetNext)
+
+        if 154 in class_list.keys():
+            mgc = class_list[154]       # MGC config portal (zero size for config text table)
+
+            sz = AttributeSize()
+            sz._octets = 25             # Assume it is 25 at most since it is vendor specific
+            mgc.attributes[1].size = sz
 
         # For SIP user data, the Username&Password attribute is a pointer
         # to a security methods ME and is 2 bytes but is in the document as
@@ -529,7 +555,6 @@ class Main(object):
         if 325 in class_list.keys():
             item = class_list[325]
             try:
-                from parser_lib.actions import Actions
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
             except KeyError:

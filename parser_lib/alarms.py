@@ -82,7 +82,7 @@ class Alarm(object):
                 rows = new_rows
 
             for row_num, row in enumerate(rows):
-                number = row.get('Alarm number')
+                number = row.get('Alarm number') or row.get('Number') or row.get('Alarm')
                 name = row.get('Alarm')
                 description = row.get('Description')
                 tca = row.get('Threshold crossing alert')
@@ -115,8 +115,20 @@ class Alarm(object):
                     if number[:4].lower() == 'note':
                         continue
 
-                    if number[-6:].lower() == '(note)':
-                        continue    # See 9.9.3
+                    if number[-6:].lower() == '(note)':    # See 9.9.3
+                        try:
+                            value = int(number[:-6].strip())
+                            assert 0 <= value <= 223, 'Invalid alarm number: {}'.format(value)
+
+                            is_alarm = name.strip().lower() not in ('n/a',
+                                                                    'reserved',
+                                                                    'vendor-specific')
+                            if is_alarm:
+                                assert value not in alarm.alarms, 'Alarm {} already defined'.format(value)
+                                alarm.alarms[value] = (name.strip(), description.strip())
+                                continue
+                        except ValueError:  # Expected if of form  n..m
+                            pass
 
                     # There is one type with the format n.m
                     values = number.strip().split('.')
