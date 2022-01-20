@@ -29,6 +29,7 @@ func init() {
 	// Default for relaxed decode is True if there is relaxed decode support available
 	// relaxedDecode[mkRelaxedKey(Get, false)] = true
 	relaxedDecode[mkRelaxedKey(MibUploadNext, false)] = true
+	relaxedDecode[mkRelaxedKey(AlarmNotification, false)] = true
 }
 
 func mkRelaxedKey(msgType MsgType, request bool) int {

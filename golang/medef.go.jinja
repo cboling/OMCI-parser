@@ -103,21 +103,40 @@ func (bme ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p 
 		attrDef := bme.AttributeDefinitions[index]
 		name := attrDef.GetName()
 
-		if mask&attrDef.Mask != 0 {
+		if mask & attrDef.Mask != 0 {
 			value, err := attrDef.Decode(data, p, msgType)
-			if err != nil {
-				return nil, err
-			}
+
+			// Handle table attributes errors in special code section so we can test
+			// to see if the message type supports table attributes.
 			if attrDef.IsTableAttribute() {
 				switch msgType {
 				default:
-					return nil, fmt.Errorf("unsupported Message Type '%v' for table serialization", msgType)
+					// Drop this attribute from the mask and any attributes following it. This
+					// error also overrides any previous 'Unknown' attributes errors
+					errMsg := fmt.Sprintf("unsupported Message Type '%v/0x%02x' for table attribute '%v' decode. ME %v (Class ID: %d)",
+						MsgType(msgType&MsgTypeMask), msgType, attrDef.Name, bme.GetName(), bme.ClassID)
+
+					for index < uint(len(keyList)) {
+						bitmask := uint16(1 << (16-index))
+						if bitmask & mask != 0 {
+							badMask |= bitmask
+						}
+						index++
+					}
+					maskErr = NewUnknownAttributeDecodeError(InvalidTableAttribute, errMsg, badMask, data)
+					return attrMap, maskErr
 
 				case byte(Get) | AK: // Get Response
+					if err != nil {
+						return nil, err
+					}
 					attrMap[name] = value
 					data = data[4:]
 
 				case byte(GetNext) | AK: // Get Next Response
+					if err != nil {
+						return nil, err
+					}
 					// Value is a partial octet buffer we need to collect and at
 					// the end (last segment) pull it up into more appropriate table
 					// rows
@@ -143,9 +162,14 @@ func (bme ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p 
 					// TODO: No support at this time
 
 				case byte(SetTable) | AR: // Set Table Request
+					if err != nil {
+						return nil, err
+					}
 					attrMap[name] = value
 					data = data[len(data):]
 				}
+			} else if err != nil {
+				return nil, err
 			} else {
 				attrMap[name] = value
 				data = data[attrDef.GetSize():]
@@ -156,7 +180,7 @@ func (bme ManagedEntityDefinition) DecodeAttributes(mask uint16, data []byte, p 
 	// decode error that the caller of this decode can process if they wish to relax
 	// the decoding
 	if badMask != 0 {
-		maskErr = NewUnknownAttributeDecodeError(maskErr.Error(), badMask, data)
+		maskErr = NewUnknownAttributeDecodeError(UnknownAttribute, maskErr.Error(), badMask, data)
 	}
 	return attrMap, maskErr
 }
