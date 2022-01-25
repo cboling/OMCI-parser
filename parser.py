@@ -638,6 +638,7 @@ class Main(object):
                     "constraint":    None,
                     "default":       None
                 }, 0)
+            item.attributes[1].attribute_type = AttributeType.UnsignedInteger
 
         # ONU-3G
         if 441 in class_list.keys():
