@@ -50,8 +50,14 @@ class Main(object):
 
     @staticmethod
     def camelCase(input: str) -> str:
-        s = sub(r"(_|-)+", " ", input).title().replace(" ", "")
+        s = sub(r"(_|-|\.|/)+", " ", input).title().replace(" ", "")
         output = ''.join([s[0].upper(), s[1:]])
+        return output
+
+    @staticmethod
+    def golangfile(input: str) -> str:
+        s = sub(r"(|/)+", " ", input).title().replace(" ", "")
+        output = ''.join([s[0].lower(), s[1:].lower()]) + ".go"
         return output
 
     def start(self):
@@ -67,26 +73,25 @@ class Main(object):
             class_ids = [c for c in self.parsed.class_ids.values()]
             class_ids.sort(key=lambda x: x.cid)
 
-            results = []
+            results = {}
             for entry in class_ids:
                 entry_camelCase = self.camelCase(entry.name)
-                class_entry = {
+                entry_filename = self.golangfile(entry.name)
+                results[entry.cid] = {
                     "Name":       f"{entry.name}",
+                    "Filename":   entry_filename,
                     "CamelCase":  entry_camelCase,
                     "ClassID":    entry.cid,
-                    "Attributes": [],
+                    "Attributes": {},
                 }
                 for attribute in entry.attributes:
                     camelCase = self.camelCase(attribute.name)
-                    attribute_entry = {
+                    results[entry.cid]["Attributes"][attribute.index] = {
                         "Name":       f"{attribute.name}",
                         "CamelCase":  camelCase,
                         "Final":      f"{entry_camelCase}_{camelCase}" if attribute.index != 0 else f"{camelCase}",
                         "Index":      attribute.index,
                     }
-                    class_entry["Attributes"].append(attribute_entry)
-                results.append(class_entry)
-
             # Output results
             json_data = json.dumps(results, indent=2, separators=(',', ': '))
 

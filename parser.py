@@ -15,17 +15,20 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
 import argparse
-import time
 import copy
+import time
+
 from docx import Document
 
+from parser_lib.attributes import Attribute
 from parser_lib.class_id import ClassIdList, ClassAccess
 from parser_lib.parsed_json import ParsedJson
 from parser_lib.parsed_yaml import MetadataYAML
-from preparsed_json import PreParsedJson
-from parser_lib.versions import VersionHeading
 from parser_lib.text import camelcase
+from parser_lib.versions import VersionHeading
+from preparsed_json import PreParsedJson
 
 #
 #  This application takes the pre-parsed JSON file and further parses it to output suitable for
@@ -602,6 +605,39 @@ class Main(object):
                 item.actions.remove(Actions.GetNext)
             except KeyError:
                 pass
+
+        # Fast Channel COnfigureation Profile ME is missing Managed Entity
+        if 432 in class_list.keys():
+            item = class_list[432]
+            for index in range(11, 0, -1):
+                item.attributes[index] = item.attributes[index - 1]
+
+            item.attributes[0] = Attribute().load(
+                {
+                    "name":          "Managed Entity Id",
+                    "description":   [
+                        5374
+                    ],
+                    "access":        [
+                        "Read",
+                        "SetByCreate"
+                    ],
+                    "optional":      False,
+                    "deprecated":    False,
+                    "size":          {
+                        "octets":           2,
+                        "bits":             None,
+                        "repeat_count":     1,
+                        "repeat_max":       1,
+                        "getnext_required": False
+                    },
+                    "avc":           False,
+                    "tca":           False,
+                    "table-support": False,
+                    "type":          "Pointer",
+                    "constraint":    None,
+                    "default":       None
+                }, 0)
 
         # ONU-3G
         if 441 in class_list.keys():
