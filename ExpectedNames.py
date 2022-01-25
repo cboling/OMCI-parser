@@ -46,7 +46,7 @@ class Main(object):
     def __init__(self):
         self.args = parse_args()
         self.parsed = ParsedJson()
-        self.filepath = self.args.output + os.path.sep + "attrNames.json"
+        self.filepath = self.args.output + os.path.sep + "attrNames_test.json"
 
     @staticmethod
     def camelCase(input: str) -> str:
@@ -67,23 +67,26 @@ class Main(object):
             class_ids = [c for c in self.parsed.class_ids.values()]
             class_ids.sort(key=lambda x: x.cid)
 
-            results = {}
+            results = []
             for entry in class_ids:
                 entry_camelCase = self.camelCase(entry.name)
-                results[entry.cid] = {
+                class_entry = {
                     "Name":       f"{entry.name}",
                     "CamelCase":  entry_camelCase,
                     "ClassID":    entry.cid,
-                    "Attributes": {},
+                    "Attributes": [],
                 }
                 for attribute in entry.attributes:
                     camelCase = self.camelCase(attribute.name)
-                    results[entry.cid]["Attributes"][attribute.index] = {
+                    attribute_entry = {
                         "Name":       f"{attribute.name}",
                         "CamelCase":  camelCase,
                         "Final":      f"{entry_camelCase}_{camelCase}" if attribute.index != 0 else f"{camelCase}",
                         "Index":      attribute.index,
                     }
+                    class_entry["Attributes"].append(attribute_entry)
+                results.append(class_entry)
+
             # Output results
             json_data = json.dumps(results, indent=2, separators=(',', ': '))
 
