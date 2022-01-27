@@ -30,6 +30,9 @@ import (
 	"github.com/google/gopacket"
 )
 
+// ManagedEntityID is a string constant that can be used for the 16-bit Entity ID
+const ManagedEntityID = "ManagedEntityId"
+
 // Attribute types
 type AttributeType uint8
 
@@ -371,8 +374,8 @@ func (attr *AttributeDefinition) tableAttributeDecode(data []byte, df gopacket.D
 	// either Read and/or Write, never Set-by-Create
 	switch msgType {
 	default:
-		return nil, fmt.Errorf(""unsupported Message Type '%v/0x%02x' for table serialization",
-		        MsgType(msgType&MsgTypeMask), msgType)
+		return nil, fmt.Errorf("unsupported Message Type '%v/0x%02x' for table decode",
+			MsgType(msgType&MsgTypeMask), msgType)
 
 	case byte(Get) | AK: // Get Response
 		// Size

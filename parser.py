@@ -661,6 +661,16 @@ class Main(object):
             item.attributes[8].size = sz
             item.attributes[6].size = sz        # Same issue M rows of 'n' size....
 
+        # ONU Manufacturing data has two attributes on the same line
+        if 456 in class_list.keys():
+            item = class_list[456]
+            for index in range(7, 2, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[2].name = "Serial Number 1"
+            item.attributes[3].name = "Serial Number 2"
+
+
         # Now even some other crazy things
         class_list = self.fix_other_difficulties(class_list)
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import types
-import re
 
 
 def camelcase(inp):
