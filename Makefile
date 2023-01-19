@@ -21,7 +21,7 @@ THIS_MAKEFILE	:= $(abspath $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 WORKING_DIR		:= $(dir $(THIS_MAKEFILE) )
 VENVDIR			:= venv-$(shell uname -s | tr '[:upper:]' '[:lower:]')
 VENV_BIN		?= virtualenv
-VENV_OPTS		?= --python=python3.6 -v
+VENV_OPTS		?= --python=python3.10 -v
 PYLINT_OUT		= $(WORKING_DIR)pylint.out
 
 #G988_SOURCE		?= T-REC-G.988-201711-I!!MSW-E.docx
@@ -63,7 +63,7 @@ venv: ${VENVDIR}/.built
 ${VENVDIR}/.built: requirements.txt
 	@ VIRTUAL_ENV_DISABLE_PROMPT=true $(VENV_BIN) ${VENV_OPTS} ${VENVDIR};\
         source ./${VENVDIR}/bin/activate ; set -u ;\
-        pip install -r requirements.txt && date >> ${VENVDIR}/.built
+        python -m pip install -r requirements.txt && date >> ${VENVDIR}/.built
 
 ######################################################################
 # Parsing

@@ -69,6 +69,7 @@ func (e *RelaxedDecodeError) GetContents() []byte {
 // AttributeErrorType is used to specify what specific relaxed decode
 // error occurred for an attribute
 type AttributeErrorType int
+
 const (
 	UnknownAttribute AttributeErrorType = iota
 	InvalidTableAttribute

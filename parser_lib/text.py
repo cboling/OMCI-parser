@@ -185,7 +185,7 @@ def is_attribute_style(style):
 
 def is_actions_style(style):
     """ True if this is a style used for Actions paragraph text """
-    return is_style(style, 'Attribute') or is_style(style, 'toc')      # See 9.1.14
+    return is_style(style, 'Attribute') or is_style(style, 'toc') or is_style(style, 'Note')
 
 
 def is_notifications_style(style):
