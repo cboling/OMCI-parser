@@ -17,13 +17,20 @@ SHELL = bash -eu -o pipefail
 # Variables
 VERSION                  ?= $(shell cat ../VERSION)
 
+# Variables
 THIS_MAKEFILE	:= $(abspath $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 WORKING_DIR		:= $(dir $(THIS_MAKEFILE) )
-VENVDIR			:= venv-$(shell uname -s | tr '[:upper:]' '[:lower:]')
-VENV_BIN		?= virtualenv
-VENV_OPTS		?= --python=python3.6 -v
-PYLINT_OUT		= $(WORKING_DIR)pylint.out
+PACKAGE_DIR     := $(WORKING_DIR)
 
+include setup.mk
+
+VENVDIR         := venv
+TESTVENVDIR		:= $(VENVDIR)-test
+PYVERSION       ?= ${"3.8"}
+PYTHON          := python${PYVERSION}
+REQUIREMENTS    ?= ${PACKAGE_DIR}/requirements.txt
+
+#G988_SOURCE		?= T-REC-G.988-202211-I!!MSW-E.docx
 G988_SOURCE		?= T-REC-G.988-201711-I!!MSW-E.docx
 PRE_COMPILED	?= G.988.PreCompiled.json
 PARSED_JSON		?= G.988.Parsed.json
@@ -36,34 +43,22 @@ GO_OUTPUT		?= generated
 GO_INPUT		?= golang
 GOLANG_SRC		:= $(wildcard ${GO_INPUT}/*.py) $(wildcard ${GO_INPUT}/*.jinja)
 
-default: help
 
-# This should to be the first and default target in this Makefile
-help:
-	@echo "Usage: make [<target>]"
-	@echo "where available targets are:"
-	@echo
-	@echo "generate        : Create the code-generated code"
-	@echo
-	@echo "help            : Print this help"
-	@echo
-	@echo "venv            : Build local Python virtualenv"
-	@echo "lint            : Run pylint on package"
-	@echo
-	@echo "show-licenses   : Show imported modules and licenses"
-	@echo "bandit-test     : Run bandit security test on package code"
-	@echo "bandit-test-all : Run bandit security test on package and imported code"
-	@echo
-	@echo "clean           : Remove files created by the build"
-	@echo "distclean       : Remove files created by the build and virtual environments"
+## Defaults
+default: help ## Default operation is to print this help text
 
-${VENVDIR}/.built: requirements.txt
-	@ VIRTUAL_ENV_DISABLE_PROMPT=true $(VENV_BIN) ${VENV_OPTS} ${VENVDIR};\
-        source ./${VENVDIR}/bin/activate ; set -u ;\
-        pip install -r requirements.txt && date >> ${VENVDIR}/.built
+## Virtual Environment
+venv: requirements.txt $(VENVDIR)/.built		    ## Application virtual environment
 
-######################################################################
-# Parsing
+$(VENVDIR)/.built:
+	$(Q) ${PYTHON} -m venv ${VENVDIR}
+	$(Q) (source ${VENVDIR}/bin/activate && \
+	    if python -m pip install --disable-pip-version-check -r $(REQUIREMENTS); \
+	    then \
+	        uname -s > ${VENVDIR}/.built; \
+	    fi)
+
+## Parsing
 #
 #   The word version of the ITU document requires a TIES account.  I am not positive at this time that
 #   it can be shared without one.  Should I find that I can, I will check a version in at that time
@@ -74,13 +69,13 @@ ${G988_SOURCE}:
 	@ echo "--------------------------------------------------------------"
 	@ exit 1
 
-${PRE_COMPILED}: ${VENVDIR}/.built Makefile ${G988_SOURCE} ${PARSER_SRC}
-	./preParse.py --input ${G988_SOURCE} --output ${PRE_COMPILED}
+${PRE_COMPILED}: ${VENVDIR}/.built Makefile ${G988_SOURCE} ${PARSER_SRC}  ## Preparse WORD document
+	$(Q) ./preParse.py --input ${G988_SOURCE} --output ${PRE_COMPILED}
 
 ${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
-	./parser.py --ITU ${G988_SOURCE} --input ${PRE_COMPILED} --output ${PARSED_JSON} ${HINT_INPUT}
+	$(Q) ./parser.py --ITU ${G988_SOURCE} --input ${PRE_COMPILED} --output ${PARSED_JSON} ${HINT_INPUT}
 
-generate: go-generate
+generate: go-generate		## Create the code-generated code
 	@ echo "Code generation complete"
 
 go-generate: ${GO_OUTPUT}/version.go
@@ -89,27 +84,26 @@ ${GO_OUTPUT}/version.go: ${PARSED_JSON} ${GOLANG_SRC}
 	./goCodeGenerator.py --force --ITU ${G988_SOURCE} --input ${PARSED_JSON} --dir ${GO_OUTPUT}
 
 ######################################################################
-# License and security checks support
-
-show-licenses:
-	@ (. ${VENVDIR}/bin/activate && \
+## License and security checks support
+show-licenses:		## Show imported modules and licenses
+	$(Q) (. ${VENVDIR}/bin/activate && \
        pip install pip-licenses && \
        pip-licenses)
 
-bandit-test:
+bandit-test:  ## Run bandit security test on package code
 	@ echo "Running python security check with bandit on module code"
-	@ (. ${VENVDIR}/bin/activate && pip install --upgrade bandit && bandit -n 3 -r $(WORKING_DIR))
+	$(Q) (. ${VENVDIR}/bin/activate && pip install --upgrade bandit && bandit -n 3 -r $(WORKING_DIR))
 
-bandit-test-all: venv bandit-test
+bandit-test-all: venv bandit-test  ## Run bandit security test on package and imported code
 	@ echo "Running python security check with bandit on imports"
-	@ (. ${VENVDIR}/bin/activate && pip install --upgrade bandit && bandit -n 3 -r ${VENVDIR})
+	$(Q) (. ${VENVDIR}/bin/activate && pip install --upgrade bandit && bandit -n 3 -r ${VENVDIR})
 
 ######################################################################
-# pylint support
+## pylint support
 
-lint: clean
+lint: clean		## Run pylint on package
 	@ echo "Executing pylint"
-	@ . ${VENVDIR}/bin/activate && pip install --upgrade pylint && $(MAKE) lint-omci-parser
+	$(Q) . ${VENVDIR}/bin/activate && pip install --upgrade pylint && $(MAKE) lint-omci-parser
 
 lint-omci-parser:
 	- pylint --rcfile=${WORKING_DIR}/.pylintrc ${WORKING_DIR} 2>&1 | tee ${PYLINT_OUT}
@@ -118,16 +112,27 @@ lint-omci-parser:
 	@ echo
 
 ######################################################################
-# Cleanup
+## Utility
 
-clean:
+clean:	## Cleanup directory of build and test artifacts
 	@ find . -name '*.pyc' | xargs rm -f
 	@ find . -name '__pycache__' | xargs rm -rf
 	@ -find . -name 'pylint.out.*' | xargs rm -rf
 	@ rm -f ${PRE_COMPILED} ${PARSED_JSON}
 	@ rm -rf ${GO_OUTPUT}
 
-distclean: clean
+distclean: clean	## Cleanup all build, test, and virtual environment artifacts
 	@ rm -rf ${VENVDIR}
+
+help: ## Print help for each Makefile target
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<target> [<target> ...]${RESET}'
+	@echo ''
+	@echo 'Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} { \
+		if (/^[a-zA-Z_-]+:.*?##.*$$/) {printf "    ${YELLOW}%-23s${GREEN}%s${RESET}\n", $$1, $$2} \
+		else if (/^## .*$$/) {printf "  ${CYAN}%s${RESET}\n", substr($$1,4)} \
+		}' $(MAKEFILE_LIST)
 
 # end file
