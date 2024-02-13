@@ -22,6 +22,7 @@ from enum import IntEnum
 from .size import AttributeSize
 from .tables import Table
 from .text import ascii_only
+from errors import RecoverableException
 
 
 # pylint: disable=anomalous-backslash-in-string
@@ -365,13 +366,17 @@ class Attribute(object):
 
                 # Mandatory/optional is the easiest
                 if item.lower() == 'mandatory':
-                    assert self.optional is None or not self.optional, 'Optional flag already decoded'
-                    self.optional = False
+                    if self.optional is True:
+                       print(f"{self.name}: Optional flag already decoded as True")
+                    else:
+                        self.optional = False
                     continue
 
                 if item.lower() == 'optional':
-                    assert self.optional is None or self.optional, 'Optional flag already decoded'
-                    self.optional = True
+                    if self.optional is False:
+                       print(f"{self.name}: Optional flag already decoded as False")
+                    else:
+                        self.optional = True
                     continue
 
                 # Try to see if the access for the attribute is this item

@@ -17,6 +17,8 @@ from __future__ import (
 )
 
 import os
+import sys
+import traceback
 
 try:
     # Python 3
@@ -25,6 +27,7 @@ except ImportError:
     # Python 2
     from itertools import izip_longest as zip_longest
 from enum import IntEnum
+from errors import RecoverableException
 from transitions import Machine
 
 from .contents import initial_parser, actions_parser, description_parser, relationships_parser, \
@@ -237,6 +240,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
         # While in 'relationships' state
         {'trigger': 'normal', 'source': 'relationships', 'dest': 'relationships'},
         {'trigger': 'attribute', 'source': 'relationships', 'dest': 'attributes'},
+        {'trigger': 'notification', 'source': 'relationships', 'dest': 'notifications'},
 
         # While in 'attributes' state
         {'trigger': 'normal', 'source': 'attributes', 'dest': 'attributes'},
@@ -365,7 +369,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
     def all_actions(self):
         return self.actions | self.optional_actions
 
-    def deep_parse(self, paragraphs):
+    def deep_parse(self, paragraphs, verbose: int):
         """ Fill out detailed class information """
         if self.section is None:
             return self
@@ -373,8 +377,13 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
         self._paragraphs = paragraphs
         for content in self.section.contents:
             try:
+                if verbose >= 2:
+                    print(f"deep_parse: Content number: {content}, type: {type(content)}")
+
                 if isinstance(content, int):
                     # Paragraph number
+                    if verbose >= 2:
+                        print(f"Class section processing: {self}")
                     trigger, text = self.parser(content, paragraphs)
 
                 elif isinstance(content, Table):
@@ -388,10 +397,22 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
                 # process info
                 getattr(self, trigger)(text, content)
 
-            except Exception as e:
-                self.failure(None, None)   # pylint: disable=no-member
-                print("FAILURE: During deep parsing. Content: {}: '{}'".format(content, e))
+            except RecoverableException as e:
+                print("WARNING: During deep parsing. Content: {}: '{}'".format(content, e))
+                exc_info = sys.exc_info()
+                print(f"Recoverable Exception Occurred: {exc_info[0]} - {exc_info[1]}")
+                traceback_info = ''.join(traceback.format_exception(*exc_info))
+                print(traceback_info)
                 # raise
+
+            except Exception as e:
+                print("FAILURE: During deep parsing. Content: {}: '{}'".format(content, e))
+                exc_info = sys.exc_info()
+                print(f"Runtime Exception Occurred: {exc_info[0]} - {exc_info[1]}")
+                traceback_info = ''.join(traceback.format_exception(*exc_info))
+                print(traceback_info)
+                self.failure(None, None)   # pylint: disable=no-member
+                raise
 
         self.complete(None, None)   # pylint: disable=no-member
         return self

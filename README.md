@@ -55,7 +55,7 @@ The steps to run it are:
 
   1. Pre-parse the G.988 Word Document via 'preParse.py' to create the 'G.988.Precompiled.json' file
   2. Parse the G.988 JSON via 'parser.py' to create the G.988.Parsed.json file.  At this point,
-     there is just a minimal fragment 'G.988.augment.yaml' file that really as a little bit of data
+     there is just a minimal fragment 'G.988.augment.yaml' file that really has a little bit of data
   3. Run the 'augmentGenerator.py' file to create an 'augmented.yaml' file in the 'metadata' sub-
      directory. This will have all the newly parsed JSON converted to YAML form.
   4. Hand edit the augmented.yaml file by hand and adjust the values as needed.  Once you are done,

@@ -107,7 +107,8 @@ def is_attributes_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Attributes' and \
            (is_heading_style(paragraph.style) or
-            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
+            is_style(paragraph.style, 'Relationships') or  # See section 9.3.34
+            is_style(paragraph.style, "Attribute"))
 
 
 def is_actions_header(paragraph):
@@ -166,7 +167,8 @@ def is_normal_style(style):
 
 def is_description_style(style):
     """ True if this is a style used for Relationships paragraph text """
-    return is_style(style, 'Normal') or is_style(style, 'Note') or is_style(style, 'Equation')
+    return is_style(style, 'Normal') or is_style(style, 'Note') or \
+        is_style(style, 'Equation') or is_style(style, 'Heading')
 
 
 def is_relationships_style(style):
@@ -180,12 +182,14 @@ def is_attribute_style(style):
     return is_style(style, 'Attribute') or \
            is_style(style, 'attribute') or \
            is_style(style, 'Normal') or \
-           is_style(style, 'Note')
+           is_style(style, 'Note') or \
+           is_style(style, 'TOC 6')     # 2022 doc section 9.1.14
 
 
 def is_actions_style(style):
     """ True if this is a style used for Actions paragraph text """
-    return is_style(style, 'Attribute') or is_style(style, 'toc') or is_style(style, 'Note')
+    return is_style(style, 'Attribute') or is_style(style, 'toc') or \
+        is_style(style, 'Note') or is_style(style, 'Heading')
 
 
 def is_notifications_style(style):
@@ -210,6 +214,11 @@ def is_alarms_style(style):
 def is_tests_style(style):
     """ True if this is a style used for Test Results paragraph text """
     return is_style(style, 'Attribute')
+
+
+def is_notes_style(style):
+    """ True if this is a style used for diagram or table note """
+    return is_style(style, 'Note')
 
 
 def is_figure_style(style):
@@ -291,29 +300,33 @@ def is_tests_text(paragraph):
     return not is_tests_header(paragraph) and is_tests_style(paragraph.style)
 
 
+def is_table_note(paragraph):
+    """ True if this is a style used for Test Results paragraph text """
+    return not is_tests_header(paragraph) and is_notes_style(paragraph.style)
+
 ########################################################################
 # Table support
 
 def is_avcs_table(table):
     """ True if table of AVC notifications """
     phrase = 'attribute value change'
-    return phrase == table.short_title[:len(phrase)].lower()
+    return table.short_title and phrase == table.short_title[:len(phrase)].lower()
 
 
 def is_alarms_table(table):
     """ True if table of alarms notifications """
     phrase = 'alarm'
-    return phrase == table.short_title[:len(phrase)].lower()
+    return table.short_title and phrase == table.short_title[:len(phrase)].lower()
 
 
 def is_tca_table(table):
     """ True if table of Threshold Crossing Alarm notifications """
     phrase = 'threshold crossing alert'
-    return phrase == table.short_title[:len(phrase)].lower()
+    return table.short_title and phrase == table.short_title[:len(phrase)].lower()
 
 
 def is_tests_table(table):
     """ True if table of Test Results notifications """
     # TODO: Dig into best way to automate test results decode!!!
     phrase = 'TODO: Test results not yet supported'
-    return phrase == table.short_title[:len(phrase)].lower()
+    return table.short_title and phrase == table.short_title[:len(phrase)].lower()

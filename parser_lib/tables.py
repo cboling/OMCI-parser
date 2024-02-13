@@ -128,10 +128,7 @@ class Table(object):
         self.table_number = None            # From full title string
 
     def __str__(self):
-        return 'Table {}: columns: {}, rows: {}, {}'.format(self.doc_table_number,
-                                                            self.num_columns,
-                                                            len(self.rows),
-                                                            self.full_title)
+        return f'Table {self.doc_table_number}: columns: {self.num_columns}, rows: {len(self.rows)}, {self.full_title}'
 
     @staticmethod
     def table_fixup(orig_table, rows, title):

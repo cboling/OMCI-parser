@@ -90,6 +90,10 @@ def parse_args():
                         default='11.2.4',
                         help='Document section number with ME Class IDs, default: 11.2.4')
 
+    parser.add_argument('--verbose', '-v', action='count',
+                        default=0,
+                        help='Increase verbosity level')
+
     args = parser.parse_args()
     return args
 
@@ -111,6 +115,9 @@ class Main(object):
         version.version = self.get_version()
         version.sha256 = self.get_file_hash(version.itu_document)
         self.parsed.add(version)
+
+    def verbose(self, level: int = 1) -> bool:
+        return level <= self.args.verbose
 
     @staticmethod
     def get_version():
@@ -176,13 +183,19 @@ class Main(object):
         for c in [c for c in todo_class_ids.values() if c.section is None]:
             print('    {:>4}: {}'.format(c.cid, c.name))
 
-        # Work with what we have
+        # Work with what we have. Watch for section 8 items. The title of these diagrams can
+        # conflict with ME title names
         todo_class_ids = {cid: c for cid, c in todo_class_ids.items()
-                          if c.section is not None}
+                          if c.section is not None and c.section.section_points and c.section.section_points[0] != '8'}
         print('')
         print('Parsing deeper for managed Entities with Sections')
 
         final_class_ids = todo_class_ids
+
+        if self.verbose(1):
+            print('Class IDs and section to work with:')
+            for cid, c in final_class_ids.items():
+                print(f'    {cid:>4}: {c.section.section_number:>9} - {c.name}')
 
         # c = final_class_ids[441]              # Uncomment for fast debug of a single Class ID
         # c.deep_parse(self.paragraphs)
@@ -192,12 +205,11 @@ class Main(object):
                 c.failure(None, None)
                 continue
 
-            print('    {:>9}:  {:>4}: {} -> {}'.format(c.section.section_number,
-                                                       c.cid,
-                                                       c.name,
-                                                       camelcase(c.name)))
-            c.deep_parse(self.paragraphs)
+            print(f'    {c.section.section_number:>9}:  {c.cid:>4}: {c.name} -> {camelcase(c.name)}')
+            c.deep_parse(self.paragraphs, self.args.verbose)
             pass
+
+        print('Main parsing complete, fixing up a few difficult class IDs')
 
         # Some just need some manual intervention
         final_class_ids = self.fix_difficult_class_ids(final_class_ids)
@@ -225,7 +237,7 @@ class Main(object):
         num_attributes = 0
 
         for c in final_class_ids.values():
-            print('  ID: {}: {} -\t{}'.format(c.cid, c.section.section_number, c.name),
+            print(f'  ID: {c.cid}: {c.section.section_number} -\t{c.name}',
                   end='')
 
             if c.state != 'complete':
@@ -583,7 +595,14 @@ class Main(object):
                         item.attributes.add(attribute)
 
                 item.attributes.add(old_attributes[12])
-                item.attributes.add(old_attributes[14])
+                if len(old_attributes) > 14:
+                    # 2017 and 2020 document
+                    item.attributes.add(old_attributes[14])
+                else:
+                    # 2022 document (messed up style of TOC 6for the attribute name).
+                    pass    # item.attributes.add(old_attributes[13])
+                    # TODO: Need to figure out how to parse /fix
+
                 sz = AttributeSize()
                 sz._octets = 1
                 item.attributes[10].size = sz

@@ -83,11 +83,15 @@ def parse_args():
                         default='G.988.PreCompiled.json',
                         help='Output filename, default: G.988.PreCompiled.json')
 
+    parser.add_argument('--verbose', '-v', action='count',
+                        default=0,
+                        help='Increase verbosity level')
+
     args = parser.parse_args()
     return args.input, args.output
 
 
-class Main(object):
+class Main:
     """ Main program """
     def __init__(self):
         self.args = parse_args()
@@ -100,6 +104,9 @@ class Main(object):
         version.version = self.get_version()
         version.sha256 = self.get_file_hash(version.itu_document)
         self.preparsed.add(version)
+
+    def verbose(self, level: int = 1) -> bool:
+        return level <= self.args.verbose
 
     @staticmethod
     def get_version():

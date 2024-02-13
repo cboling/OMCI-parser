@@ -19,7 +19,7 @@ from .text import is_relationships_text, is_alarms_table, is_attributes_header, 
     is_description_style, is_attribute_text, ascii_only, is_figure_style, is_figure_title_style, \
     is_alarms_header, is_avcs_header, is_eos_heading, is_notifications_header, is_notifications_text, \
     is_actions_text, is_avcs_table, is_tests_table, is_alarms_text, is_tests_header, \
-    is_avcs_text, is_tca_table, is_actions_header, is_tests_text
+    is_avcs_text, is_tca_table, is_actions_header, is_tests_text, is_table_note
 from .tables import Table
 
 
@@ -82,12 +82,15 @@ def description_parser(content, paragraphs):
                 is_ignored_heading(paragraph) or \
                 is_enum_style(paragraph.style):
             return 'normal', ascii_only(paragraph.text)
+
+        if is_figure_style(paragraph.style) or is_figure_title_style(paragraph.style):   # Picture/figure and/or figure title in the description area
+            return 'normal', None
     else:
         # TODO: Look at 9.1.7 ONU Power shedding ME. Has table in description
         #       that may be of interest.
         return 'normal', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def relationships_parser(content, paragraphs):
@@ -113,11 +116,15 @@ def relationships_parser(content, paragraphs):
                 is_figure_style(paragraph.style) or \
                 is_figure_title_style(paragraph.style):
             return 'normal', ascii_only(paragraph.text)
+
+    elif isinstance(content, Table):
+        return 'notification', None
+
     else:
         # TODO: Implement if needed, otherwise remove and fall through
-        raise NotImplementedError('Table support')
+        raise NotImplementedError(f"Unsupported type: {type(content)}")
 
-    return 'failure'
+    return 'failure', None
 
 
 def attributes_parser(content, paragraphs):
@@ -152,7 +159,7 @@ def attributes_parser(content, paragraphs):
     elif isinstance(content, Table):
         return 'normal', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def actions_parser(content, paragraphs):
@@ -187,7 +194,7 @@ def actions_parser(content, paragraphs):
         #       has Test action
         return 'normal', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def notifications_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
@@ -225,6 +232,9 @@ def notifications_parser(content, paragraphs):  # pylint: disable=too-many-retur
         if is_notifications_text(paragraph):
             return 'normal', ascii_only(paragraph.text)
 
+        if is_table_note(paragraph):
+            return 'normal', ascii_only(paragraph.text)
+
     elif isinstance(content, Table):
         if is_avcs_table(content):
             return 'avc', None
@@ -240,7 +250,7 @@ def notifications_parser(content, paragraphs):  # pylint: disable=too-many-retur
 
         return 'normal', None       # Ignore other table types
 
-    return 'failure'
+    return 'failure', None
 
 
 def alarms_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
@@ -276,7 +286,7 @@ def alarms_parser(content, paragraphs):  # pylint: disable=too-many-return-state
             # to the alarms.
             return 'normal', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def avcs_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
@@ -316,7 +326,7 @@ def avcs_parser(content, paragraphs):  # pylint: disable=too-many-return-stateme
         if is_tests_table(content):
             return 'test', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def tests_parser(content, paragraphs):  # pylint: disable=too-many-return-statements
@@ -350,7 +360,7 @@ def tests_parser(content, paragraphs):  # pylint: disable=too-many-return-statem
         if is_tca_table(content):     # TODO: Merge with alarms
             return 'alarm', None
 
-    return 'failure'
+    return 'failure', None
 
 
 def eos_parser(_content, _paragraphs):

@@ -30,15 +30,15 @@ PYVERSION       ?= ${"3.8"}
 PYTHON          := python${PYVERSION}
 REQUIREMENTS    ?= ${PACKAGE_DIR}/requirements.txt
 
-G988_SOURCE	?= T-REC-G.988-202211-I!!MSW-E.docx
-#G988_SOURCE	?= T-REC-G.988-202003-I!Amd3!MSW-E.docx
-#G988_SOURCE	?= T-REC-G.988-201711-I!!MSW-E.docx
+G988_SOURCE     ?= T-REC-G.988-202211-I!!MSW-E.docx
+#G988_SOURCE     ?= T-REC-G.988-202003-I!Amd3!MSW-E.docx
+#G988_SOURCE     ?= T-REC-G.988-201711-I!!MSW-E.docx
 PRE_COMPILED	?= G.988.PreCompiled.json
 PARSED_JSON		?= G.988.Parsed.json
 AUGMENT_YAML	?= G.988.augment.yaml
 HINT_INPUT		?= --hints ${AUGMENT_YAML}
 
-PARSER_SRC		:= $(wildcard ${WORKING_DIR}/*.py) $(wildcard ${WORKING_DIR}/parser_lib/*.py)
+PARSER_SRC		:= $(wildcard ${WORKING_DIR}*.py) $(wildcard ${WORKING_DIR}/parser_lib*.py)
 
 GO_OUTPUT		?= generated
 GO_INPUT		?= golang
@@ -71,9 +71,13 @@ ${G988_SOURCE}:
 	@ exit 1
 
 ${PRE_COMPILED}: ${VENVDIR}/.built Makefile ${G988_SOURCE} ${PARSER_SRC}  ## Preparse WORD document
+	@ echo "Performing preparsing of the standards document to extract paragraph information"
+	@ echo "Target is $@. Building due to dependency: $?"
 	$(Q) ./preParse.py --input ${G988_SOURCE} --output ${PRE_COMPILED}
 
-${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
+${PARSED_JSON}: ${PRE_COMPILED} ${AUGMENT_YAML}
+	@ echo "Performing final parsing of the OMCI ME sections"
+	@ echo "Target is $@. Building due to dependency: $?"
 	$(Q) ./parser.py --ITU ${G988_SOURCE} --input ${PRE_COMPILED} --output ${PARSED_JSON} ${HINT_INPUT}
 
 generate: preparse parse go-generate		## Create the code-generated code
@@ -81,7 +85,7 @@ generate: preparse parse go-generate		## Create the code-generated code
 
 preparse: ${PRE_COMPILED}	## Preparse the ITU Word document sections
 
-parse: ${PARSED_JSON}	    ## Parse the ITU OMCI Managed Entities specific settings
+parse: preparse ${PARSED_JSON}	    ## Parse the ITU OMCI Managed Entities specific settings
 
 go-generate: ${GO_OUTPUT}/version.go
 
