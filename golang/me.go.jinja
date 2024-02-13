@@ -68,6 +68,11 @@ func (entity ManagedEntity) GetClassID() ClassID {
 	return entity.definition.GetClassID()
 }
 
+// SetClassID assigns the 16-bit class ID of a Managed Entity
+func (entity *ManagedEntity) SetClassID(classID ClassID) {
+	entity.definition.SetClassID(classID)
+}
+
 // GetMessageTypes returns the OMCI message types that a Managed Entity supports
 func (entity ManagedEntity) GetMessageTypes() mapset.Set {
 	return entity.definition.GetMessageTypes()
@@ -247,6 +252,17 @@ func (entity *ManagedEntity) DeleteAttributeByIndex(index uint) error {
 	return nil
 }
 
+// GetClassSupport returns the ONU support for this managed entity
+func (entity *ManagedEntity) GetClassSupport() ClassSupport {
+	return entity.definition.GetClassSupport()
+}
+
+// GetAlarmMap returns the Alarm Bit Number to Alarm Name (string) mapping.  Nil is returned if
+// the managed entity does not support alarms
+func (entity *ManagedEntity) GetAlarmMap() AlarmMap {
+	return entity.definition.GetAlarmMap()
+}
+
 // DecodeFromBytes decodes a Managed Entity give an octet stream pointing to the ME within a frame
 func (entity *ManagedEntity) DecodeFromBytes(data []byte, p gopacket.PacketBuilder, msgType byte) error {
 	if len(data) < 6 {
@@ -264,15 +280,26 @@ func (entity *ManagedEntity) DecodeFromBytes(data []byte, p gopacket.PacketBuild
 	entity.definition = meDefinition.definition
 	entity.attributeMask = binary.BigEndian.Uint16(data[4:6])
 	entity.attributes = make(map[string]interface{})
-	entity.SetEntityID(entityID)
+	setErr := entity.SetEntityID(entityID)
+	if setErr != nil {
+		return setErr
+	}
 	packetAttributes, err := entity.DecodeAttributes(entity.GetAttributeMask(), data[6:], p, msgType)
+
+	// Decode packet attributes even if present in case relaxed attribute decoding is enabled.
+	if packetAttributes != nil {
+		for name, value := range packetAttributes {
+			entity.attributes[name] = value
+		}
+	}
 	if err != nil {
-		return err
+		if attrError, ok := err.(*UnknownAttributeDecodeError); ok && GetRelaxedDecodeByOctetType(msgType) {
+			// Subtract off bad mask from what we computed
+			badMask := attrError.AttributeMask
+			entity.attributeMask &= ^badMask
+		}
 	}
-	for name, value := range packetAttributes {
-		entity.attributes[name] = value
-	}
-	return nil
+	return err
 }
 
 // SerializeTo serializes a Managed Entity into an octet stream

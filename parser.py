@@ -15,17 +15,20 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
 import argparse
-import time
 import copy
+import time
+
 from docx import Document
 
-from parser_lib.class_id import ClassIdList
+from parser_lib.attributes import Attribute
+from parser_lib.class_id import ClassIdList, ClassAccess
 from parser_lib.parsed_json import ParsedJson
 from parser_lib.parsed_yaml import MetadataYAML
-from preparsed_json import PreParsedJson
-from parser_lib.versions import VersionHeading
 from parser_lib.text import camelcase
+from parser_lib.versions import VersionHeading
+from preparsed_json import PreParsedJson
 
 #
 #  This application takes the pre-parsed JSON file and further parses it to output suitable for
@@ -68,7 +71,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='G.988 Parser')
 
     parser.add_argument('--ITU', '-I', action='store',
-                        default='T-REC-G.988-201711-I!!MSW-E.docx',
+                        default='T-REC-G.988-202003-I!Amd3!MSW-E.docx',
                         help='Path to ITU G.988 specification document')
 
     parser.add_argument('--input', '-i', action='store',
@@ -165,16 +168,7 @@ class Main(object):
                      len([c for c in self.class_ids.values()
                           if c.section is not None])))
 
-        # TODO: These need more work. skipping for now
-        crazy_formatted_mes = \
-            {23, 319, 320,  # CES physical interface performance MEs
-             164,           # MoCA interface performance
-             165,           # VDLS2 line config extensions
-             157,           # Large String                      (part of AT&T OpenOMCI v3.0)
-             415}
-
-        print('Skipping the following MEs due to complex document formatting')
-        print("    {}".format(crazy_formatted_mes))
+        crazy_formatted_mes = {}  # Try all
         todo_class_ids = {k: v for k, v in self.class_ids.items()
                           if k not in crazy_formatted_mes}
 
@@ -189,6 +183,9 @@ class Main(object):
         print('Parsing deeper for managed Entities with Sections')
 
         final_class_ids = todo_class_ids
+
+        # c = final_class_ids[441]              # Uncomment for fast debug of a single Class ID
+        # c.deep_parse(self.paragraphs)
 
         for c in final_class_ids.values():
             if c.section is None:
@@ -296,21 +293,109 @@ class Main(object):
               format(num_attributes, len(attributes_with_no_access), len(attributes_with_no_size),
                      len(attributes_with_zero_size)))
 
+        bad_cids = {key for key in class_with_no_actions.keys()} | \
+                   {key for key in class_with_no_attributes.keys()} | \
+                   {key for key in class_with_too_many_attributes.keys()} | \
+                   {key for key in attributes_with_no_access.keys()} | \
+                   {key for key in attributes_with_no_size.keys()} | \
+                   {key for key in attributes_with_zero_size.keys()}
+
+        if bad_cids:
+            print('=======================================================')
+            print("Bad Classes: {}".format(len(bad_cids)))
+            for cid in bad_cids:
+                c = final_class_ids[cid]
+                bad = []
+                if cid in class_with_no_actions:
+                    bad.append("No Action")
+                if cid in class_with_no_attributes:
+                    bad.append("No Attributes")
+                if cid in class_with_too_many_attributes:
+                    bad.append("Too Nany Attributes")
+                if cid in attributes_with_no_access:
+                    bad.append("No Access")
+                if cid in attributes_with_no_size:
+                    bad.append("No Size")
+                if cid in attributes_with_zero_size:
+                    bad.append("Zero Size")
+
+                print("  {:3d}: {:<60s}: {}".format(cid, c.name, ', '.join(what for what in bad)))
+
     def fix_difficult_class_ids(self, class_list):
         # Special exception. Ethernet frame performance monitoring history data downstream
         # is in identical upstream and only a note of that exists. Fix it now
         from parser_lib.actions import Actions
         from parser_lib.size import AttributeSize
-        from parser_lib.attributes import AttributeAccess
+        from parser_lib.attributes import AttributeAccess, AttributeList, AttributeType
+
+        # Circuit Pack is now created only by ONU (OLT creation kept only for backwards
+        # compatibility
+        if 6 in class_list.keys():
+            item = class_list[6]
+            item.access = ClassAccess.CreatedByOnu
+
+        if 58 in class_list.keys():
+            item = class_list[58]
+            item.actions.add(Actions.GetNext)
+
+        if 113 in class_list.keys():
+            item = class_list[113]
+            item.alarms._alarms[7] = ('leftr defect seconds', item.alarms._alarms[7][1])
+
+        if 134 in class_list.keys():
+            item = class_list[134]
+            item.actions.add(Actions.Test)
+
+        if 408 in class_list.keys():
+            item = class_list[408]
+            item.alarms._alarms[0] = ('leftr defect seconds', item.alarms._alarms[0][1])
+
+        if 149 in class_list.keys():
+            sip = class_list[149]       # SIP config portal (zero size for config text table)
+
+            sz = AttributeSize()
+            sz._octets = 25             # Assume it is 25 at most since it is vendor specific
+            sip.attributes[1].size = sz
+
+        if 150 in class_list.keys():
+            item = class_list[150]
+            item.actions.add(Actions.GetNext)
+
+        if 154 in class_list.keys():
+            mgc = class_list[154]       # MGC config portal (zero size for config text table)
+
+            sz = AttributeSize()
+            sz._octets = 25             # Assume it is 25 at most since it is vendor specific
+            mgc.attributes[1].size = sz
 
         # For SIP user data, the Username&Password attribute is a pointer
         # to a security methods ME and is 2 bytes but is in the document as
         # just (2)
         if 153 in class_list.keys():
             sip = class_list[153]
+
             sz = AttributeSize()
-            sz._octets = 2
-            sip.attributes[4].size = sz
+            sz._octets = 25
+            sip.attributes[3].size = sz
+            sip.attributes[3].access.add(AttributeAccess.Read)
+            sip.attributes[3].access.add(AttributeAccess.Write)
+
+            sz2 = AttributeSize()
+            sz2._octets = 2
+            sip.attributes[4].size = sz2
+
+        # Large string
+        if 157 in class_list.keys():
+            item = class_list[157]
+            part1 = item.attributes[2]
+            part1.name = 'Part 1'
+            part1.optional = False
+            part1.size._repeat_max = 1
+
+            for part in range(2, 16):
+                newPart = copy.deepcopy(part1)
+                newPart.name = 'Part {}'.format(part)
+                item.attributes.add(newPart)
 
         # ONU remote debug - reply table size not bounded
         if 158 in class_list.keys():
@@ -353,28 +438,61 @@ class Main(object):
         if 289 in class_list.keys():
             class_list[289].name += ' ME'       # To avoid conflicts with Go file/struct names
 
-        # Dot1ag maintenance domain
+        # Dot1ag maintenance domain. Has multiple attributes defined on one line that need
+        # to be split up
         if 299 in class_list.keys():
             item = class_list[299]
-            item.attributes[3].size._repeat_count = 2
-            item.attributes[3].size._repeat_max = 2
+            for index in range(6, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
 
-        # Dot1ag maintenance domain
+            item.attributes[3].name = "MD Name 1"
+            item.attributes[4].name = "MD Name 2"
+
+        # Dot1ag maintenance association. Has multiple attributes defined on one line that need
+        # to be split up
         if 300 in class_list.keys():
             item = class_list[300]
-            item.attributes[3].size._repeat_count = 2
-            item.attributes[3].size._repeat_max = 2
-            sz = AttributeSize()
-            sz._octets = 24
-            item.attributes[5].size = sz
+            for index in range(7, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
 
-        # Octet Stirng - 1..15 row entries
+            item.attributes[3].name = "Short MA Name 1"
+            item.attributes[4].name = "Short MA Name 2"
+
+        # Dot1ag chassis-managment info. Has multiple attributes defined on one line that need
+        # to be split up.  Three times...
+        if 306 in class_list.keys():
+            item = class_list[306]
+            for index in range(8, 3, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[3].name = "Chassis ID Part 1"
+            item.attributes[4].name = "Chassis ID Part 2"
+
+            for index in range(9, 6, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[6].name = "Management Address Domain 1"
+            item.attributes[7].name = "Management Address Domain 2"
+
+            for index in range(10, 9, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[9].name = "Management Address 1"
+            item.attributes[10].name = "Management Address 2"
+
+        # Octet String - 1..15 row entries
         if 307 in class_list.keys():
             item = class_list[307]
             part1 = item.attributes[2]
-            part1.name = 'Part 1 to 15'
+            part1.name = 'Part 1'
             part1.optional = False
-            part1.size._repeat_max = 15
+            part1.size._repeat_max = 1
+
+            for part in range(2, 16):
+                newPart = copy.deepcopy(part1)
+                newPart.name = 'Part {}'.format(part)
+                newPart.optional = True
+                item.attributes.add(newPart)
 
         # General Purpose Buffer - Buffer table is one big unbounded string
         if 308 in class_list.keys():
@@ -389,12 +507,29 @@ class Main(object):
             item = class_list[309]
             if len(item.attributes) == 20:
                 first_bad = 8   # Table Control is description of attribute 7
-                next_good = 11  # Pick back up to good attributes at the Static Access Coltrol List Table
+                next_good = 11  # Pick back up to good attributes at the Static Access Control List Table
                 # Also attribute 7 lost its information on access...
-                
-                item.attributes = item.attributes[0:first_bad] + item.attributes[next_good:]
+                old_attributes = item.attributes
+                item.attributes = AttributeList()
+                for index, attribute in enumerate(old_attributes):
+                    if index < first_bad or index >= next_good:
+                        item.attributes.add(attribute)
+
                 # And a quick attribute name fixup here
                 item.attributes[16].name = "Downstream IGMP and multicast TCI"
+                # Some enumerated items
+                item.attributes[1].attribute_type = AttributeType.Enumeration
+                item.attributes[2].attribute_type = AttributeType.Enumeration
+                item.attributes[3].attribute_type = AttributeType.Enumeration
+
+                item.attributes[16].name = "Downstream IGMP and multicast TCI"
+                # The pain in the rear table in the document
+                sz = AttributeSize()
+                sz._octets = 24
+                sz.getnext_required = True
+                item.attributes[7].size = sz
+                item.attributes[7].access.add(AttributeAccess.Read)
+                item.attributes[7].access.add(AttributeAccess.Write)
 
         # For multicast subscriber config info. very hard to decode automatically
         if 310 in class_list.keys():
@@ -423,7 +558,6 @@ class Main(object):
         if 325 in class_list.keys():
             item = class_list[325]
             try:
-                from parser_lib.actions import Actions
                 # Type in document, not table attributes present
                 item.actions.remove(Actions.GetNext)
             except KeyError:
@@ -438,6 +572,31 @@ class Main(object):
             except KeyError:
                 pass
 
+        # ONU dynamic power management control
+        if 336 in class_list.keys():
+            item = class_list[336]
+            try:
+                old_attributes = item.attributes
+                item.attributes = AttributeList()
+                for index, attribute in enumerate(old_attributes):
+                    if index < 11:
+                        item.attributes.add(attribute)
+
+                item.attributes.add(old_attributes[12])
+                item.attributes.add(old_attributes[14])
+                sz = AttributeSize()
+                sz._octets = 1
+                item.attributes[10].size = sz
+                item.attributes[10].optional = True
+                item.attributes[10].access.add(AttributeAccess.Read)
+
+                item.attributes[11].size = sz
+                item.attributes[11].optional = True
+                item.attributes[11].access.add(AttributeAccess.Read)
+                item.attributes[11].access.add(AttributeAccess.Write)
+            except KeyError:
+                pass
+
         # xDSL line inventory and status data part 8
         if 414 in class_list.keys():
             item = class_list[414]
@@ -447,32 +606,70 @@ class Main(object):
             except KeyError:
                 pass
 
-        # Ethernet frame extended PM 64-bit. fix actions
-        if 426 in class_list.keys():
-            item = class_list[426]
-            item.actions.update([Actions.Create, Actions.Delete,
-                                Actions.Get, Actions.Set])
-            item.optional_actions.add(Actions.GetCurrentData)
-            try:
-                if 334 in class_list.keys():
-                    extended32 = class_list[334]
-                    extended64 = class_list[426]
-                    extended64.attributes = copy.deepcopy(extended32.attributes)
-                    extended64.actions = extended32.actions
-                    extended64.optional_actions = extended32.optional_actions
-                    extended64.alarms = extended32.alarms
-                    extended64.avcs = extended32.avcs
-                    extended64.test_results = extended32.test_results
-                    extended64.hidden = extended32.hidden
+        # Fast Channel COnfigureation Profile ME is missing Managed Entity
+        if 432 in class_list.keys():
+            item = class_list[432]
+            for index in range(11, 0, -1):
+                item.attributes[index] = item.attributes[index - 1]
 
-                    sz = AttributeSize()
-                    sz._octets = 8
-                    for index in range(3, 17):
-                        extended64.attributes[index].size = sz
+            item.attributes[0] = Attribute().load(
+                {
+                    "name":          "Managed Entity Id",
+                    "description":   [
+                        5374
+                    ],
+                    "access":        [
+                        "Read",
+                        "SetByCreate"
+                    ],
+                    "optional":      False,
+                    "deprecated":    False,
+                    "size":          {
+                        "octets":           2,
+                        "bits":             None,
+                        "repeat_count":     1,
+                        "repeat_max":       1,
+                        "getnext_required": False
+                    },
+                    "avc":           False,
+                    "tca":           False,
+                    "table-support": False,
+                    "type":          "Pointer",
+                    "constraint":    None,
+                    "default":       None
+                }, 0)
+            item.attributes[1].attribute_type = AttributeType.UnsignedInteger
 
-                pass    # TODO: Also no attributes are getting decoded
-            except KeyError:
-                pass
+        # ONU-3G
+        if 441 in class_list.keys():
+            item = class_list[441]
+
+            old_attributes = item.attributes
+            item.attributes = AttributeList()
+            for index, attribute in enumerate(old_attributes):
+                if index != 3:
+                    item.attributes.add(attribute)
+
+            sz = AttributeSize()
+            sz._octets = 1
+            item.attributes[2].size = sz
+            item.attributes[2].optional = False
+            item.attributes[2].access.add(AttributeAccess.Read)
+
+            sz = copy.deepcopy(item.attributes[8].size)
+            sz._octets = 25     # N bytes. Vendor specific. 25 bytes is max get attribute size
+            item.attributes[8].size = sz
+            item.attributes[6].size = sz        # Same issue M rows of 'n' size....
+
+        # ONU Manufacturing data has two attributes on the same line
+        if 456 in class_list.keys():
+            item = class_list[456]
+            for index in range(7, 2, -1):
+                item.attributes[index] = item.attributes[index-1]
+
+            item.attributes[2].name = "Serial Number 1"
+            item.attributes[3].name = "Serial Number 2"
+
 
         # Now even some other crazy things
         class_list = self.fix_other_difficulties(class_list)

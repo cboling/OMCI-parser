@@ -14,11 +14,16 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
+import copy
 import re
 from enum import IntEnum
-from .text import ascii_only
+
 from .size import AttributeSize
 from .tables import Table
+from .text import ascii_only
+
+
 # pylint: disable=anomalous-backslash-in-string
 
 
@@ -55,7 +60,7 @@ class AttributeAccess(IntEnum):
                 results.add(AttributeAccess.Read)
             elif k.strip() == 'w':
                 results.add(AttributeAccess.Write)
-            elif k.strip() [:len('set-by-create')] == 'set-by-create' or k.strip()[:len('setbycreate')] == 'setbycreate':
+            elif k.strip()[:len('set-by-create')] == 'set-by-create' or k.strip()[:len('setbycreate')] == 'setbycreate':
                 results.add(AttributeAccess.SetByCreate)
             else:
                 print('Invalid access type: {}'.format(k))
@@ -81,6 +86,12 @@ class AttributeList(object):
 
     def __getitem__(self, item):
         return self._attributes[item]  # delegate to li.__getitem__
+
+    def __setitem__(self, key, value):
+        # Extend with filler if needed
+        while len(self._attributes) <= key:
+            self.add(Attribute())
+        self._attributes[key] = copy.deepcopy(value)
 
     def __iter__(self):
         for attribute in self._attributes:
@@ -128,7 +139,7 @@ class Attribute(object):
     def __init__(self):
         self.name = None             # Attribute name (with spaces)
         self.index = None            # Sequence in the attribute list (0..n)
-        self.description = []        # Description (text, paragraph numbers & Table objects)
+        self.description = set()     # Description (text, paragraph numbers & Table objects)
         self.access = set()          # (AttributeAccess) Allowed access
         self.optional = None         # If true, attribute is option, else mandatory
         self.size = None             # (Size) Size object
@@ -182,7 +193,7 @@ class Attribute(object):
         # TODO: Save/restore table info?
         return {
             'name': self.name,
-            'description': self.description,
+            'description': list(self.description),
             'access': [a.name for a in self.access],
             'optional': self.optional,
             'deprecated': self.deprecated,
@@ -214,7 +225,7 @@ class Attribute(object):
         attr = Attribute()
         attr.name = data.get('name')
         attr.index = index
-        attr.description = data.get('description')
+        attr.description = set(data.get('description', []))
         attr.optional = data.get('optional', False)
         attr.deprecated = data.get('deprecated', False)
         attr.tca = data.get('tca', False)
@@ -241,7 +252,7 @@ class Attribute(object):
         attribute = None
         is_bold = paragraph.runs[0].bold
         style = paragraph.style.name.lower()
-        text = paragraph.text.lower()[:20]
+        text = paragraph.text.lower()[:80]
 
         if is_bold and \
                 (style not in {'attribute follower', 'attribute list'} or
@@ -261,22 +272,42 @@ class Attribute(object):
                 ('C Ounter', 'Counter'),
                 ('C Ontrol', 'Control'),
                 ('P Ointer', 'Pointer'),
+                ('T Ime', 'Time'),
+                ('B Lock', 'Block'),
+                ('R Evision', 'Revision'),
+                ('A Dditional', 'Additional'),
+                ('D Ate', 'Date'),
+                ('N Ame', 'Name'),
+                ('P Art', 'Part'),
                 ('1 St', '1st'),
                 ('2 Nd', '2nd'),
                 ('3 Rd', '3rd'),
                 ('4 Th', '4th'),
+                ('1St', '1st'),
+                ('2Nd', '2nd'),
+                ('3Rd', '3rd'),
+                ('4Th', '4th'),
                 ('1 /2', '1/2'),
                 ('1/ 2', '1/2'),
+                ('1 _2', '1_2'),
+                ('1_ 2', '1_2'),
                 ('/', '_'),
                 ('-', '_'),
+                ('C=0+1', 'C01'),
+                ('C-= 0', 'C0'),
+                ('C_= 0', 'C0'),
                 ('\+', '_'),
+                (',', ' '),
+                ('Packets, Usable', 'Packets Usable'),
                 ('T Cont', 'TCont'),
                 ('R Eporting', 'Reporting'),
                 ('I Ndication', 'Indication'),
                 ('H Ook', 'Hook'),
                 ('R Eset', 'Reset'),
+                ("R'S'", 'R S'),
                 ('I Nterval', 'Interval'),
                 ('M Essage', 'Message'),
+                ('M Ulticast', 'Multicast'),
                 ('T Ype', 'Type'),
                 ('F Ail', 'Fail'),
                 ('P Ayload', 'Payload'),
@@ -286,13 +317,17 @@ class Attribute(object):
                 ('U Nit', 'Unit'),
                 ('B It', 'Bit'),
                 ('FailThreshold', 'Fail Threshold'),
+                ('Failthreshold', 'Fail Threshold'),
                 ('DegradeThreshold', 'Degrade Threshold'),
+                ('LineClass', 'Line Class'),
+                ('Lineclass', 'Line Class'),
+                ('"leftr"', 'leftr'),
+                ('"Leftr"', 'Leftr'),
                 ('( S F )', ''),
                 (' Sd ', ''),
                 ('( Dsl )', ''),
                 ('( Arc )', ''),
                 ('"', ''),
-
                 # Keep these last
                 ('\(\)', ''),
                 (' \(', ' '),
@@ -304,7 +339,7 @@ class Attribute(object):
                 attribute.name = re.sub(orig, new, attribute.name)
 
             attribute.name = ' '.join(attribute.name.strip().split())
-            attribute.description.append(content)
+            attribute.description.add(content)
             attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 
         return attribute
@@ -316,7 +351,7 @@ class Attribute(object):
             if len(text) == 0:
                 return
 
-            self.description.append(content)
+            self.description.add(content)
 
             # Check for access, mandatory/optional, and size keywords.  These are in side
             # one or more () groups
@@ -325,6 +360,9 @@ class Attribute(object):
                 return
 
             for item in paren_items:
+                if item.lower() == 'all zero bytes':
+                    return
+
                 # Mandatory/optional is the easiest
                 if item.lower() == 'mandatory':
                     assert self.optional is None or not self.optional, 'Optional flag already decoded'
@@ -339,11 +377,15 @@ class Attribute(object):
                 # Try to see if the access for the attribute is this item
                 access_item = item.replace('-', '').strip()
 
-                # Address type if 9.2.3 Port-ID
-                if access_item.lower() == 'rwsc':
+                if access_item.lower() == 'rwsc':                # Address type if 9.2.3 Port-ID
+                    access_item = 'r, w, set-by-create'
+                elif access_item.lower() == 'r, w setbycreate':  # Section 9.7.4
+                    access_item = 'r, w, set-by-create'
+                elif access_item.lower() == 'r,w if applicable, setbycreate if applicable':  # Section 9.1.10
                     access_item = 'r, w, set-by-create'
 
-                access_list = access_item.lower().split(',')
+                access_list = [item for item in access_item.lower().split(',')
+                               if item.strip() != '']
                 if any(i in AttributeAccess.keywords() for i in access_list):
                     access = AttributeAccess.keywords_to_access_set(access_list)
                     # assert len(self.access) == 0 or all(a in self.access for a in access), \

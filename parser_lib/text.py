@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import types
-import re
 
 
 def camelcase(inp):
@@ -69,9 +68,9 @@ def ascii_only(input_text):
 def ascii_no_control(input_text):
     return ascii_only(input_text).replace('\n', ' ').replace('\r', '').strip()
 
+
 ########################################################################
 # Headers
-
 def is_heading_style(style):
     """ True if this is a style used as a heading """
     return 'heading' in style.name.lower()[:len('heading')]
@@ -99,13 +98,16 @@ def is_relationships_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Relationships' and \
            (is_heading_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships') or
             is_style(paragraph.style, 'Normal'))    # See section 9.9.10
 
 
 def is_attributes_header(paragraph):
     """ True if this paragraph is a heading for the Attributes section """
     text = ascii_only(paragraph.text).strip()
-    return text == 'Attributes' and is_heading_style(paragraph.style)
+    return text == 'Attributes' and \
+           (is_heading_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
 
 
 def is_actions_header(paragraph):
@@ -113,7 +115,9 @@ def is_actions_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Actions' and \
            (is_heading_style(paragraph.style) or
-            is_normal_style(paragraph.style))
+            is_normal_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships') or  # See section 9.3.34
+            is_style(paragraph.style, 'Attribute'))        # See section 9.1.15
 
 
 def is_notifications_header(paragraph):
@@ -121,7 +125,8 @@ def is_notifications_header(paragraph):
     text = ascii_only(paragraph.text).strip()
     return text == 'Notifications' and \
            (is_heading_style(paragraph.style) or
-            is_normal_style(paragraph.style))
+            is_normal_style(paragraph.style) or
+            is_style(paragraph.style, 'Relationships'))  # See section 9.3.34
 
 
 def is_avcs_header(paragraph):
@@ -161,24 +166,26 @@ def is_normal_style(style):
 
 def is_description_style(style):
     """ True if this is a style used for Relationships paragraph text """
-    return is_style(style, 'Normal') or is_style(style, 'Note')
+    return is_style(style, 'Normal') or is_style(style, 'Note') or is_style(style, 'Equation')
 
 
 def is_relationships_style(style):
     """ True if this is a style used for Relationships paragraph text """
-    return is_style(style, 'Description')
+    return is_style(style, 'Description') or \
+           is_style(style, 'Relations')
 
 
 def is_attribute_style(style):
     """ True if this is a style used for Attributes paragraph text """
     return is_style(style, 'Attribute') or \
            is_style(style, 'attribute') or \
+           is_style(style, 'Normal') or \
            is_style(style, 'Note')
 
 
 def is_actions_style(style):
     """ True if this is a style used for Actions paragraph text """
-    return is_style(style, 'Attribute') or is_style(style, 'toc')      # See 9.1.14
+    return is_style(style, 'Attribute') or is_style(style, 'toc') or is_style(style, 'Note')
 
 
 def is_notifications_style(style):
@@ -250,7 +257,13 @@ def is_attribute_text(paragraph):
             (is_heading_style(paragraph.style) and                 # For bad formatting in
                 'Value\tINPmin' in ascii_only(paragraph.text)) or  # section 9.7.7
             (is_normal_style(paragraph.style) and                  # section 9.2.5
-                'multicast address table:' in ascii_only(paragraph.text)))
+                'multicast address table:' in ascii_only(paragraph.text)) or
+            (is_normal_style(paragraph.style) and                  # section 9.2.12
+             any(txt in ascii_only(paragraph.text) for txt in
+                 ('Multicast MAC address filtering capability:',
+                  'Multicast MAC address registration mode:',
+                  'Multicast MAC address filtering table:',
+                  'Aging timer:'))))
 
 
 def is_actions_text(paragraph):

@@ -14,6 +14,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
+import re
+
 from .tca import ThresholdCrossingAlert
 
 
@@ -60,8 +63,26 @@ class Alarm(object):
             return None
         try:
             alarm = Alarm(table)
-            for row_num, row in enumerate(table.rows):
-                number = row.get('Alarm number')
+            # Watch for 4 column alarm tables. Really is only 3
+            rows = table.rows
+            if table.num_columns == 4:
+                streamed_row = [0]
+                for row_num, row in enumerate(table.rows):
+                    if row:
+                        streamed_row.append(row.get('Alarm number', ''))
+                        streamed_row.append(row.get('Alarm', ''))
+                        streamed_row.append(row.get('Description', ''))
+                        streamed_row.append(row.get('0', ''))
+                new_rows = []
+                while len(streamed_row) > 2:
+                    new_rows.append({'Alarm number': streamed_row[0],
+                                     'Alarm': streamed_row[1],
+                                     'Description': streamed_row[2]})
+                    streamed_row = streamed_row[3:]
+                rows = new_rows
+
+            for row_num, row in enumerate(rows):
+                number = row.get('Alarm number') or row.get('Number') or row.get('Alarm')
                 name = row.get('Alarm')
                 description = row.get('Description')
                 tca = row.get('Threshold crossing alert')
@@ -79,7 +100,7 @@ class Alarm(object):
                         return ThresholdCrossingAlert.create_from_table(table)
 
                 try:
-                    value = int(number.strip())
+                    value = number if isinstance(number, int) else int(number.strip())
                     assert 0 <= value <= 223, 'Invalid alarm number: {}'.format(value)
 
                     is_alarm = name.strip().lower() not in ('n/a',
@@ -94,8 +115,20 @@ class Alarm(object):
                     if number[:4].lower() == 'note':
                         continue
 
-                    if number[-6:].lower() == '(note)':
-                        continue    # See 9.9.3
+                    if number[-6:].lower() == '(note)':    # See 9.9.3
+                        try:
+                            value = int(number[:-6].strip())
+                            assert 0 <= value <= 223, 'Invalid alarm number: {}'.format(value)
+
+                            is_alarm = name.strip().lower() not in ('n/a',
+                                                                    'reserved',
+                                                                    'vendor-specific')
+                            if is_alarm:
+                                assert value not in alarm.alarms, 'Alarm {} already defined'.format(value)
+                                alarm.alarms[value] = (name.strip(), description.strip())
+                                continue
+                        except ValueError:  # Expected if of form  n..m
+                            pass
 
                     # There is one type with the format n.m
                     values = number.strip().split('.')
@@ -105,10 +138,13 @@ class Alarm(object):
                         continue
 
                     values = number.strip().split('..')
-                    assert len(values) == 2 and \
-                           0 <= int(values[0]) <= 223 and \
-                           0 <= int(values[1]) <= 223, 'Unexpected format in alarms'
-                    # Do not save (just verify n..m assumption)
+                    try:
+                        assert len(values) == 2 and \
+                               0 <= int(values[0]) <= 223 and \
+                               0 <= int(values[1]) <= 223, 'Unexpected format in alarms'
+                        # Do not save (just verify n..m assumption)
+                    except:
+                        raise
 
             return alarm
 

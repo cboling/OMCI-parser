@@ -92,13 +92,29 @@ false
 	{%-endfor-%}
 {%-endmacro-%}
 
+{%-macro attr_const(index, classID, attr)-%}
+{%- if index == 0 -%}
+ManagedEntityID
+{%- else -%}
+{{classID.name|camelcase}}_{{attr.name|camelcase}}
+{%- endif -%}
+{%-endmacro-%}
+
 {%- macro generate_attributes(classID) -%}
 	{%for attr in classID.attributes%}
 			{% if attr.table_support -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}TableField({{attr_const(loop.index-1,classID,attr)}}, {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, TableInfo{{ '{' }}{{table_attribute_default(attr)}}, {{attr.size.octets}}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- else -%}
-{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}("{{attr.name|camelcase}}", {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
+{{loop.index-1}}: {% if loop.index-1 < 10 and classID.attributes|length > 10 %} {% endif %}{{attribute_field(attr)}}({{attr_const(loop.index-1,classID,attr)}}, {{attribute_type(attr)}}, {{(loop.index-1)|attribute_bitmask}}, {{attribute_default(attr)}}, mapset.NewSetWith({{access_fields(attr.access)}}), {{boolean_field(attr.avc)}}, {{boolean_field(attr.optional)}}, {{boolean_field(attr.deprecated)}}, {{ attr.index }}),
 			{%- endif -%}
+	{%-endfor-%}
+{%- endmacro -%}
+
+{%- macro generate_attributes_constants(classID) -%}
+	{%for attr in classID.attributes%}
+	    {%- if loop.index > 1 %}
+const {{classID.name|camelcase}}_{{attr.name|camelcase}} = "{{attr.name|camelcase}}"
+        {%- endif -%}
 	{%-endfor-%}
 {%- endmacro -%}
 
@@ -115,4 +131,12 @@ false
 			{%- endif -%}
 		{%- endfor -%}
 	{%- endif -%}
+{%- endmacro -%}
+
+{%macro generate_alarmMap(alarms)%}
+		Alarms: AlarmMap{
+    {%-for alarmBit, alarmData in alarms.alarms.items() %}
+			{{ alarmBit }}:{% if alarmBit < 10 and alarms.alarms|length > 10 %} {% endif %} "{{ alarmData[0] }}",
+    {%- endfor %}
+		},
 {%- endmacro -%}

@@ -15,6 +15,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+
+import os
+
 try:
     # Python 3
     from itertools import zip_longest
@@ -88,16 +91,16 @@ class ClassIdList(object):
                 # table fixup is needed (and not detected during pre-parse)
                 cid_table = ClassIdList.fix_me_table(cid_table, 2)
 
-                # Two CID's are missing in the 11/2017 spec (fixed in following addendum)
-                if not any(cid_row.get('Managed entity class value', 0) == 2 for cid_row in cid_table.rows):
+                # Two CID's are missing in the 11/2017 spec (fixed in following 3/2020 addendum 3)
+                if not any(cid_row.get('Managed entity class value', '') == '2' for cid_row in cid_table.rows):
                     pass
 
-                if not any(cid_row.get('Managed entity class value', 0) == 453 for cid_row in cid_table.rows):
+                if not any(cid_row.get('Managed entity class value', '') == '453' for cid_row in cid_table.rows):
                     cid_table.rows.append({
                         'Managed entity class value': 453,
                         'Managed entity': 'Enhanced FEC performance monitoring history data'})
 
-                if not any(cid_row.get('Managed entity class value', 0) == 454 for cid_row in cid_table.rows):
+                if not any(cid_row.get('Managed entity class value', '') == '454' for cid_row in cid_table.rows):
                     cid_table.rows.append({
                         'Managed entity class value': 454,
                         'Managed entity': 'Enhanced TC performance monitoring history data'})
@@ -117,8 +120,8 @@ class ClassIdList(object):
                                 return name[:pos].strip()
 
                             cid.name = ' '.join(name_cleanup(heading_name).split())
-                            cid_list.add(cid)
                             cid.section = sections.find_section_by_name(cid.name)
+                            cid_list.add(cid)
                             # Some sections are listed with a shorter name in the CID than the section
                             if cid.section is None:
                                 cid.section = sections.find_section_by_alias(cid.name)
@@ -448,7 +451,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
                 actions, optional_actions = Actions.create_from_paragraph(self._paragraphs[content])
                 if actions is not None:
                     self.actions.update(actions)
-                    if Actions.GetNext in actions:
+                    if any(tbl_action in actions for tbl_action in (Actions.GetNext, Actions.SetTable)):
                         # Scan attribute lists for table attributes.  To be a
                         # table attribute, the attribute name 'Ends' with the
                         # word table:
@@ -459,7 +462,7 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
 
                 if optional_actions is not None:
                     self.optional_actions.update(optional_actions)
-                    if Actions.GetNext in optional_actions:
+                    if any(tbl_action in optional_actions for tbl_action in (Actions.GetNext, Actions.SetTable)):
                         # Scan attribute lists for table attributes.  To be a
                         # table attribute, the attribute name 'Ends' with the
                         # word table:
@@ -584,10 +587,30 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
         if text_list:
             for item in text_list:
                 try:
+                    colon_appended = item.name.lower() + ': '
+                    col_len = len(colon_appended)
+
+                    # 802.1ag has some screwed up attributes to parse
+                    double_name_colon_appended = item.name.lower() + ', ' + item.name.lower() + ': '
+                    double_col_len = len(double_name_colon_appended)
+                    colon_offset = double_col_len - 2
+                    comma_offset = len(item.name.lower())
+
                     for content in item.description:
                         txt = ascii_no_control(paragraphs[content].text)
+                        if colon_appended in txt.lower().replace('\t', ' ')[:col_len]:
+                            txt = txt[col_len:]
+                        elif len(txt) >= double_col_len and txt[colon_offset] == ':' and txt[comma_offset] == ',':
+                            txt = txt[double_col_len-1:]
+                        while len(txt) > 0 and txt[0] == ' ':
+                            txt = txt[1:]
+
                         if len(txt) > 0:
-                            text[item.name] = txt
+                            if item.name not in text:
+                                text[item.name] = ""
+                            else:
+                                text[item.name] += os.linesep + os.linesep
+                            text[item.name] += txt
                 except Exception as _e:
                     pass
         return text

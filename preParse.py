@@ -76,12 +76,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description='G.988 Pre-process Parser')
 
     parser.add_argument('--input', '-i', action='store',
-                        default='T-REC-G.988-201711-I!!MSW-E.docx',
+                        default='T-REC-G.988-202003-I!Amd3!MSW-E.docx',
                         help='Path to ITU G.988 specification document')
 
     parser.add_argument('--output', '-o', action='store',
                         default='G.988.PreCompiled.json',
-                        help='Output filename, default: G.988.PreCompiiled.json')
+                        help='Output filename, default: G.988.PreCompiled.json')
 
     args = parser.parse_args()
     return args.input, args.output
@@ -149,7 +149,8 @@ class Main(object):
                 if is_section_header(block):
                     # Save of previous
                     current_section = SectionHeading.create(pnum, block)
-                    self.preparsed.add(current_section)
+                    if current_section:
+                        self.preparsed.add(current_section)
 
                 elif len(block.text) > 0 and current_section is not None:
                     current_section.add_contents(pnum)

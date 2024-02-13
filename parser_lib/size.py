@@ -52,6 +52,8 @@ class AttributeSize(object):
                     #  N * 20 bytes, N * 7 bytes, ...
                     #  all zero bytes
                     #  N bytes
+                    #  X bytes
+                    #  MxN bytes
                     #  18N bytes, 5N bytes
                     if text.lower()[:len('n * ')] == 'n * ':
                         # TODO: figure out what N refers to
@@ -71,8 +73,29 @@ class AttributeSize(object):
                         except ValueError:
                             txt = text[:text.lower().find('n bytes')]
                             size._octets = int(txt)
+
+                    elif 'each row part:' in text.lower():
+                        # multicast operations profile 'row part definition'
+                        try:
+                            size._octets = int(text.split(': ')[1].split(' ')[0])
+
+                        except Exception as _e:
+                            print("TODO: Further decode work needed here")
+                            raise    # TODO: more work needed here
+                    elif any('{}bytes'.format(txt) in text.lower() for txt in ['m ', 'm-',
+                                                                               'n ', 'n-',
+                                                                               'x ', 'x-',
+                                                                               'y ', 'y-',
+                                                                               'z ', 'z-',
+                                                                               'mxn-']):
+                        size._octets = 0
+                        size.getnext_required = True
+
+                    elif 'n rows' in text.lower():
+                        size._octets = 0
+                        size.getnext_required = True
                     else:
-                        print("TODO: Further decode work needed here")
+                        print("TODO: Further size decode work needed here: {}".format(text))
                         raise    # TODO: more work needed here
 
             elif 'bit' in text:

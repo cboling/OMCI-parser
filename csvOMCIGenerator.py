@@ -29,7 +29,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='G.988 CSV Parser')
 
     parser.add_argument('--ITU', '-I', action='store',
-                        default='T-REC-G.988-201711-I!!MSW-E.docx',
+                        default='T-REC-G.988-202003-I!Amd3!MSW-E.docx',
                         help='Path to ITU G.988 specification document')
 
     parser.add_argument('--input', '-i', action='store',

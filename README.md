@@ -13,15 +13,25 @@ able to retrieve this document.
 ## Current Status
 
 The parser has is now fairly mature and can decode over 180 Managed Entity definitions. The
-preparsing stage detects 317 ME Class ID Entries in the 2017 ITU G.988 document
-and can associate 220 of them with specific document sections.  There is a fair chance
+preparsing stage detects 319 ME Class ID Entries in the 2020 ITU G.988 document
+and can associate 228 of them with specific document sections.  There is a fair chance
 that this is all that are actually defined by this version of the document. (See Item 1
 of the **Future Work** section below).
+
+One significant item of note is that the downloaded 3/2020 version of the ITU G.988 document
+has revision tracking on and the current **docx** python package cannot examine the new
+revisions that have not been accepted for some existing Managed Entities.  It is strongly
+suggested that you open the document in work and perform a 'Accept All Changes'
+command to insure that you pick up the new changes.  Do not use the option that turns off
+revision tracking because after accepting the ITU revisions, if you should accidentally modify
+the document, it will not affect parsing.  Sort of a nice 'feature/bug' of **docx** that
+we can make use of.
+
 
 ## How To Run
 
 There are a number of steps to perform in order to generate code from the ITU Document
-(Microsoft Word format).  I currently use the 11/2017 version but have not added that
+(Microsoft Word format).  I currently use the 3/2020 version but have not added that
 document to this repo since it is available only if you have an ITU TIES loging and I
 did not want to violate any privacy policies.  If anyone knows if it is okay to distribute
 this document via the repo, please point me to the proper place on the ITU website
@@ -55,7 +65,7 @@ only need to be ran once.
     optional arguments:
       -h, --help            show this help message and exit
       --input INPUT, -i INPUT
-                            Path to ITU G.988 specification document, default T-REC-G.988-201711-I!!MSW-E.docx
+                            Path to ITU G.988 specification document, default T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --output OUTPUT, -o OUTPUT
                             Output filename, default: G.988.PreCompiiled.json
 ```
@@ -77,7 +87,7 @@ to the output JSON such as constraints.
     optional arguments:
       -h, --help            show this help message and exit
       --ITU ITU, -I ITU     Path to ITU G.988 specification document, default:
-                            T-REC-G.988-201711-I!!MSW-E.docx
+                            T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --input INPUT, -i INPUT
                             Path to pre-parsed G.988 data, default:
                             G.988.PreCompiled.json
@@ -203,7 +213,7 @@ To generate Go code, use the following command:
     optional arguments:
       -h, --help            show this help message and exit
       --ITU ITU, -I ITU     Path to ITU G.988 specification document. Default:
-                            T-REC-G.988-201711-I!!MSW-E.docx
+                            T-REC-G.988-202003-I!Amd3!MSW-E.docx
       --input INPUT, -i INPUT
                             Path to parsed G.988 data, default:
                             G.988.parsed.json
