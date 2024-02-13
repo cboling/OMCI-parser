@@ -76,8 +76,12 @@ ${PRE_COMPILED}: ${VENVDIR}/.built Makefile ${G988_SOURCE} ${PARSER_SRC}  ## Pre
 ${PARSED_JSON}: ${PRE_COMPILED} ${PRE_COMPILED} ${AUGMENT_YAML}
 	$(Q) ./parser.py --ITU ${G988_SOURCE} --input ${PRE_COMPILED} --output ${PARSED_JSON} ${HINT_INPUT}
 
-generate: go-generate		## Create the code-generated code
+generate: preparse parse go-generate		## Create the code-generated code
 	@ echo "Code generation complete"
+
+preparse: ${PRE_COMPILED}	## Preparse the ITU Word document sections
+
+parse: ${PARSED_JSON}	    ## Parse the ITU OMCI Managed Entities specific settings
 
 go-generate: ${GO_OUTPUT}/version.go
 

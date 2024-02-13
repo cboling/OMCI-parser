@@ -27,8 +27,22 @@ revision tracking because after accepting the ITU revisions, if you should accid
 the document, it will not affect parsing.  Sort of a nice 'feature/bug' of **docx** that
 we can make use of.
 
+## How To Run (Makefile)
 
-## How To Run
+To run the pre-parsing, parsing, and code generation in a single step, you can use the Makefile
+to do so in a single command.
+
+```shell
+make generate
+```
+
+Additional make targets can be display by entering the following:
+
+```shell
+make help
+```
+
+## How To Run (Manual Steps)
 
 There are a number of steps to perform in order to generate code from the ITU Document
 (Microsoft Word format).  I currently use the 3/2020 version but have not added that
