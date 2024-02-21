@@ -625,9 +625,10 @@ class Main(object):
             except KeyError:
                 pass
 
-        # Fast Channel COnfigureation Profile ME is missing Managed Entity
+        # Fast Channel Configuration Profile ME is missing Managed Entity
         if 432 in class_list.keys():
             item = class_list[432]
+            item.name = "Fast Channel Configuration Profile Part1"
             for index in range(11, 0, -1):
                 item.attributes[index] = item.attributes[index - 1]
 
