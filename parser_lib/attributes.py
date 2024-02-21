@@ -140,7 +140,7 @@ class Attribute(object):
     def __init__(self):
         self.name = None             # Attribute name (with spaces)
         self.index = None            # Sequence in the attribute list (0..n)
-        self.description = set()     # Description (text, paragraph numbers & Table objects)
+        self.description = []        # Description (text, paragraph numbers & Table objects)
         self.access = set()          # (AttributeAccess) Allowed access
         self.optional = None         # If true, attribute is option, else mandatory
         self.size = None             # (Size) Size object
@@ -194,7 +194,7 @@ class Attribute(object):
         # TODO: Save/restore table info?
         return {
             'name': self.name,
-            'description': list(self.description),
+            'description': sorted(list(set(self.description))),
             'access': [a.name for a in self.access],
             'optional': self.optional,
             'deprecated': self.deprecated,
@@ -226,7 +226,7 @@ class Attribute(object):
         attr = Attribute()
         attr.name = data.get('name')
         attr.index = index
-        attr.description = set(data.get('description', []))
+        attr.description = sorted(list(set(data.get('description', []))))
         attr.optional = data.get('optional', False)
         attr.deprecated = data.get('deprecated', False)
         attr.tca = data.get('tca', False)
@@ -340,7 +340,8 @@ class Attribute(object):
                 attribute.name = re.sub(orig, new, attribute.name)
 
             attribute.name = ' '.join(attribute.name.strip().split())
-            attribute.description.add(content)
+            attribute.description.append(content)
+            attribute.description.sort()
             attribute.deprecated = attribute.name.lower()[:10] == 'deprecated'
 
         return attribute
@@ -352,7 +353,8 @@ class Attribute(object):
             if len(text) == 0:
                 return
 
-            self.description.add(content)
+            self.description.append(content)
+            self.description.sort()
 
             # Check for access, mandatory/optional, and size keywords.  These are in side
             # one or more () groups

@@ -313,6 +313,8 @@ class ClassId(object):   # pylint: disable=too-many-instance-attributes
             format(self.cid, self.name, self.state, self.section.section_number)
 
     def to_dict(self):
+        self._description.sort()
+        self._relationships.sort()
         return {
             'class_id': self.cid,                       # int
             'name': self.name,                          # str
