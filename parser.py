@@ -464,7 +464,7 @@ class Main(object):
         # to be split up
         if 300 in class_list.keys():
             item = class_list[300]
-            for index in range(7, 3, -1):
+            for index in range(8, 3, -1):
                 item.attributes[index] = item.attributes[index-1]
 
             item.attributes[3].name = "Short MA Name 1"
@@ -613,6 +613,17 @@ class Main(object):
                 item.attributes[11].optional = True
                 item.attributes[11].access.add(AttributeAccess.Read)
                 item.attributes[11].access.add(AttributeAccess.Write)
+
+                attr = Attribute()
+                sz = AttributeSize()
+                sz._octets = 4
+                attr.name = "Missing Consecutive Bursts Threshold"
+                attr.size = sz
+                attr.optional = False
+                attr.access.add(AttributeAccess.Read)
+                attr.access.add(AttributeAccess.Write)
+                item.attributes.add(attr)
+
             except KeyError:
                 pass
 

@@ -262,9 +262,11 @@ def is_attribute_text(paragraph):
     return not is_attributes_header(paragraph) and \
            (is_attribute_style(paragraph.style) or
             is_enum_style(paragraph.style) or                      # Bullet lists
-            is_style(paragraph.style, 'toc') or                    # See CID: 336 (last attribute)
+            is_style(paragraph.style, 'toc') or               # See CID: 336 (last attribute)
             (is_heading_style(paragraph.style) and                 # For bad formatting in
                 'Value\tINPmin' in ascii_only(paragraph.text)) or  # section 9.7.7
+            (is_heading_style(paragraph.style) and                 # For bad formatting in
+                'Flag Field' in ascii_only(paragraph.text)) or     # section 9.12.19
             (is_normal_style(paragraph.style) and                  # section 9.2.5
                 'multicast address table:' in ascii_only(paragraph.text)) or
             (is_normal_style(paragraph.style) and                  # section 9.2.12

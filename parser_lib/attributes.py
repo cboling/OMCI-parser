@@ -258,7 +258,9 @@ class Attribute(object):
         if is_bold and \
                 (style not in {'attribute follower', 'attribute list'} or
                  (style == 'attribute follower' and
-                  ('aal5 profile pointer' in text or 'deprecated 3' in text))):       # see 9.13.4
+                 ('aal5 profile pointer' in text or 'deprecated 3' in text  # see 9.13.4
+                  or 'grandmaster id:' in text or 'steps removed:' in text or 'time source:' in text))):  # see 9.12.19
+
             # New attribute
             attribute = Attribute()
             # TODO: Scrub things in '()' from name of attribute
